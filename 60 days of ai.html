@@ -1,0 +1,208 @@
+
+<style>
+  .section { margin: 0 0 2rem; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 0.75rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .tag { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 20px; margin: 3px 2px; }
+  .tag-purple { background: #EEEDFE; color: #3C3489; }
+  .tag-teal { background: #E1F5EE; color: #085041; }
+  .tag-amber { background: #FAEEDA; color: #633806; }
+  .tag-coral { background: #FAECE7; color: #712B13; }
+  .tag-blue { background: #E6F1FB; color: #0C447C; }
+  .tag-green { background: #EAF3DE; color: #27500A; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center; }
+  .metric-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+  .metric-lbl { font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .bar-label { font-size: 13px; color: var(--color-text-secondary); min-width: 110px; }
+  .bar-track { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .career-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .career-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .career-sub { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 8px; }
+  .timeline-item { display: flex; gap: 14px; margin-bottom: 16px; }
+  .timeline-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .timeline-line { position: relative; }
+  .timeline-line::after { content: ''; position: absolute; left: 4px; top: 18px; bottom: -10px; width: 1px; background: var(--color-border-tertiary); }
+  .quote-block { border-left: 3px solid #7F77DD; padding: 0.75rem 1rem; background: #EEEDFE; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin: 0; }
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #7F77DD, #1D9E75); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; color: white; flex-shrink: 0; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.5rem 0; }
+  @media (prefers-color-scheme: dark) {
+    .tag-purple { background: #26215C; color: #CECBF6; }
+    .tag-teal { background: #04342C; color: #9FE1CB; }
+    .tag-amber { background: #412402; color: #FAC775; }
+    .tag-coral { background: #4A1B0C; color: #F5C4B3; }
+    .tag-blue { background: #042C53; color: #B5D4F4; }
+    .tag-green { background: #173404; color: #C0DD97; }
+    .quote-block { background: #26215C; }
+  }
+</style>
+
+<h2 class="sr-only">AI Personality Profile for Likhitha — B.Tech student specializing in AI, ServiceNow, and IoT</h2>
+
+<div style="padding: 1.5rem 0 0;">
+
+  <!-- Header -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 1rem;">
+      <div class="avatar">LK</div>
+      <div>
+        <p style="font-size: 20px; font-weight: 500; margin: 0; color: var(--color-text-primary);">Likhitha</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 4px 0 0;">B.Tech Student &nbsp;·&nbsp; AI × ServiceNow × IoT × Arts</p>
+      </div>
+      <div style="margin-left: auto; text-align: right;">
+        <div style="font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em;">AI type</div>
+        <div style="font-size: 14px; font-weight: 500; color: #534AB7;">The Inventive Technologist</div>
+      </div>
+    </div>
+    <div>
+      <span class="tag tag-purple">Artificial Intelligence</span>
+      <span class="tag tag-blue">ServiceNow</span>
+      <span class="tag tag-teal">IoT Projects</span>
+      <span class="tag tag-coral">Arts & Crafts</span>
+      <span class="tag tag-green">New Technologies</span>
+    </div>
+  </div>
+
+  <!-- Section 1: Strengths & Learning Style -->
+  <div class="section">
+    <p class="section-label">Strengths & learning style</p>
+    <div class="grid2">
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 10px;"><i class="ti ti-bulb" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#7F77DD;"></i>Core strengths</p>
+        <div class="bar-row"><span class="bar-label">Creative thinking</span><div class="bar-track"><div class="bar-fill" style="width:92%; background:#7F77DD;"></div></div></div>
+        <div class="bar-row"><span class="bar-label">Problem solving</span><div class="bar-track"><div class="bar-fill" style="width:85%; background:#1D9E75;"></div></div></div>
+        <div class="bar-row"><span class="bar-label">Technical curiosity</span><div class="bar-track"><div class="bar-fill" style="width:90%; background:#378ADD;"></div></div></div>
+        <div class="bar-row"><span class="bar-label">Cross-domain blend</span><div class="bar-track"><div class="bar-fill" style="width:88%; background:#D85A30;"></div></div></div>
+        <div class="bar-row"><span class="bar-label">Python & coding</span><div class="bar-track"><div class="bar-fill" style="width:60%; background:#BA7517;"></div></div></div>
+      </div>
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 10px;"><i class="ti ti-school" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#1D9E75;"></i>Learning style</p>
+        <div style="margin-bottom: 8px;">
+          <span class="tag tag-teal" style="font-size:13px;">Hands-on builder</span>
+          <span class="tag tag-purple" style="font-size:13px;">Visual thinker</span>
+        </div>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 8px 0; line-height: 1.6;">You learn best by <strong style="color: var(--color-text-primary); font-weight:500;">doing</strong> — building IoT prototypes, designing with ServiceNow, writing Python scripts. Concepts stick when they have a real-world shape.</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 8px 0; line-height: 1.6;">Your artistic side gives you a natural instinct for <strong style="color: var(--color-text-primary); font-weight:500;">design thinking</strong> — a rare advantage in tech.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Metrics -->
+  <div class="section">
+    <p class="section-label">Profile snapshot</p>
+    <div class="grid3">
+      <div class="metric"><p class="metric-val" style="color:#534AB7;">AI-First</p><p class="metric-lbl">Primary direction</p></div>
+      <div class="metric"><p class="metric-val" style="color:#0F6E56;">Builder</p><p class="metric-lbl">Learning archetype</p></div>
+      <div class="metric"><p class="metric-val" style="color:#D85A30;">Hybrid</p><p class="metric-lbl">Tech + creative blend</p></div>
+      <div class="metric"><p class="metric-val" style="color:#185FA5;">3 domains</p><p class="metric-lbl">Active skill areas</p></div>
+    </div>
+  </div>
+
+  <!-- Section 3: Areas to Improve -->
+  <div class="section">
+    <p class="section-label">Areas to grow</p>
+    <div class="grid2">
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px;"><i class="ti ti-trending-up" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#BA7517;"></i>Technical depth</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Move Python basics → ML/AI frameworks (TensorFlow, PyTorch, scikit-learn). Deepen data structures, algorithms, and cloud fundamentals.</p>
+      </div>
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px;"><i class="ti ti-microphone" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#BA7517;"></i>Communication & visibility</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Document your projects on GitHub and LinkedIn. Present your IoT builds — technical storytelling is a career multiplier.</p>
+      </div>
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px;"><i class="ti ti-database" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#BA7517;"></i>Data & math foundations</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">AI mastery needs strong linear algebra, statistics, and probability. These unlock the intuition behind ML models.</p>
+      </div>
+      <div class="card">
+        <p style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 8px;"><i class="ti ti-users" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#BA7517;"></i>Collaboration & networking</p>
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Join AI communities, hackathons, and open source projects. Your ideas grow faster when they meet other curious minds.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Career Paths -->
+  <div class="section">
+    <p class="section-label">Career paths that fit your profile</p>
+    <div class="grid2">
+      <div class="career-card" style="border-left: 2px solid #7F77DD;">
+        <p class="career-title"><i class="ti ti-brain" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#534AB7;"></i>AI/ML Engineer</p>
+        <p class="career-sub">Best fit · High demand</p>
+        <div><span class="tag tag-purple">Deep Learning</span><span class="tag tag-purple">Python</span><span class="tag tag-purple">NLP</span></div>
+      </div>
+      <div class="career-card" style="border-left: 2px solid #1D9E75;">
+        <p class="career-title"><i class="ti ti-device-laptop" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#0F6E56;"></i>ServiceNow Developer / Architect</p>
+        <p class="career-sub">Strong existing foundation</p>
+        <div><span class="tag tag-teal">ITSM</span><span class="tag tag-teal">Automation</span><span class="tag tag-teal">No-code AI</span></div>
+      </div>
+      <div class="career-card" style="border-left: 2px solid #378ADD;">
+        <p class="career-title"><i class="ti ti-cpu" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#185FA5;"></i>IoT Solutions Engineer</p>
+        <p class="career-sub">Matches hands-on building style</p>
+        <div><span class="tag tag-blue">Edge AI</span><span class="tag tag-blue">Embedded Systems</span><span class="tag tag-blue">Cloud IoT</span></div>
+      </div>
+      <div class="career-card" style="border-left: 2px solid #D85A30;">
+        <p class="career-title"><i class="ti ti-palette" aria-hidden="true" style="font-size:15px; margin-right:6px; color:#993C1D;"></i>AI Product / UX Designer</p>
+        <p class="career-sub">Rare tech + creativity blend</p>
+        <div><span class="tag tag-coral">Design Thinking</span><span class="tag tag-coral">AI UX</span><span class="tag tag-coral">Prototyping</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Cinematic Portrait -->
+  <div class="section">
+    <p class="section-label">Cinematic AI portrait</p>
+    <div class="card" style="border: 0.5px solid #AFA9EC;">
+      <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.8; margin: 0; font-style: italic;">
+        "She stands at the intersection of circuits and canvas. On one screen, Python scripts hum — training a small model that recognises gestures. On another, a ServiceNow workflow diagram. Pinned beside her monitor: a half-finished watercolour. This is Likhitha. She sees no boundary between code and craft, between an IoT sensor and a brushstroke — both are tools for making invisible ideas visible. In the blue glow of her desk lamp, she is building the future one prototype at a time."
+      </p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 6: 5-Year Future -->
+  <div class="section">
+    <p class="section-label">Likhitha in 5 years</p>
+    <div class="card">
+      <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;">
+        <div class="avatar" style="background: linear-gradient(135deg, #534AB7, #0F6E56);">LK</div>
+        <div>
+          <p style="font-size: 15px; font-weight: 500; margin: 0; color: var(--color-text-primary);">Likhitha · AI Systems Engineer</p>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0;">2031 · Building AI-powered IoT products at scale</p>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0;">
+        <div class="timeline-item timeline-line">
+          <div class="timeline-dot" style="background:#7F77DD;"></div>
+          <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Leads AI model development for a smart systems product — integrating edge AI with IoT hardware she once tinkered with as a student</p>
+        </div>
+        <div class="timeline-item timeline-line">
+          <div class="timeline-dot" style="background:#1D9E75;"></div>
+          <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Holds a ServiceNow CSA/CIS certification and architects intelligent workflows that run enterprise operations autonomously</p>
+        </div>
+        <div class="timeline-item timeline-line">
+          <div class="timeline-dot" style="background:#378ADD;"></div>
+          <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Runs a side project at the intersection of generative AI and visual art — turning her creativity into a differentiator, not just a hobby</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:#D85A30;"></div>
+          <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">Mentors junior engineers, speaks at tech meetups, and is recognised as someone who makes complex ideas feel human</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 7: Motivational Summary -->
+  <div class="section">
+    <p class="section-label">Your potential, summarised</p>
+    <div class="quote-block">
+      <p style="font-size: 14px; color: #3C3489; line-height: 1.8; margin: 0; font-weight: 500;">
+        Likhitha, you carry a combination that most engineers spend years trying to develop — technical instinct and creative imagination, already alive in you. The world doesn't just need more coders. It needs people who can build something and make others feel why it matters. That's you. Every IoT sensor you wire, every ServiceNow flow you automate, every Python script you debug — you are not just learning, you are compounding. Keep building. Keep making. The most exciting chapter hasn't started yet.
+      </p>
+    </div>
+  </div>
+
+</div>
