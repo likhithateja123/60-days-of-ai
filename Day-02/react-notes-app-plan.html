@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>React Notes App — Build Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #1a1814;
+    --paper: #f7f4ee;
+    --cream: #eeeae0;
+    --accent: #c94f2a;
+    --accent2: #2a6ac9;
+    --muted: #7a7569;
+    --border: #d4cfc4;
+    --code-bg: #1e1c18;
+    --code-text: #e8e4d8;
+    --tag-bg: #e8e2d4;
+    --phase1: #c94f2a;
+    --phase2: #2a6ac9;
+    --phase3: #2a9c6a;
+    font-size: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Header */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 56px 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: 'NOTES';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 200px;
+    opacity: 0.04;
+    color: white;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    font-size: 15px;
+    color: #b0ab9f;
+    max-width: 580px;
+    font-weight: 400;
+  }
+  .meta-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #7a7569;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .meta-item span {
+    color: var(--paper);
+    margin-left: 6px;
+  }
+
+  /* Layout */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 40px 80px;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 56px;
+  }
+  .toc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    padding-left: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 32px;
+  }
+  .toc li { font-size: 14px; }
+  .toc a { color: var(--accent2); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  section { margin-bottom: 64px; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 28px 0 10px;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  p { font-size: 15px; color: #2e2c28; margin-bottom: 14px; line-height: 1.8; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* Stack table */
+  .stack-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0 28px;
+    font-size: 14px;
+  }
+  .stack-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    padding: 8px 16px;
+    text-align: left;
+    background: var(--cream);
+    border-bottom: 2px solid var(--border);
+  }
+  .stack-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .stack-table tr:last-child td { border-bottom: none; }
+  .stack-table tr:hover td { background: var(--cream); }
+  .tech { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--tag-bg); padding: 2px 7px; border-radius: 3px; color: var(--ink); }
+  .justified { color: var(--muted); font-size: 13px; }
+
+  /* Feature cards */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .feature-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+  }
+  .feature-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--border);
+    font-weight: 500;
+  }
+  .feature-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .feature-card p { font-size: 13px; color: var(--muted); margin: 0; }
+  .feature-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 10px;
+  }
+  .tag-mvp { background: #fde8e2; color: var(--accent); }
+  .tag-v2  { background: #e2ecfd; color: var(--accent2); }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    padding: 24px 28px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    position: relative;
+  }
+  pre .label {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 10px;
+    color: #5a5548;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .kw  { color: #c678dd; }
+  .str { color: #98c379; }
+  .cmt { color: #5c6370; font-style: italic; }
+  .fn  { color: #61afef; }
+  .var { color: #e06c75; }
+  .num { color: #d19a66; }
+  .type { color: #e5c07b; }
+
+  /* Phase blocks */
+  .phase {
+    border-left: 4px solid var(--border);
+    padding: 24px 28px;
+    margin: 20px 0;
+    background: white;
+    border-radius: 0 8px 8px 0;
+  }
+  .phase-1 { border-color: var(--phase1); }
+  .phase-2 { border-color: var(--phase2); }
+  .phase-3 { border-color: var(--phase3); }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .phase-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+    flex-shrink: 0;
+  }
+  .dot-1 { background: var(--phase1); }
+  .dot-2 { background: var(--phase2); }
+  .dot-3 { background: var(--phase3); }
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .phase-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .phase ul { padding-left: 18px; font-size: 14px; color: #3e3c38; }
+  .phase li { margin: 4px 0; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; margin: 16px 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cream);
+    color: #3e3c38;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #e8f5ef;
+    border: 1.5px solid #2a9c6a;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .check-icon::after {
+    content: '✓';
+    font-size: 10px;
+    color: #2a9c6a;
+    font-weight: 700;
+  }
+
+  /* Architecture diagram */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .arch-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .arch-box h5 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .arch-box ul { list-style: none; padding: 0; }
+  .arch-box li { font-size: 12px; color: var(--ink); padding: 2px 0; font-family: 'DM Mono', monospace; }
+
+  /* Resources */
+  .resource-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .resource-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  .resource-item strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .resource-item a { color: var(--accent2); text-decoration: none; font-size: 12px; font-family: 'DM Mono', monospace; }
+
+  /* Acceptance criteria */
+  .criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  .criteria-table th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .criteria-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .criteria-table tr:nth-child(even) td { background: var(--cream); }
+  .pass { color: #2a9c6a; font-weight: 700; font-family: 'DM Mono', monospace; }
+
+  /* Footer */
+  footer {
+    background: var(--ink);
+    color: #5a5548;
+    text-align: center;
+    padding: 28px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 32px 20px 60px; }
+    .header-inner { padding: 0 20px; }
+    .toc ol { grid-template-columns: 1fr; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .resource-list { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">Engineering Blueprint</div>
+    <h1>React Notes App<br/><em>Build Plan &amp; Prompt Guide</em></h1>
+    <p>A structured, phased plan for building a production-quality note-taking web application — from MVP scaffold to full deployment.</p>
+    <div class="meta-row">
+      <div class="meta-item">Stack<span>React + Vite</span></div>
+      <div class="meta-item">Phases<span>3 (MVP → Enhanced → Polish)</span></div>
+      <div class="meta-item">Effort<span>~6–10 weeks</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#stack">Stack choices</a></li>
+      <li><a href="#features">Core features</a></li>
+      <li><a href="#mvp">MVP deliverables</a></li>
+      <li><a href="#architecture">Component architecture</a></li>
+      <li><a href="#snippets">Code snippets</a></li>
+      <li><a href="#phases">Phased plan</a></li>
+      <li><a href="#a11y">Accessibility &amp; testing</a></li>
+      <li><a href="#acceptance">Acceptance criteria</a></li>
+      <li><a href="#resources">Resources</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. Stack -->
+  <section id="stack">
+    <div class="section-label">Section 01</div>
+    <h2>Stack choices, confirmed &amp; justified</h2>
+
+    <table class="stack-table">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Choice</th>
+          <th>Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Build tool</td>
+          <td><span class="tech">Vite</span></td>
+          <td class="justified">Sub-second HMR, native ESM, PWA plugin support — far faster DX than CRA.</td>
+        </tr>
+        <tr>
+          <td>UI framework</td>
+          <td><span class="tech">React 18</span></td>
+          <td class="justified">Concurrent features (useTransition) improve search UX; massive ecosystem.</td>
+        </tr>
+        <tr>
+          <td>State management</td>
+          <td><span class="tech">Zustand</span></td>
+          <td class="justified">Minimal boilerplate, no context hell, built-in persist middleware — ideal for notes state. Redux is overkill here.</td>
+        </tr>
+        <tr>
+          <td>Persistence (local)</td>
+          <td><span class="tech">IndexedDB via Dexie.js</span></td>
+          <td class="justified">Handles large documents better than localStorage; Dexie adds a clean Promise API. Zustand persist syncs in parallel.</td>
+        </tr>
+        <tr>
+          <td>Rich text</td>
+          <td><span class="tech">Tiptap v2</span></td>
+          <td class="justified">ProseMirror-based, headless, markdown shortcuts built-in, fully accessible. Lighter than Quill; more extensible than react-markdown alone.</td>
+        </tr>
+        <tr>
+          <td>Routing</td>
+          <td><span class="tech">React Router v6</span></td>
+          <td class="justified">Nested routes map naturally to notebooks → notes hierarchy. Data loaders simplify note fetching.</td>
+        </tr>
+        <tr>
+          <td>Styling</td>
+          <td><span class="tech">Tailwind CSS v3</span></td>
+          <td class="justified">Utility-first = fast iteration; purge keeps bundle tiny; dark mode via class strategy is trivial.</td>
+        </tr>
+        <tr>
+          <td>Search</td>
+          <td><span class="tech">Fuse.js</span></td>
+          <td class="justified">Client-side fuzzy search; zero server cost; instantaneous results. No Algolia needed for MVP.</td>
+        </tr>
+        <tr>
+          <td>Offline / PWA</td>
+          <td><span class="tech">vite-plugin-pwa</span></td>
+          <td class="justified">Generates service worker + manifest automatically; Workbox handles caching strategies.</td>
+        </tr>
+        <tr>
+          <td>Auth (optional)</td>
+          <td><span class="tech">Supabase Auth</span></td>
+          <td class="justified">Free tier, Row-Level Security, pairs with Supabase Postgres for cloud sync in Phase 3.</td>
+        </tr>
+        <tr>
+          <td>Testing</td>
+          <td><span class="tech">Vitest + Testing Library</span></td>
+          <td class="justified">Vitest shares Vite config; Testing Library enforces a11y-first queries.</td>
+        </tr>
+        <tr>
+          <td>Deployment</td>
+          <td><span class="tech">Vercel</span></td>
+          <td class="justified">Zero-config deploy, automatic preview URLs per PR, free tier sufficient.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr/>
+
+  <!-- 2. Features -->
+  <section id="features">
+    <div class="section-label">Section 02</div>
+    <h2>Core features</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card" data-num="01">
+        <h4>CRUD notes</h4>
+        <p>Create, read, update, delete notes. Each note has title, body (rich text), tags, notebook, and timestamps.</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="02">
+        <h4>Rich text / Markdown</h4>
+        <p>Tiptap editor with bold, italic, headings, code blocks, lists, and markdown shortcut support.</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="03">
+        <h4>Tags &amp; notebooks</h4>
+        <p>Hierarchical organisation: notebooks as folders, tags as cross-cutting labels. Multi-tag notes.</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="04">
+        <h4>Search &amp; filter</h4>
+        <p>Full-text fuzzy search via Fuse.js, filter by notebook, tag, and date range. Keyboard-first.</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="05">
+        <h4>Offline access</h4>
+        <p>PWA service worker caches the shell; Dexie persists notes locally. Works with no internet.</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="06">
+        <h4>Autosave</h4>
+        <p>Debounced save on every keystroke (500ms). Visual indicator shows "Saving…" / "Saved" / "Unsaved".</p>
+        <span class="feature-tag tag-mvp">MVP</span>
+      </div>
+      <div class="feature-card" data-num="07">
+        <h4>Dark mode</h4>
+        <p>System preference detection + manual toggle, persisted to localStorage.</p>
+        <span class="feature-tag tag-v2">v2</span>
+      </div>
+      <div class="feature-card" data-num="08">
+        <h4>Cloud sync + auth</h4>
+        <p>Supabase backend with RLS-protected note storage; sync across devices after login.</p>
+        <span class="feature-tag tag-v2">v2</span>
+      </div>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- 3. MVP Deliverables -->
+  <section id="mvp">
+    <div class="section-label">Section 03</div>
+    <h2>MVP deliverables</h2>
+
+    <h3>Project scaffold</h3>
+    <pre><span class="label">terminal</span><span class="fn">npm</span> create vite@latest notes-app -- --template react-ts
+<span class="fn">cd</span> notes-app
+<span class="fn">npm</span> install zustand dexie react-router-dom @tiptap/react @tiptap/starter-kit fuse.js
+<span class="fn">npm</span> install -D tailwindcss postcss autoprefixer vitest @testing-library/react vite-plugin-pwa
+<span class="fn">npx</span> tailwindcss init -p</pre>
+
+    <h3>package.json scripts</h3>
+    <pre><span class="label">json</span>{
+  <span class="str">"scripts"</span>: {
+    <span class="str">"dev"</span>:     <span class="str">"vite"</span>,
+    <span class="str">"build"</span>:   <span class="str">"tsc &amp;&amp; vite build"</span>,
+    <span class="str">"preview"</span>: <span class="str">"vite preview"</span>,
+    <span class="str">"test"</span>:    <span class="str">"vitest"</span>,
+    <span class="str">"test:ui"</span>: <span class="str">"vitest --ui"</span>,
+    <span class="str">"lint"</span>:    <span class="str">"eslint src --ext .ts,.tsx"</span>
+  }
+}</pre>
+
+    <h3>Routing plan</h3>
+    <pre><span class="label">router</span><span class="cmt">// React Router v6 nested structure</span>
+<span class="str">"/"</span>                  → <span class="type">AppLayout</span> (sidebar + outlet)
+<span class="str">"/notes"</span>             → <span class="type">NoteList</span>   (all notes)
+<span class="str">"/notes/:id"</span>         → <span class="type">NoteEditor</span> (open note)
+<span class="str">"/notebooks/:slug"</span>   → <span class="type">NoteList</span>   (filtered by notebook)
+<span class="str">"/tags/:tag"</span>         → <span class="type">NoteList</span>   (filtered by tag)
+<span class="str">"/search"</span>            → <span class="type">SearchResults</span>
+<span class="str">"/trash"</span>             → <span class="type">TrashView</span>
+<span class="str">"/settings"</span>          → <span class="type">Settings</span>
+<span class="str">"/login"</span>             → <span class="type">Auth</span>      (v2 / optional)</pre>
+
+    <h3>Deployment (Vercel)</h3>
+    <pre><span class="label">terminal</span><span class="cmt"># one-time setup</span>
+<span class="fn">npm</span> i -g vercel
+<span class="fn">vercel</span> login
+
+<span class="cmt"># deploy preview</span>
+<span class="fn">vercel</span>
+
+<span class="cmt"># deploy production</span>
+<span class="fn">vercel</span> --prod
+
+<span class="cmt"># local preview of production build</span>
+<span class="fn">npm</span> run build &amp;&amp; npm run preview</pre>
+  </section>
+
+  <hr/>
+
+  <!-- 4. Architecture -->
+  <section id="architecture">
+    <div class="section-label">Section 04</div>
+    <h2>Component &amp; state architecture</h2>
+
+    <div class="arch-grid">
+      <div class="arch-box">
+        <h5>Layout</h5>
+        <ul>
+          <li>AppLayout</li>
+          <li>Sidebar</li>
+          <li>NotebookTree</li>
+          <li>TagCloud</li>
+          <li>TopBar</li>
+          <li>SearchBar</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h5>Notes</h5>
+        <ul>
+          <li>NoteList</li>
+          <li>NoteCard</li>
+          <li>NoteEditor</li>
+          <li>TiptapEditor</li>
+          <li>SaveIndicator</li>
+          <li>TagInput</li>
+        </ul>
+      </div>
+      <div class="arch-box">
+        <h5>State (Zustand)</h5>
+        <ul>
+          <li>useNotesStore</li>
+          <li>useNotebooksStore</li>
+          <li>useSearchStore</li>
+          <li>useUIStore</li>
+          <li>useAuthStore</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Zustand store shape</h3>
+    <pre><span class="label">typescript</span><span class="kw">interface</span> <span class="type">Note</span> {
+  id:         <span class="type">string</span>;
+  title:      <span class="type">string</span>;
+  content:    <span class="type">string</span>;   <span class="cmt">// HTML from Tiptap</span>
+  tags:       <span class="type">string</span>[];
+  notebookId: <span class="type">string</span> | <span class="kw">null</span>;
+  createdAt:  <span class="type">number</span>;
+  updatedAt:  <span class="type">number</span>;
+  deletedAt:  <span class="type">number</span> | <span class="kw">null</span>;  <span class="cmt">// soft delete</span>
+}
+
+<span class="kw">interface</span> <span class="type">NotesStore</span> {
+  notes:       <span class="type">Note</span>[];
+  addNote:     (<span class="var">partial</span>: <span class="type">Partial</span>&lt;<span class="type">Note</span>&gt;) =&gt; <span class="type">void</span>;
+  updateNote:  (<span class="var">id</span>: <span class="type">string</span>, <span class="var">patch</span>: <span class="type">Partial</span>&lt;<span class="type">Note</span>&gt;) =&gt; <span class="type">void</span>;
+  deleteNote:  (<span class="var">id</span>: <span class="type">string</span>) =&gt; <span class="type">void</span>;
+  restoreNote: (<span class="var">id</span>: <span class="type">string</span>) =&gt; <span class="type">void</span>;
+}</pre>
+  </section>
+
+  <hr/>
+
+  <!-- 5. Code snippets -->
+  <section id="snippets">
+    <div class="section-label">Section 05</div>
+    <h2>Code snippets for core features</h2>
+
+    <h3>CRUD — Zustand store with Dexie persistence</h3>
+    <pre><span class="label">useNotesStore.ts</span><span class="kw">import</span> { <span class="fn">create</span> } <span class="kw">from</span> <span class="str">'zustand'</span>
+<span class="kw">import</span> { <span class="fn">persist</span>, <span class="type">createJSONStorage</span> } <span class="kw">from</span> <span class="str">'zustand/middleware'</span>
+<span class="kw">import</span> { <span class="var">db</span> } <span class="kw">from</span> <span class="str">'./db'</span>  <span class="cmt">// Dexie instance</span>
+
+<span class="kw">export const</span> <span class="var">useNotesStore</span> = <span class="fn">create</span>&lt;<span class="type">NotesStore</span>&gt;()(<span class="fn">persist</span>(
+  (<span class="var">set</span>, <span class="var">get</span>) =&gt; ({
+    notes: [],
+
+    <span class="fn">addNote</span>: (<span class="var">partial</span>) =&gt; {
+      <span class="kw">const</span> <span class="var">note</span>: <span class="type">Note</span> = {
+        id: <span class="var">crypto</span>.<span class="fn">randomUUID</span>(),
+        title: <span class="str">''</span>, content: <span class="str">''</span>, tags: [],
+        notebookId: <span class="kw">null</span>, deletedAt: <span class="kw">null</span>,
+        createdAt: <span class="type">Date</span>.<span class="fn">now</span>(), updatedAt: <span class="type">Date</span>.<span class="fn">now</span>(),
+        ...<span class="var">partial</span>
+      }
+      <span class="fn">set</span>((<span class="var">s</span>) =&gt; ({ notes: [<span class="var">note</span>, ...<span class="var">s</span>.notes] }))
+      <span class="var">db</span>.notes.<span class="fn">put</span>(<span class="var">note</span>)  <span class="cmt">// write-through to IndexedDB</span>
+    },
+
+    <span class="fn">updateNote</span>: (<span class="var">id</span>, <span class="var">patch</span>) =&gt; {
+      <span class="fn">set</span>((<span class="var">s</span>) =&gt; ({
+        notes: <span class="var">s</span>.notes.<span class="fn">map</span>(<span class="var">n</span> =&gt;
+          <span class="var">n</span>.id === <span class="var">id</span> ? { ...<span class="var">n</span>, ...<span class="var">patch</span>, updatedAt: <span class="type">Date</span>.<span class="fn">now</span>() } : <span class="var">n</span>
+        )
+      }))
+      <span class="var">db</span>.notes.<span class="fn">update</span>(<span class="var">id</span>, { ...<span class="var">patch</span>, updatedAt: <span class="type">Date</span>.<span class="fn">now</span>() })
+    },
+
+    <span class="fn">deleteNote</span>: (<span class="var">id</span>) =&gt; <span class="fn">get</span>().<span class="fn">updateNote</span>(<span class="var">id</span>, { deletedAt: <span class="type">Date</span>.<span class="fn">now</span>() }),
+  }),
+  { name: <span class="str">'notes-store'</span> }
+))</pre>
+
+    <h3>Autosave — debounced update hook</h3>
+    <pre><span class="label">useAutosave.ts</span><span class="kw">import</span> { <span class="fn">useEffect</span>, <span class="fn">useRef</span> } <span class="kw">from</span> <span class="str">'react'</span>
+
+<span class="kw">export function</span> <span class="fn">useAutosave</span>(
+  <span class="var">value</span>: <span class="type">string</span>,
+  <span class="var">onSave</span>: (<span class="var">v</span>: <span class="type">string</span>) =&gt; <span class="type">void</span>,
+  <span class="var">delay</span> = <span class="num">500</span>
+) {
+  <span class="kw">const</span> <span class="var">timer</span> = <span class="fn">useRef</span>&lt;<span class="type">ReturnType</span>&lt;<span class="kw">typeof</span> setTimeout&gt;&gt;()
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="var">timer</span>.current &amp;&amp; <span class="fn">clearTimeout</span>(<span class="var">timer</span>.current)
+    <span class="var">timer</span>.current = <span class="fn">setTimeout</span>(() =&gt; <span class="fn">onSave</span>(<span class="var">value</span>), <span class="var">delay</span>)
+    <span class="kw">return</span> () =&gt; <span class="fn">clearTimeout</span>(<span class="var">timer</span>.current)
+  }, [<span class="var">value</span>, <span class="var">onSave</span>, <span class="var">delay</span>])
+}</pre>
+
+    <h3>Search — Fuse.js with useTransition</h3>
+    <pre><span class="label">useSearch.ts</span><span class="kw">import</span> <span class="type">Fuse</span> <span class="kw">from</span> <span class="str">'fuse.js'</span>
+<span class="kw">import</span> { <span class="fn">useMemo</span>, <span class="fn">useState</span>, <span class="fn">useTransition</span> } <span class="kw">from</span> <span class="str">'react'</span>
+<span class="kw">import</span> { <span class="var">useNotesStore</span> } <span class="kw">from</span> <span class="str">'./useNotesStore'</span>
+
+<span class="kw">export function</span> <span class="fn">useSearch</span>() {
+  <span class="kw">const</span> <span class="var">notes</span>   = <span class="fn">useNotesStore</span>(<span class="var">s</span> =&gt; <span class="var">s</span>.notes.<span class="fn">filter</span>(<span class="var">n</span> =&gt; !<span class="var">n</span>.deletedAt))
+  <span class="kw">const</span> [<span class="var">query</span>, <span class="fn">setQuery</span>] = <span class="fn">useState</span>(<span class="str">''</span>)
+  <span class="kw">const</span> [<span class="var">isPending</span>, <span class="fn">startTransition</span>] = <span class="fn">useTransition</span>()
+
+  <span class="kw">const</span> <span class="var">fuse</span> = <span class="fn">useMemo</span>(() =&gt; <span class="kw">new</span> <span class="type">Fuse</span>(<span class="var">notes</span>, {
+    keys: [<span class="str">'title'</span>, <span class="str">'content'</span>, <span class="str">'tags'</span>],
+    threshold: <span class="num">0.35</span>, includeScore: <span class="kw">true</span>
+  }), [<span class="var">notes</span>])
+
+  <span class="kw">const</span> <span class="var">results</span> = <span class="fn">useMemo</span>(() =&gt;
+    <span class="var">query</span> ? <span class="var">fuse</span>.<span class="fn">search</span>(<span class="var">query</span>).<span class="fn">map</span>(<span class="var">r</span> =&gt; <span class="var">r</span>.item) : <span class="var">notes</span>
+  , [<span class="var">query</span>, <span class="var">fuse</span>, <span class="var">notes</span>])
+
+  <span class="kw">const</span> <span class="fn">search</span> = (<span class="var">q</span>: <span class="type">string</span>) =&gt;
+    <span class="fn">startTransition</span>(() =&gt; <span class="fn">setQuery</span>(<span class="var">q</span>))
+
+  <span class="kw">return</span> { <span class="var">results</span>, <span class="var">query</span>, <span class="fn">search</span>, <span class="var">isPending</span> }
+}</pre>
+
+    <h3>Tiptap rich text editor component</h3>
+    <pre><span class="label">TiptapEditor.tsx</span><span class="kw">import</span> { <span class="fn">useEditor</span>, <span class="type">EditorContent</span> } <span class="kw">from</span> <span class="str">'@tiptap/react'</span>
+<span class="kw">import</span> <span class="type">StarterKit</span> <span class="kw">from</span> <span class="str">'@tiptap/starter-kit'</span>
+<span class="kw">import</span> { <span class="fn">useAutosave</span> } <span class="kw">from</span> <span class="str">'./useAutosave'</span>
+
+<span class="kw">export function</span> <span class="fn">TiptapEditor</span>({
+  <span class="var">noteId</span>, <span class="var">initialContent</span>, <span class="fn">onUpdate</span>
+}: {
+  noteId: <span class="type">string</span>
+  initialContent: <span class="type">string</span>
+  <span class="fn">onUpdate</span>: (<span class="var">html</span>: <span class="type">string</span>) =&gt; <span class="type">void</span>
+}) {
+  <span class="kw">const</span> <span class="var">editor</span> = <span class="fn">useEditor</span>({
+    extensions: [<span class="type">StarterKit</span>],
+    content: <span class="var">initialContent</span>,
+    <span class="fn">onUpdate</span>: ({ <span class="var">editor</span> }) =&gt; <span class="fn">onUpdate</span>(<span class="var">editor</span>.<span class="fn">getHTML</span>()),
+  })
+
+  <span class="kw">return</span> (
+    &lt;<span class="fn">EditorContent</span>
+      editor={<span class="var">editor</span>}
+      className=<span class="str">"prose prose-sm max-w-none focus:outline-none"</span>
+      aria-label=<span class="str">"Note body"</span>
+      aria-multiline=<span class="str">"true"</span>
+    /&gt;
+  )
+}</pre>
+  </section>
+
+  <hr/>
+
+  <!-- 6. Phases -->
+  <section id="phases">
+    <div class="section-label">Section 06</div>
+    <h2>Phased delivery plan</h2>
+
+    <div class="phase phase-1">
+      <div class="phase-header">
+        <div class="phase-dot dot-1">1</div>
+        <div class="phase-title">MVP — Core offline-first notes app</div>
+        <div class="phase-time">Weeks 1–3</div>
+      </div>
+      <ul>
+        <li>Vite + React + TS scaffold with Tailwind configured</li>
+        <li>Dexie database schema; Zustand store with persist</li>
+        <li>Create / read / update / delete notes (soft delete → trash)</li>
+        <li>Tiptap editor with markdown shortcuts (bold, heading, code blocks)</li>
+        <li>Basic notebook and tag CRUD</li>
+        <li>Fuse.js search with keyboard shortcut (⌘K / Ctrl+K)</li>
+        <li>Debounced autosave + save status indicator</li>
+        <li>PWA via vite-plugin-pwa — works offline</li>
+        <li>Responsive two-pane layout (sidebar + editor)</li>
+      </ul>
+    </div>
+
+    <div class="phase phase-2">
+      <div class="phase-header">
+        <div class="phase-dot dot-2">2</div>
+        <div class="phase-title">Enhanced — UX &amp; productivity features</div>
+        <div class="phase-time">Weeks 4–6</div>
+      </div>
+      <ul>
+        <li>Dark mode (system + manual, class-based Tailwind)</li>
+        <li>Note sorting (date, title, recently viewed)</li>
+        <li>Tag autocomplete and tag filtering sidebar</li>
+        <li>Trash view with restore / permanent delete</li>
+        <li>Keyboard navigation (arrow keys in note list, Tab in editor)</li>
+        <li>Export note as Markdown or HTML</li>
+        <li>Drag-and-drop note reordering within a notebook</li>
+        <li>Unit + integration tests: ≥70% branch coverage</li>
+      </ul>
+    </div>
+
+    <div class="phase phase-3">
+      <div class="phase-header">
+        <div class="phase-dot dot-3">3</div>
+        <div class="phase-title">Polish &amp; cloud — optional auth + sync</div>
+        <div class="phase-time">Weeks 7–10</div>
+      </div>
+      <ul>
+        <li>Supabase auth (email/magic link + Google OAuth)</li>
+        <li>Cloud sync: local Dexie ↔ Supabase Postgres with conflict resolution</li>
+        <li>Shared notebooks (read-only link sharing)</li>
+        <li>Note version history (last 10 revisions)</li>
+        <li>Image attachments (stored in Supabase Storage)</li>
+        <li>Playwright e2e tests for critical flows</li>
+        <li>Lighthouse CI: score ≥90 on all categories</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr/>
+
+  <!-- 7. A11y + Testing -->
+  <section id="a11y">
+    <div class="section-label">Section 07</div>
+    <h2>Accessibility, responsiveness &amp; testing</h2>
+
+    <h3>Accessibility</h3>
+    <ul class="checklist">
+      <li><div class="check-icon"></div>All interactive elements reachable by keyboard; visible focus ring via Tailwind <code>focus-visible:ring</code></li>
+      <li><div class="check-icon"></div>ARIA roles on sidebar nav, note list (<code>role="list"</code>), editor (<code>role="textbox" aria-multiline</code>), search (<code>role="combobox"</code>)</li>
+      <li><div class="check-icon"></div>Tiptap exposes <code>aria-label</code> on the content-editable region</li>
+      <li><div class="check-icon"></div>Color contrast ≥4.5:1 for all text; tested with axe DevTools</li>
+      <li><div class="check-icon"></div>Reduced motion: wrap animations in <code>@media (prefers-reduced-motion: reduce)</code></li>
+      <li><div class="check-icon"></div>Skip-to-content link at page top</li>
+    </ul>
+
+    <h3>Responsiveness</h3>
+    <ul class="checklist">
+      <li><div class="check-icon"></div>Mobile (&lt;640px): single-pane, sidebar slides in as drawer</li>
+      <li><div class="check-icon"></div>Tablet (640–1024px): collapsible sidebar (icon-only or expanded)</li>
+      <li><div class="check-icon"></div>Desktop (&gt;1024px): persistent 3-pane (notebooks + list + editor)</li>
+      <li><div class="check-icon"></div>Fluid typography using Tailwind's <code>text-sm/base/lg</code> breakpoints</li>
+    </ul>
+
+    <h3>Testing strategy</h3>
+    <pre><span class="label">test structure</span>src/
+  __tests__/
+    useNotesStore.test.ts    <span class="cmt">// unit: CRUD, soft delete, restore</span>
+    useSearch.test.ts        <span class="cmt">// unit: fuzzy search, empty query</span>
+    NoteEditor.test.tsx      <span class="cmt">// integration: autosave, tag input</span>
+    NoteList.test.tsx        <span class="cmt">// integration: filter, keyboard nav</span>
+e2e/
+    create-note.spec.ts      <span class="cmt">// Playwright: create → search → delete</span>
+    offline.spec.ts          <span class="cmt">// Playwright: service worker, offline CRUD</span></pre>
+  </section>
+
+  <hr/>
+
+  <!-- 8. Acceptance criteria -->
+  <section id="acceptance">
+    <div class="section-label">Section 08</div>
+    <h2>Acceptance criteria</h2>
+
+    <table class="criteria-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Criterion</th>
+          <th>Pass signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CRUD</td>
+          <td>Note persists across full page reload without network</td>
+          <td><span class="pass">PASS</span> if note visible after hard refresh</td>
+        </tr>
+        <tr>
+          <td>Autosave</td>
+          <td>No data loss if tab is closed within 500ms of typing</td>
+          <td><span class="pass">PASS</span> if last keystroke saved after 500ms</td>
+        </tr>
+        <tr>
+          <td>Search</td>
+          <td>Query returns relevant notes within 100ms for &lt;1000 notes</td>
+          <td><span class="pass">PASS</span> per Vitest performance assertion</td>
+        </tr>
+        <tr>
+          <td>Offline</td>
+          <td>App loads and all CRUD works with DevTools → offline</td>
+          <td><span class="pass">PASS</span> via Playwright offline spec</td>
+        </tr>
+        <tr>
+          <td>Rich text</td>
+          <td>Markdown shortcuts (**bold**, # heading) convert on-type</td>
+          <td><span class="pass">PASS</span> via Tiptap input rules test</td>
+        </tr>
+        <tr>
+          <td>Accessibility</td>
+          <td>0 axe violations on main flows; all flows keyboard-completable</td>
+          <td><span class="pass">PASS</span> via jest-axe + manual keyboard audit</td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td>Lighthouse ≥90 Performance, ≥95 Accessibility on production build</td>
+          <td><span class="pass">PASS</span> via Lighthouse CI in GitHub Actions</td>
+        </tr>
+        <tr>
+          <td>Bundle</td>
+          <td>Initial JS bundle &lt;200 KB gzipped</td>
+          <td><span class="pass">PASS</span> via <code>vite build --report</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr/>
+
+  <!-- 9. Resources -->
+  <section id="resources">
+    <div class="section-label">Section 09</div>
+    <h2>Suggested tools &amp; resources</h2>
+
+    <div class="resource-list">
+      <div class="resource-item">
+        <strong>Tiptap docs</strong>
+        Headless rich text, extensions, markdown shortcuts.
+        <a href="https://tiptap.dev/docs">tiptap.dev/docs</a>
+      </div>
+      <div class="resource-item">
+        <strong>Zustand guide</strong>
+        State management with persist + devtools middleware.
+        <a href="https://docs.pmnd.rs/zustand">docs.pmnd.rs/zustand</a>
+      </div>
+      <div class="resource-item">
+        <strong>Dexie.js</strong>
+        IndexedDB wrapper — table definition, reactive queries.
+        <a href="https://dexie.org/docs">dexie.org/docs</a>
+      </div>
+      <div class="resource-item">
+        <strong>vite-plugin-pwa</strong>
+        Service worker config, Workbox caching strategies.
+        <a href="https://vite-pwa-org.netlify.app">vite-pwa-org.netlify.app</a>
+      </div>
+      <div class="resource-item">
+        <strong>Fuse.js</strong>
+        Fuzzy search options: threshold, keys, scoring.
+        <a href="https://fusejs.io">fusejs.io</a>
+      </div>
+      <div class="resource-item">
+        <strong>Testing Library</strong>
+        Queries, user events, accessibility-first selectors.
+        <a href="https://testing-library.com/docs/react-testing-library">testing-library.com</a>
+      </div>
+      <div class="resource-item">
+        <strong>Supabase (Phase 3)</strong>
+        Auth, Postgres, Storage, RLS policies.
+        <a href="https://supabase.com/docs">supabase.com/docs</a>
+      </div>
+      <div class="resource-item">
+        <strong>Playwright</strong>
+        E2e tests, network interception, offline emulation.
+        <a href="https://playwright.dev/docs">playwright.dev/docs</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>React Notes App Build Plan · Generated with Claude · Stack confirmed: Vite + React + Zustand + Dexie + Tiptap + Tailwind</footer>
+
+</body>
+</html>
