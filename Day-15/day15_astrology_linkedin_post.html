@@ -1,0 +1,215 @@
+
+<style>
+  body { margin: 0; }
+  .post-frame {
+    background: #0f0c29;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 640px;
+    margin: 1rem auto;
+    font-family: Georgia, var(--font-serif), serif;
+    position: relative;
+    overflow: hidden;
+  }
+  .stars-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .content { position: relative; z-index: 1; }
+  .day-badge {
+    display: inline-block;
+    background: #2a1f6e;
+    color: #AFA9EC;
+    font-family: var(--font-sans), sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 0.5px solid #534AB7;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.2rem;
+  }
+  .main-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f0ecff;
+    line-height: 1.3;
+    margin: 0 0 6px;
+    font-family: Georgia, serif;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #9F97DD;
+    margin: 0 0 1.5rem;
+    font-family: var(--font-sans), sans-serif;
+    font-weight: 400;
+  }
+  .divider {
+    width: 48px; height: 2px;
+    background: #534AB7;
+    border-radius: 2px;
+    margin: 0 0 1.4rem;
+  }
+  .insight-block {
+    background: rgba(83,74,183,0.15);
+    border: 0.5px solid #534AB7;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .insight-label {
+    font-size: 11px;
+    color: #7F77DD;
+    font-family: var(--font-sans), sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .insight-text {
+    font-size: 15px;
+    color: #e8e4ff;
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-sans), sans-serif;
+  }
+  .quote-block {
+    border-left: 3px solid #7F77DD;
+    padding: 0.6rem 0 0.6rem 1rem;
+    margin: 1.2rem 0;
+  }
+  .quote-text {
+    font-size: 17px;
+    color: #d8d4f8;
+    font-style: italic;
+    margin: 0;
+    line-height: 1.55;
+    font-family: Georgia, serif;
+  }
+  .tags-row {
+    margin-top: 1.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: var(--font-sans), sans-serif;
+  }
+  .tag {
+    font-size: 12px;
+    color: #AFA9EC;
+    background: rgba(175,169,236,0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 0.5px solid #534AB7;
+  }
+  .footer-row {
+    margin-top: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 0.5px solid #2a1f6e;
+    padding-top: 1rem;
+    font-family: var(--font-sans), sans-serif;
+  }
+  .author-info { }
+  .author-name { font-size: 14px; font-weight: 500; color: #e8e4ff; margin: 0; }
+  .author-sub { font-size: 12px; color: #7F77DD; margin: 0; }
+  .day-counter { font-size: 28px; font-weight: 700; color: #534AB7; letter-spacing: -1px; }
+  .planet-row-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .planet-pill {
+    background: rgba(30, 20, 80, 0.6);
+    border: 0.5px solid #3C3489;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .planet-sym { font-size: 18px; color: #AFA9EC; display: block; margin-bottom: 2px; }
+  .planet-name-txt { font-size: 11px; color: #7F77DD; font-family: var(--font-sans), sans-serif; }
+  .planet-sign { font-size: 11px; color: #534AB7; font-family: var(--font-sans), sans-serif; font-weight: 500; }
+</style>
+
+<div class="post-frame">
+  <svg class="stars-bg" viewBox="0 0 640 580" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="40" r="1.2" fill="#AFA9EC" opacity="0.6"/>
+    <circle cx="200" cy="20" r="0.8" fill="#fff" opacity="0.4"/>
+    <circle cx="400" cy="35" r="1.5" fill="#AFA9EC" opacity="0.5"/>
+    <circle cx="580" cy="60" r="1" fill="#fff" opacity="0.3"/>
+    <circle cx="100" cy="90" r="0.7" fill="#7F77DD" opacity="0.7"/>
+    <circle cx="320" cy="15" r="1.2" fill="#fff" opacity="0.5"/>
+    <circle cx="500" cy="80" r="0.9" fill="#AFA9EC" opacity="0.4"/>
+    <circle cx="150" cy="150" r="0.8" fill="#fff" opacity="0.3"/>
+    <circle cx="600" cy="160" r="1.3" fill="#AFA9EC" opacity="0.5"/>
+    <circle cx="50" cy="200" r="0.6" fill="#fff" opacity="0.4"/>
+    <circle cx="620" cy="280" r="1" fill="#7F77DD" opacity="0.5"/>
+    <circle cx="30" cy="320" r="0.8" fill="#fff" opacity="0.3"/>
+    <circle cx="450" cy="200" r="0.7" fill="#AFA9EC" opacity="0.4"/>
+    <circle cx="250" cy="110" r="1.1" fill="#fff" opacity="0.35"/>
+    <circle cx="350" cy="280" r="0.6" fill="#7F77DD" opacity="0.6"/>
+    <circle cx="610" cy="400" r="0.9" fill="#AFA9EC" opacity="0.3"/>
+    <circle cx="80" cy="460" r="0.7" fill="#fff" opacity="0.25"/>
+    <circle cx="540" cy="500" r="1" fill="#AFA9EC" opacity="0.3"/>
+    <path d="M320 30 L323 40 L333 40 L325 46 L328 56 L320 50 L312 56 L315 46 L307 40 L317 40 Z" fill="#534AB7" opacity="0.6"/>
+    <path d="M550 120 L552 127 L559 127 L553 131 L555 138 L550 134 L545 138 L547 131 L541 127 L548 127 Z" fill="#7F77DD" opacity="0.4"/>
+    <path d="M90 300 L92 307 L99 307 L93 311 L95 318 L90 314 L85 318 L87 311 L81 307 L88 307 Z" fill="#534AB7" opacity="0.3"/>
+  </svg>
+
+  <div class="content">
+    <div class="day-badge">Day 15 of 30 · Vedic Astrology Challenge</div>
+
+    <h1 class="main-title">Your birth chart is a cosmic blueprint —<br>not a life sentence.</h1>
+    <p class="subtitle">Understanding Vedic Astrology for modern careers &amp; life decisions</p>
+    <div class="divider"></div>
+
+    <div class="planet-row-grid">
+      <div class="planet-pill">
+        <span class="planet-sym">&#9737;</span>
+        <span class="planet-name-txt">Sun</span><br>
+        <span class="planet-sign">10th house</span>
+      </div>
+      <div class="planet-pill">
+        <span class="planet-sym">&#9790;</span>
+        <span class="planet-name-txt">Moon</span><br>
+        <span class="planet-sign">Mrigashira</span>
+      </div>
+      <div class="planet-pill">
+        <span class="planet-sym">&#9795;</span>
+        <span class="planet-name-txt">Jupiter</span><br>
+        <span class="planet-sign">Rajayoga</span>
+      </div>
+    </div>
+
+    <div class="insight-block">
+      <p class="insight-label">Today's insight</p>
+      <p class="insight-text">Sun + Jupiter in the 10th house is one of the most powerful career yogas in Vedic astrology. It doesn't guarantee success — it reveals <em>where your path of least resistance lies.</em></p>
+    </div>
+
+    <div class="quote-block">
+      <p class="quote-text">"The stars incline, they do not compel. Your Dasha is the timing. Your karma is the effort."</p>
+    </div>
+
+    <div class="insight-block">
+      <p class="insight-label">What I learned today</p>
+      <p class="insight-text">The Rahu Mahadasha is not chaos — it's an amplifier. It magnifies whatever you feed it. Feed it skill, focus, and ambition. Not shortcuts.</p>
+    </div>
+
+    <div class="tags-row">
+      <span class="tag">#VedicAstrology</span>
+      <span class="tag">#30DayChallenge</span>
+      <span class="tag">#JyotishWisdom</span>
+      <span class="tag">#Day15</span>
+      <span class="tag">#AstrologyForStudents</span>
+      <span class="tag">#Nakshatra</span>
+    </div>
+
+    <div class="footer-row">
+      <div class="author-info">
+        <p class="author-name">Likhitha</p>
+        <p class="author-sub">B.Tech student · Vijayawada · Astrology explorer</p>
+      </div>
+      <div class="day-counter">15/30</div>
+    </div>
+  </div>
+</div>
