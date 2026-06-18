@@ -1,0 +1,241 @@
+
+<style>
+  .wrap { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; max-width: 660px; }
+  .hero { background: #0C447C; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; color: #fff; }
+  .hero-top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .tcs-logo { width: 44px; height: 44px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #0C447C; flex-shrink: 0; }
+  .hero-name { font-size: 20px; font-weight: 500; color: #fff; margin: 0; }
+  .hero-sub { font-size: 13px; color: #85B7EB; margin: 0; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hbadge { font-size: 12px; background: rgba(255,255,255,0.12); color: #E6F1FB; padding: 4px 10px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.2); }
+  .section { margin-bottom: 1.4rem; }
+  .sec-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 10px; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 6px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .kpi { background: var(--color-background-secondary); border-radius: 10px; padding: 0.8rem 1rem; }
+  .kpi-label { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px; }
+  .kpi-val { font-size: 18px; font-weight: 500; margin: 0; }
+  .kpi-note { font-size: 11px; color: var(--color-text-secondary); margin: 2px 0 0; }
+  .prose { font-size: 14px; line-height: 1.75; color: var(--color-text-primary); margin: 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .col-card { background: var(--color-background-secondary); border-radius: 10px; padding: 1rem; }
+  .col-card-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .item { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.6; margin-bottom: 6px; }
+  .item:last-child { margin-bottom: 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-lbl { font-size: 13px; width: 60px; flex-shrink: 0; color: var(--color-text-secondary); }
+  .bar-bg { flex: 1; height: 7px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-val { font-size: 13px; font-weight: 500; width: 55px; text-align: right; }
+  .table-wrap { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-wrap th { text-align: left; font-weight: 500; color: var(--color-text-secondary); padding: 6px 10px; font-size: 12px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .table-wrap td { padding: 7px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .table-wrap tr:last-child td { border-bottom: none; }
+  .up { color: #1D9E75; font-weight: 500; }
+  .quality-box { display: flex; align-items: center; gap: 16px; background: #EAF3DE; border: 0.5px solid #3B6D11; border-radius: 12px; padding: 1rem 1.25rem; }
+  .quality-icon { font-size: 28px; color: #3B6D11; }
+  .quality-label { font-size: 13px; color: #3B6D11; margin: 0 0 2px; }
+  .quality-val { font-size: 22px; font-weight: 500; color: #27500A; margin: 0; }
+  .quality-sub { font-size: 12px; color: #3B6D11; margin: 2px 0 0; }
+  .chart-area { height: 130px; position: relative; margin: 4px 0 0; }
+  .disclaimer { background: var(--color-background-secondary); border-radius: 10px; padding: 0.9rem 1.1rem; font-size: 12px; color: var(--color-text-secondary); line-height: 1.65; border-left: 3px solid #EF9F27; border-radius: 0; }
+  .hold-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .hold-lbl { font-size: 13px; width: 130px; flex-shrink: 0; }
+  .hold-bar-bg { flex: 1; height: 10px; background: var(--color-background-secondary); border-radius: 5px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .hold-pct { font-size: 13px; font-weight: 500; width: 40px; text-align: right; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">TCS Tata Consultancy Services fundamental research report with financials, ratios, and analysis</h2>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="tcs-logo">TCS</div>
+      <div>
+        <p class="hero-name">Tata Consultancy Services Ltd</p>
+        <p class="hero-sub">NSE: TCS &nbsp;·&nbsp; IT Services &amp; Consulting &nbsp;·&nbsp; Large Cap &nbsp;·&nbsp; Tata Group</p>
+      </div>
+    </div>
+    <div class="hero-badges">
+      <span class="hbadge">Founded 1968</span>
+      <span class="hbadge">HQ: Mumbai</span>
+      <span class="hbadge">~607,000 employees</span>
+      <span class="hbadge">Operates in 55+ countries</span>
+      <span class="hbadge">$30B+ Revenue (FY26)</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Company overview</p>
+    <p class="prose">TCS is India's largest IT services company and the second most valuable IT brand globally. It provides software development, consulting, business process outsourcing, AI/cloud services, and digital transformation solutions to Fortune 500 companies worldwide. Its top verticals are BFSI (32%), Consumer Business (15%), Life Sciences (10.5%), and Manufacturing (8.8%). In June 2025, TCS partnered with Anthropic to roll out Claude AI to 50,000 of its associates — signalling a strong AI-first pivot.</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Key metrics at a glance</p>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <p class="kpi-label">Market cap</p>
+        <p class="kpi-val">~&#8377;9.3L Cr</p>
+        <p class="kpi-note">~$112 Bn USD</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">Current price</p>
+        <p class="kpi-val">&#8377;2,580</p>
+        <p class="kpi-note">52W: &#8377;2,346–3,630</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">P/E ratio</p>
+        <p class="kpi-val">17.8×</p>
+        <p class="kpi-note">Sector avg ~22×</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">EPS (TTM)</p>
+        <p class="kpi-val">&#8377;136.6</p>
+        <p class="kpi-note">Diluted</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">ROE</p>
+        <p class="kpi-val" style="color:#1D9E75;">51.8%</p>
+        <p class="kpi-note">Exceptional</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">ROCE</p>
+        <p class="kpi-val" style="color:#1D9E75;">63.0%</p>
+        <p class="kpi-note">Best-in-class</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">Debt/Equity</p>
+        <p class="kpi-val" style="color:#1D9E75;">~0.10</p>
+        <p class="kpi-note">Practically debt-free</p>
+      </div>
+      <div class="kpi">
+        <p class="kpi-label">Dividend yield</p>
+        <p class="kpi-val">2.33%</p>
+        <p class="kpi-note">Payout ~77.5%</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Revenue &amp; profit trend (&#8377; Cr)</p>
+    <table class="table-wrap">
+      <thead>
+        <tr>
+          <th>Fiscal Year</th>
+          <th>Revenue</th>
+          <th>Net Profit</th>
+          <th>Net Margin</th>
+          <th>YoY Growth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>FY 2022</td><td>&#8377;1,91,754</td><td>&#8377;38,327</td><td>20.0%</td><td class="up">+16.8%</td></tr>
+        <tr><td>FY 2023</td><td>&#8377;2,25,458</td><td>&#8377;42,303</td><td>18.8%</td><td class="up">+17.6%</td></tr>
+        <tr><td>FY 2024</td><td>&#8377;2,40,893</td><td>&#8377;45,908</td><td>19.1%</td><td class="up">+6.8%</td></tr>
+        <tr><td>FY 2025</td><td>&#8377;2,55,324</td><td>&#8377;48,553</td><td>19.0%</td><td class="up">+6.0%</td></tr>
+        <tr><td>FY 2026 (est.)</td><td>&#8377;~2,67,000</td><td>&#8377;~49,500</td><td>~18.5%</td><td class="up">+4.6%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px; color:var(--color-text-secondary); margin-top:7px;">Note: Revenue growth has moderated to mid-single digits in FY24–26 due to global macro headwinds and slower IT spending by Western clients. Profit margins remain best-in-class.</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">ROE &amp; ROCE analysis</p>
+    <div class="bar-row"><span class="bar-lbl">ROE</span><div class="bar-bg"><div class="bar-fill" style="width:85%; background:#1D9E75;"></div></div><span class="bar-val" style="color:#1D9E75;">51.8%</span></div>
+    <div class="bar-row"><span class="bar-lbl">ROCE</span><div class="bar-bg"><div class="bar-fill" style="width:100%; background:#0F6E56;"></div></div><span class="bar-val" style="color:#0F6E56;">63.0%</span></div>
+    <div class="bar-row"><span class="bar-lbl">Net Margin</span><div class="bar-bg"><div class="bar-fill" style="width:38%; background:#378ADD;"></div></div><span class="bar-val" style="color:#378ADD;">19.0%</span></div>
+    <p style="font-size:13px; color:var(--color-text-secondary); margin-top:6px;">ROE above 20% is considered excellent. TCS at 51.8% is among the highest in Indian large-caps — meaning it generates &#8377;51.8 in profit for every &#8377;100 of shareholder equity.</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Debt status</p>
+    <div style="background:var(--color-background-secondary); border-radius:10px; padding:0.9rem 1.1rem; display:flex; gap:14px; align-items:center;">
+      <i class="ti ti-circle-check" style="font-size:28px; color:#1D9E75;" aria-hidden="true"></i>
+      <div>
+        <p style="font-size:15px; font-weight:500; margin:0 0 3px;">Virtually debt-free</p>
+        <p style="font-size:13px; color:var(--color-text-secondary); margin:0;">Debt/Equity ratio of ~0.10 — TCS operates with minimal borrowing. It funds operations entirely from internal cash flows. Cash &amp; equivalents are robust, making this one of the safest balance sheets in India.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Shareholding pattern</p>
+    <div class="hold-row"><span class="hold-lbl">Promoters (Tata)</span><div class="hold-bar-bg"><div style="height:100%; width:71.8%; background:#534AB7; border-radius:5px;"></div></div><span class="hold-pct" style="color:#534AB7;">71.8%</span></div>
+    <div class="hold-row"><span class="hold-lbl">DIIs (Mutual Funds)</span><div class="hold-bar-bg"><div style="height:100%; width:13.4%; background:#1D9E75; border-radius:5px;"></div></div><span class="hold-pct" style="color:#1D9E75;">13.4%</span></div>
+    <div class="hold-row"><span class="hold-lbl">FIIs (Foreign)</span><div class="hold-bar-bg"><div style="height:100%; width:9.7%; background:#378ADD; border-radius:5px;"></div></div><span class="hold-pct" style="color:#378ADD;">9.7%</span></div>
+    <div class="hold-row"><span class="hold-lbl">Public</span><div class="hold-bar-bg"><div style="height:100%; width:4.5%; background:#888780; border-radius:5px;"></div></div><span class="hold-pct" style="color:#888780;">4.5%</span></div>
+    <p style="font-size:13px; color:var(--color-text-secondary); margin-top:6px;">Promoter holding at 71.8% is very high — this means Tata Sons has strong conviction in the business and is not selling. High promoter holding generally signals stability.</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Strengths &amp; risks</p>
+    <div class="two-col">
+      <div class="col-card">
+        <p class="col-card-title" style="color:#1D9E75;">3 strengths</p>
+        <div class="item"><div class="dot" style="background:#1D9E75;"></div><span><strong style="font-weight:500;">Brand &amp; trust:</strong> Tata Group backing gives TCS unmatched credibility with Fortune 500 clients globally.</span></div>
+        <div class="item"><div class="dot" style="background:#1D9E75;"></div><span><strong style="font-weight:500;">Cash-generating machine:</strong> ~19% net margins with zero meaningful debt — consistently generates &#8377;45,000–50,000 Cr profit annually.</span></div>
+        <div class="item"><div class="dot" style="background:#1D9E75;"></div><span><strong style="font-weight:500;">AI pivot:</strong> Annualized AI revenue crossed $2.3 billion in Q4 FY26 — early mover advantage in enterprise AI transformation.</span></div>
+      </div>
+      <div class="col-card">
+        <p class="col-card-title" style="color:#D85A30;">3 risks</p>
+        <div class="item"><div class="dot" style="background:#D85A30;"></div><span><strong style="font-weight:500;">Slow revenue growth:</strong> Sales grew only ~10% over 5 years — global IT spending slowdown is hurting top-line expansion.</span></div>
+        <div class="item"><div class="dot" style="background:#D85A30;"></div><span><strong style="font-weight:500;">Rupee appreciation:</strong> Revenue is in USD/EUR; a stronger Rupee directly hurts profitability when converted.</span></div>
+        <div class="item"><div class="dot" style="background:#D85A30;"></div><span><strong style="font-weight:500;">US legal risk:</strong> US Supreme Court denied TCS petition — company will book $70 million in additional expenses in Q1 FY27.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Stock price trend (approximate, NSE)</p>
+    <div style="background:var(--color-background-secondary); border-radius:10px; padding:1rem;">
+      <svg viewBox="0 0 620 140" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <line x1="40" y1="10" x2="40" y2="115" stroke="#B4B2A9" stroke-width="0.5"/>
+        <line x1="40" y1="115" x2="600" y2="115" stroke="#B4B2A9" stroke-width="0.5"/>
+        <text x="34" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">FY21</text>
+        <text x="154" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">FY22</text>
+        <text x="264" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">FY23</text>
+        <text x="374" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">FY24</text>
+        <text x="484" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">FY25</text>
+        <text x="600" y="118" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">Jun'26</text>
+        <text x="36" y="22" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">4500</text>
+        <text x="36" y="50" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">3800</text>
+        <text x="36" y="75" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">3200</text>
+        <text x="36" y="95" text-anchor="end" class="ts" style="font-size:10px; fill:#888780;">2600</text>
+        <polyline
+          points="40,100  150,55  260,60  310,25  370,45  430,40  480,52  520,38  570,95  600,97"
+          fill="none" stroke="#185FA5" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="40" cy="100" r="3" fill="#185FA5"/>
+        <circle cx="310" cy="25" r="4" fill="#D85A30"/>
+        <circle cx="600" cy="97" r="3" fill="#185FA5"/>
+        <text x="312" y="20" text-anchor="middle" class="ts" style="font-size:10px; fill:#993C1D;">Peak ~&#8377;4,592</text>
+        <text x="42" y="110" text-anchor="start" class="ts" style="font-size:10px; fill:#185FA5;">~&#8377;2,800</text>
+        <text x="598" y="110" text-anchor="end" class="ts" style="font-size:10px; fill:#185FA5;">~&#8377;2,580</text>
+      </svg>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin:6px 0 0;">TCS peaked at ~&#8377;4,592 in Jan 2022 and has corrected ~44% since then, making current valuations the most attractive in 4 years. P/E at 17.8× is below its 5-year average of ~26×.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Fundamental quality rating</p>
+    <div class="quality-box">
+      <i class="ti ti-shield-check quality-icon" aria-hidden="true"></i>
+      <div>
+        <p class="quality-label">Overall fundamental quality</p>
+        <p class="quality-val">STRONG</p>
+        <p class="quality-sub">Excellent ROE/ROCE · Debt-free · Consistent profits · Tata Group backing · AI tailwinds</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title">Educational disclaimer</p>
+    <div class="disclaimer">
+      <strong style="font-weight:500;">For learning purposes only.</strong> This report is generated using publicly available data for educational use. It is NOT financial advice, investment advice, or a buy/sell recommendation. Stock prices can go up or down — past performance is no guarantee of future results. Before investing, please consult a SEBI-registered financial advisor and do your own research (DYOR). Fundamental analysis is just one lens — always consider your own risk tolerance, investment horizon, and financial goals.
+    </div>
+  </div>
+</div>
