@@ -1,0 +1,102 @@
+
+<style>
+  .section { margin-bottom: 1.5rem; }
+  .label { font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  .flag-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: var(--border-radius-md); white-space: nowrap; }
+  .badge-red { background: #FCEBEB; color: #791F1F; }
+  .badge-green { background: #EAF3DE; color: #27500A; }
+  .badge-amber { background: #FAEEDA; color: #633806; }
+  .q-num { background: var(--color-background-secondary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; }
+  .verdict-box { border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; background: #FAEEDA; border: 0.5px solid #EF9F27; }
+  .verdict-label { font-size: 13px; color: #633806; margin-bottom: 4px; }
+  .verdict-text { font-size: 18px; font-weight: 500; color: #412402; }
+  .meter-bg { background: var(--color-background-secondary); border-radius: 99px; height: 10px; width: 100%; margin-top: 8px; overflow: hidden; }
+  .meter-fill { height: 100%; border-radius: 99px; background: #EF9F27; width: 35%; }
+  .score-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .score-num { font-size: 28px; font-weight: 500; color: var(--color-text-primary); }
+  .score-sub { font-size: 13px; color: var(--color-text-secondary); }
+  .q-card { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .q-card:last-child { border-bottom: none; }
+</style>
+
+<h2 class="sr-only">Job opportunity analysis for ServiceNow Developer Intern at ABC Technologies</h2>
+
+<div style="padding: 1rem 0;">
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem;">
+    <div class="card">
+      <div class="label">Risk score</div>
+      <div class="score-row">
+        <span class="score-num">35 <span style="font-size:15px; color: var(--color-text-secondary);">/ 100</span></span>
+        <span class="badge badge-green">Low–Moderate</span>
+      </div>
+      <div class="meter-bg"><div class="meter-fill"></div></div>
+    </div>
+    <div class="verdict-box">
+      <div class="verdict-label"><i class="ti ti-gavel" aria-hidden="true" style="font-size:14px; margin-right:4px;"></i>Final verdict</div>
+      <div class="verdict-text">Apply with Caution</div>
+      <div style="font-size: 13px; color: #854F0B; margin-top: 4px;">Decent entry point, but verify the details before committing.</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem;">
+    <div class="card">
+      <div class="label" style="margin-bottom: 12px;"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:13px; margin-right:4px;"></i>Top 3 red flags</div>
+      <div class="flag-row">
+        <span class="badge badge-red">1</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">Vague company profile — "IT services & internships" signals a body-shop risk with no clear product focus.</span>
+      </div>
+      <div class="flag-row">
+        <span class="badge badge-red">2</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">No mention of stipend, pay, or benefits — unpaid or token-pay internships are common at such firms.</span>
+      </div>
+      <div class="flag-row">
+        <span class="badge badge-red">3</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">No mention of a certificate, PPO, or full-time conversion — unclear career upside after completion.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom: 12px;"><i class="ti ti-circle-check" aria-hidden="true" style="font-size:13px; margin-right:4px;"></i>Top 3 positive signals</div>
+      <div class="flag-row">
+        <span class="badge badge-green">1</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">ServiceNow is a high-demand enterprise platform — hands-on exposure can be a strong résumé asset.</span>
+      </div>
+      <div class="flag-row">
+        <span class="badge badge-green">2</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">Low entry bar (only basics required) — good for freshers or early-career candidates to break in.</span>
+      </div>
+      <div class="flag-row">
+        <span class="badge badge-green">3</span>
+        <span style="font-size: 14px; color: var(--color-text-primary);">IT services background means likely access to real client workflows and enterprise tools.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label" style="margin-bottom: 12px;"><i class="ti ti-message-question" aria-hidden="true" style="font-size:13px; margin-right:4px;"></i>5 interview questions to ask them</div>
+    <div class="q-card">
+      <div class="q-num">1</div>
+      <span style="font-size: 14px; color: var(--color-text-primary);">Will interns work on live client projects, or is the work internal/training-only?</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">2</div>
+      <span style="font-size: 14px; color: var(--color-text-primary);">What is the stipend or compensation structure for this internship?</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">3</div>
+      <span style="font-size: 14px; color: var(--color-text-primary);">Is there a mentor or senior developer assigned to guide interns throughout the program?</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">4</div>
+      <span style="font-size: 14px; color: var(--color-text-primary);">What ServiceNow modules (ITSM, HRSD, CSM, etc.) will I primarily be working on?</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">5</div>
+      <span style="font-size: 14px; color: var(--color-text-primary);">Does the company sponsor or support the ServiceNow Certified System Administrator (CSA) exam?</span>
+    </div>
+  </div>
+
+</div>
