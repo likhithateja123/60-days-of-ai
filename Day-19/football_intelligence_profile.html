@@ -1,0 +1,145 @@
+
+<style>
+  .wrap { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; max-width: 660px; }
+  .section { margin-bottom: 1.6rem; }
+  .sec-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 10px; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 6px; }
+  .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .pred-card { border-radius: var(--border-radius-lg); padding: 1rem; }
+  .pred-label { font-size: 11px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .pred-val { font-size: 17px; font-weight: 500; margin: 0 0 3px; }
+  .pred-note { font-size: 12px; margin: 0; }
+  .qa-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.2rem; margin-bottom: 10px; }
+  .qa-q { font-size: 14px; font-weight: 500; margin: 0 0 8px; }
+  .qa-opts { display: flex; flex-direction: column; gap: 5px; }
+  .qa-opt { font-size: 13px; color: var(--color-text-secondary); padding: 5px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); }
+  .qa-correct { background: var(--color-background-success); color: var(--color-text-success); border-color: var(--color-border-success); font-weight: 500; }
+  .score-box { display: flex; align-items: center; gap: 18px; background: var(--color-background-success); border-radius: var(--border-radius-lg); padding: 1.1rem 1.3rem; }
+  .score-num { font-size: 32px; font-weight: 500; color: var(--color-text-success); }
+  .score-label { font-size: 13px; color: var(--color-text-success); margin: 0 0 2px; }
+  .score-sub { font-size: 13px; color: var(--color-text-success); margin: 2px 0 0; }
+  .gm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .gm-card { border-radius: var(--border-radius-lg); padding: 1rem; text-align: center; }
+  .gm-name { font-size: 15px; font-weight: 500; margin: 0 0 4px; }
+  .gm-pct { font-size: 26px; font-weight: 500; margin: 4px 0; }
+  .gm-trait { font-size: 12px; margin: 0; }
+  .archetype-box { background: var(--color-background-info); border-radius: var(--border-radius-lg); padding: 1.1rem 1.3rem; text-align: center; margin-top: 12px; }
+  .archetype-title { font-size: 11px; color: var(--color-text-info); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px; }
+  .archetype-name { font-size: 19px; font-weight: 500; color: var(--color-text-info); margin: 0 0 6px; }
+  .archetype-desc { font-size: 13px; color: var(--color-text-info); margin: 0; line-height: 1.6; }
+  .profile-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; }
+  .profile-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 14px; }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row-label { color: var(--color-text-secondary); }
+  .profile-row-val { font-weight: 500; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-lbl { font-size: 13px; width: 110px; flex-shrink: 0; color: var(--color-text-secondary); }
+  .bar-bg { flex: 1; height: 7px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-val { font-size: 13px; font-weight: 500; width: 36px; text-align: right; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">Football intelligence profile including World Cup 2026 predictions, football IQ quiz results, and Messi vs Ronaldo personality assessment</h2>
+
+  <div class="section">
+    <p class="sec-title"><i class="ti ti-trophy" aria-hidden="true"></i> World Cup 2026 prediction</p>
+    <div class="pred-grid">
+      <div class="pred-card c-amber" style="background: var(--color-background-warning);">
+        <p class="pred-label" style="color: var(--color-text-warning);">Winner</p>
+        <p class="pred-val" style="color: var(--color-text-warning);">France</p>
+        <p class="pred-note" style="color: var(--color-text-warning);">Mbappé-led attack, deepest squad</p>
+      </div>
+      <div class="pred-card" style="background: var(--color-background-secondary);">
+        <p class="pred-label" style="color: var(--color-text-secondary);">Runner-up</p>
+        <p class="pred-val">Spain</p>
+        <p class="pred-note" style="color: var(--color-text-secondary);">Possession masters, Yamal-led</p>
+      </div>
+      <div class="pred-card" style="background: var(--color-background-secondary);">
+        <p class="pred-label" style="color: var(--color-text-secondary);">Dark horse</p>
+        <p class="pred-val">Mexico</p>
+        <p class="pred-note" style="color: var(--color-text-secondary);">Co-host advantage, hot start</p>
+      </div>
+      <div class="pred-card" style="background: var(--color-background-secondary);">
+        <p class="pred-label" style="color: var(--color-text-secondary);">Player to watch</p>
+        <p class="pred-val">Lamine Yamal</p>
+        <p class="pred-note" style="color: var(--color-text-secondary);">Spain's teenage sensation</p>
+      </div>
+    </div>
+    <p style="font-size:12px; color:var(--color-text-secondary); margin-top:10px;">Based on current odds and group-stage form as of mid-tournament, June 2026. Margins between top teams remain tight — this is one of the most open World Cups in years.</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title"><i class="ti ti-help-circle" aria-hidden="true"></i> Your football IQ quiz results</p>
+    <div class="qa-card">
+      <p class="qa-q">1. How many teams compete in the World Cup 2026?</p>
+      <div class="qa-opts"><span class="qa-opt qa-correct"><i class="ti ti-check" aria-hidden="true"></i> 48 — your answer, correct</span></div>
+    </div>
+    <div class="qa-card">
+      <p class="qa-q">2. Which countries co-host the 2026 World Cup?</p>
+      <div class="qa-opts"><span class="qa-opt qa-correct"><i class="ti ti-check" aria-hidden="true"></i> USA, Canada & Mexico — your answer, correct</span></div>
+    </div>
+    <div class="qa-card">
+      <p class="qa-q">3. How long is a standard football match?</p>
+      <div class="qa-opts"><span class="qa-opt qa-correct"><i class="ti ti-check" aria-hidden="true"></i> 90 minutes — your answer, correct</span></div>
+    </div>
+    <div class="qa-card">
+      <p class="qa-q">4. What is a "handball" in football?</p>
+      <div class="qa-opts"><span class="qa-opt qa-correct"><i class="ti ti-check" aria-hidden="true"></i> A foul resulting in direct free kick/penalty — your answer, correct</span></div>
+    </div>
+    <div class="qa-card">
+      <p class="qa-q">5. Who has won the most Ballon d'Or awards?</p>
+      <div class="qa-opts"><span class="qa-opt qa-correct"><i class="ti ti-check" aria-hidden="true"></i> Lionel Messi — your answer, correct</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title"><i class="ti ti-target" aria-hidden="true"></i> Football awareness score</p>
+    <div class="score-box">
+      <div class="score-num">5/5</div>
+      <div>
+        <p class="score-label">Perfect score · 100%</p>
+        <p class="score-sub">Fan classification: <strong style="font-weight:500;">Rising Enthusiast</strong></p>
+      </div>
+    </div>
+    <p style="font-size:13px; color:var(--color-text-secondary); margin-top:8px;">You got every question right despite calling yourself a beginner — that's a great sign. You clearly absorb football facts quickly even without years of watching. As you start following matches more regularly, you'll likely move fast from "Rising Enthusiast" to "Knowledgeable Fan."</p>
+  </div>
+
+  <div class="section">
+    <p class="sec-title"><i class="ti ti-users" aria-hidden="true"></i> Messi vs Ronaldo personality assessment</p>
+    <div class="gm-grid">
+      <div class="gm-card" style="background: var(--color-background-secondary);">
+        <p class="gm-name">Messi match</p>
+        <p class="gm-pct" style="color: var(--color-text-info);">75%</p>
+        <p class="gm-trait" style="color: var(--color-text-secondary);">Quiet brilliance, team-first mindset</p>
+      </div>
+      <div class="gm-card" style="background: var(--color-background-secondary);">
+        <p class="gm-name">Ronaldo match</p>
+        <p class="gm-pct" style="color: var(--color-text-warning);">68%</p>
+        <p class="gm-trait" style="color: var(--color-text-secondary);">Discipline, passion, big celebrations</p>
+      </div>
+    </div>
+    <div class="bar-row" style="margin-top:14px;"><span class="bar-lbl">Team setting</span><div class="bar-bg"><div class="bar-fill" style="width:50%; background:#7F77DD;"></div></div><span class="bar-val">Mixed</span></div>
+    <div class="bar-row"><span class="bar-lbl">Success driver</span><div class="bar-bg"><div class="bar-fill" style="width:80%; background:#EF9F27;"></div></div><span class="bar-val">Ronaldo</span></div>
+    <div class="bar-row"><span class="bar-lbl">Win reaction</span><div class="bar-bg"><div class="bar-fill" style="width:80%; background:#EF9F27;"></div></div><span class="bar-val">Ronaldo</span></div>
+    <div class="bar-row"><span class="bar-lbl">Core value</span><div class="bar-bg"><div class="bar-fill" style="width:85%; background:#378ADD;"></div></div><span class="bar-val">Messi</span></div>
+    <div class="bar-row"><span class="bar-lbl">Commitment</span><div class="bar-bg"><div class="bar-fill" style="width:75%; background:#EF9F27;"></div></div><span class="bar-val">Ronaldo</span></div>
+
+    <div class="archetype-box">
+      <p class="archetype-title">Your football personality archetype</p>
+      <p class="archetype-name">The Disciplined Playmaker</p>
+      <p class="archetype-desc">You lean Messi in values (team success, quiet versatility) but Ronaldo in drive (hard work, bold passion, willingness to chase opportunity). You're a team-first competitor who isn't afraid to celebrate loud when it matters.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="sec-title"><i class="ti ti-id-badge-2" aria-hidden="true"></i> Final football intelligence profile</p>
+    <div class="profile-card">
+      <div class="profile-row"><span class="profile-row-label">Knowledge level</span><span class="profile-row-val">Beginner (self-rated) → tests as Rising Enthusiast</span></div>
+      <div class="profile-row"><span class="profile-row-label">Football IQ score</span><span class="profile-row-val">5/5 (100%)</span></div>
+      <div class="profile-row"><span class="profile-row-label">Fan classification</span><span class="profile-row-val">Rising Enthusiast</span></div>
+      <div class="profile-row"><span class="profile-row-label">Personality archetype</span><span class="profile-row-val">The Disciplined Playmaker</span></div>
+      <div class="profile-row"><span class="profile-row-label">GOAT alignment</span><span class="profile-row-val">55% Messi / 45% Ronaldo</span></div>
+      <div class="profile-row"><span class="profile-row-label">Predicted growth path</span><span class="profile-row-val">Fast learner, tactically curious</span></div>
+    </div>
+  </div>
+</div>
