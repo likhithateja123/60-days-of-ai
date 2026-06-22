@@ -1,0 +1,403 @@
+
+<style>
+  :root{
+    --bg:#F7F8FB; --panel:#FFFFFF; --ink:#0F172A; --ink-dim:#475569;
+    --ink-faint:#94A3B8; --line:#E2E8F0;
+    --blue:#3B5BDB; --blue-dim:#EEF2FF;
+    --green:#0F9B6B; --green-dim:#ECFDF5;
+    --amber:#D97706; --amber-dim:#FFFBEB;
+    --red:#DC2626; --red-dim:#FEF2F2;
+    --purple:#7C3AED; --purple-dim:#F5F3FF;
+    --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+    --mono:'SF Mono','Courier New',monospace;
+    --r:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.6;}
+  .wrap{max-width:820px;margin:0 auto;padding:28px 20px 60px;}
+
+  /* header */
+  .report-header{background:linear-gradient(135deg,#1E3A8A,#3B5BDB);border-radius:14px;padding:28px 28px 24px;color:#fff;margin-bottom:22px;}
+  .rh-badge{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.15);display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:12px;}
+  .rh-title{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin-bottom:6px;}
+  .rh-sub{font-size:12.5px;opacity:.75;}
+  .rh-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .rh-pill{font-size:11.5px;background:rgba(255,255,255,.13);border:0.5px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:20px;}
+
+  /* section */
+  .sec{margin-bottom:20px;}
+  .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .sec-idx{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);font-weight:700;}
+  .sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink);}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;}
+
+  /* score pill */
+  .score-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .sp-blue{background:var(--blue-dim);color:var(--blue);}
+  .sp-green{background:var(--green-dim);color:var(--green);}
+  .sp-amber{background:var(--amber-dim);color:var(--amber);}
+  .sp-red{background:var(--red-dim);color:var(--red);}
+
+  /* exec summary */
+  .exec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:14px;}
+  .exec-stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;}
+  .exec-stat-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:3px;}
+  .exec-stat-val{font-size:15px;font-weight:700;}
+  .prose{font-size:13px;color:var(--ink-dim);line-height:1.7;}
+
+  /* FM fit */
+  .fm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.fm-grid{grid-template-columns:1fr;}}
+  .fm-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .fm-bar-lbl{font-size:12px;width:130px;flex-shrink:0;color:var(--ink-dim);}
+  .fm-bar-bg{flex:1;height:7px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .fm-bar-fill{height:100%;border-radius:4px;}
+  .fm-bar-val{font-family:var(--mono);font-size:11.5px;font-weight:700;width:30px;text-align:right;}
+
+  /* market */
+  .tam-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media(max-width:500px){.tam-grid{grid-template-columns:1fr;}}
+  .tam-card{border-radius:8px;padding:14px 12px;text-align:center;}
+  .tam-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .tam-val{font-size:22px;font-weight:800;letter-spacing:-.01em;}
+  .tam-note{font-size:11px;margin-top:3px;opacity:.75;}
+
+  /* table */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .tbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);padding:7px 10px;border-bottom:2px solid var(--line);font-weight:700;}
+  .tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .tbl tr:last-child td{border-bottom:none;}
+  .tbl .mono{font-family:var(--mono);font-weight:700;}
+
+  /* two-col */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.two-col{grid-template-columns:1fr;}}
+  .col-block{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:13px 14px;}
+  .col-block-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .list-item{display:flex;gap:7px;font-size:12.5px;margin-bottom:5px;color:var(--ink-dim);}
+  .list-item:last-child{margin-bottom:0;}
+  .li-dot{flex-shrink:0;margin-top:4px;width:6px;height:6px;border-radius:50%;}
+
+  /* risk */
+  .risk-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .risk-row:last-child{border-bottom:none;}
+  .risk-sev{width:60px;flex-shrink:0;font-family:var(--mono);font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;text-align:center;}
+  .risk-body .risk-title{font-size:12.5px;font-weight:700;margin-bottom:2px;}
+  .risk-body .risk-mit{font-size:12px;color:var(--ink-dim);}
+
+  /* journey */
+  .journey-row{display:flex;gap:0;}
+  .journey-step{flex:1;text-align:center;padding:12px 8px;position:relative;}
+  .journey-step::after{content:"";position:absolute;top:20px;right:-1px;width:2px;height:14px;background:var(--line);display:block;}
+  .journey-step:last-child::after{display:none;}
+  .js-num{width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-family:var(--mono);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;}
+  .js-stage{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-dim);margin-bottom:2px;}
+  .js-desc{font-size:10.5px;color:var(--ink-faint);line-height:1.4;}
+  @media(max-width:580px){.journey-row{flex-direction:column;} .journey-step::after{display:none;}}
+
+  /* verdict */
+  .verdict-box{background:linear-gradient(135deg,var(--green-dim),#F0FFF4);border:2px solid var(--green);border-radius:var(--r);padding:22px 24px;text-align:center;}
+  .verdict-icon{font-size:32px;margin-bottom:6px;}
+  .verdict-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--green);font-weight:700;margin-bottom:4px;}
+  .verdict-title{font-size:20px;font-weight:800;color:#064E3B;margin-bottom:8px;}
+  .verdict-sub{font-size:12.5px;color:#065F46;max-width:520px;margin:0 auto;}
+
+  /* action plan */
+  .week-block{margin-bottom:12px;}
+  .week-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .week-label::after{content:"";flex:1;height:1px;background:var(--blue-dim);}
+  .week-tasks{display:flex;flex-direction:column;gap:5px;}
+  .task-row{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-dim);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;}
+  .task-row b{color:var(--ink);}
+
+  .section-divider{height:1px;background:var(--line);margin:8px 0 20px;}
+</style>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <div class="rh-badge">Startup Validation Report · VC Analysis</div>
+    <div class="rh-title">AI-Powered Peer Learning &amp; Study Community Platform</div>
+    <div class="rh-sub">EdTech · India · Small Business Track · Students 18–25 · Pre-Idea Stage</div>
+    <div class="rh-pills">
+      <span class="rh-pill">📍 India-first</span>
+      <span class="rh-pill">🎯 EdTech / AI</span>
+      <span class="rh-pill">👤 Founder-Passion Play</span>
+      <span class="rh-pill">🏗️ Validation Phase 0</span>
+    </div>
+  </div>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">01</span><span class="sec-title">Executive Summary</span></div>
+    <div class="panel">
+      <div class="exec-grid">
+        <div class="exec-stat"><div class="exec-stat-label">Idea Stage</div><div class="exec-stat-val">Pre-Validation</div></div>
+        <div class="exec-stat"><div class="exec-stat-label">Market</div><div class="exec-stat-val">India EdTech</div></div>
+        <div class="exec-stat"><div class="exec-stat-label">FM Fit Score</div><div class="exec-stat-val" style="color:var(--amber)">62 / 100</div></div>
+        <div class="exec-stat"><div class="exec-stat-label">Verdict</div><div class="exec-stat-val" style="color:var(--green)">Conditional GO ✓</div></div>
+      </div>
+      <p class="prose">You're targeting a real, felt pain — Indian students (18–25) lack structured, AI-driven peer communities that combine personalized learning with social study accountability. The EdTech market is large and proven, but crowded at the top. Your edge will come from depth of community + AI personalization as a combo, not either alone. The idea has founder-market resonance (personal passion, lived experience) but needs immediate user interviews before any building begins. This report recommends a <strong>Conditional GO</strong> contingent on validating willingness to pay within 30 days.</p>
+    </div>
+  </div>
+
+  <!-- 2. FOUNDER-MARKET FIT -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">02</span><span class="sec-title">Founder-Market Fit Score</span></div>
+    <div class="panel">
+      <div class="fm-grid">
+        <div>
+          <div class="fm-bar-row"><span class="fm-bar-lbl">Lived the problem</span><div class="fm-bar-bg"><div class="fm-bar-fill" style="width:90%;background:var(--green);"></div></div><span class="fm-bar-val" style="color:var(--green)">90</span></div>
+          <div class="fm-bar-row"><span class="fm-bar-lbl">Domain knowledge</span><div class="fm-bar-bg"><div class="fm-bar-fill" style="width:55%;background:var(--amber);"></div></div><span class="fm-bar-val" style="color:var(--amber)">55</span></div>
+          <div class="fm-bar-row"><span class="fm-bar-lbl">Network in space</span><div class="fm-bar-bg"><div class="fm-bar-fill" style="width:50%;background:var(--amber);"></div></div><span class="fm-bar-val" style="color:var(--amber)">50</span></div>
+          <div class="fm-bar-row"><span class="fm-bar-lbl">Tech / AI capability</span><div class="fm-bar-bg"><div class="fm-bar-fill" style="width:60%;background:var(--blue);"></div></div><span class="fm-bar-val" style="color:var(--blue)">60</span></div>
+          <div class="fm-bar-row"><span class="fm-bar-lbl">Existing validation</span><div class="fm-bar-bg"><div class="fm-bar-fill" style="width:15%;background:var(--red);"></div></div><span class="fm-bar-val" style="color:var(--red)">15</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:42px;font-weight:800;color:var(--amber);font-family:var(--mono);">62</div>
+          <div style="font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;">out of 100</div>
+          <span class="score-pill sp-amber">Moderate Fit</span>
+          <p style="font-size:11.5px;color:var(--ink-dim);margin-top:10px;line-height:1.5;">Strong passion, real lived experience. Gaps in prior validation and EdTech network are fillable — but you must close them in 30 days.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. TAM SAM SOM -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">03</span><span class="sec-title">Market Size — TAM · SAM · SOM</span></div>
+    <div class="panel">
+      <div class="tam-grid" style="margin-bottom:14px;">
+        <div class="tam-card" style="background:var(--blue-dim);">
+          <div class="tam-label" style="color:var(--blue);">TAM</div>
+          <div class="tam-val" style="color:var(--blue);">$8.3B</div>
+          <div class="tam-note" style="color:var(--blue);">India EdTech (2025 est.)</div>
+        </div>
+        <div class="tam-card" style="background:var(--purple-dim);">
+          <div class="tam-label" style="color:var(--purple);">SAM</div>
+          <div class="tam-val" style="color:var(--purple);">$1.1B</div>
+          <div class="tam-note" style="color:var(--purple);">AI + peer learning, 18–25 segment</div>
+        </div>
+        <div class="tam-card" style="background:var(--green-dim);">
+          <div class="tam-label" style="color:var(--green);">SOM</div>
+          <div class="tam-val" style="color:var(--green);">$18M</div>
+          <div class="tam-note" style="color:var(--green);">Realistic 3-yr capture (small biz)</div>
+        </div>
+      </div>
+      <p class="prose">India has 40M+ college students. Even capturing 0.5% of AI-learning-ready students at ₹499/month = ~₹100Cr ARR potential at scale. As a small business targeting ₹2–5Cr ARR, this is very achievable without VC pressure.</p>
+    </div>
+  </div>
+
+  <!-- 4. COMPETITOR ANALYSIS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">04</span><span class="sec-title">Competitor Analysis</span></div>
+    <div class="panel" style="padding:14px;">
+      <table class="tbl">
+        <thead><tr><th>Competitor</th><th>Strength</th><th>Weakness</th><th>Your Edge</th></tr></thead>
+        <tbody>
+          <tr><td><b>Unacademy</b></td><td>Large instructor base, brand</td><td>One-way broadcast, no AI peer layer</td><td>2-way AI + community</td></tr>
+          <tr><td><b>BYJU'S</b></td><td>Content depth, brand trust</td><td>Expensive, no peer study rooms</td><td>Peer accountability + affordable</td></tr>
+          <tr><td><b>Discord Study Servers</b></td><td>Free, organic communities</td><td>No structure, no AI, no curriculum</td><td>Structured + AI-guided</td></tr>
+          <tr><td><b>Coursera / Udemy</b></td><td>Course variety</td><td>No India-specific community, no AI tutor</td><td>India-first + vernacular + peers</td></tr>
+          <tr><td><b>Quora / Reddit</b></td><td>Q&amp;A community</td><td>No personalisation, noisy, unmoderated</td><td>Curated, AI-matched peers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. MARKET GAP ANALYSIS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">05</span><span class="sec-title">Market Gap Analysis</span></div>
+    <div class="panel">
+      <div class="two-col">
+        <div class="col-block">
+          <div class="col-block-title" style="color:var(--red);">Gaps in the market today</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>No platform combines AI tutoring + live peer study rooms in India</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>Study communities are informal (WhatsApp groups) with zero structure</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>AI tools like ChatGPT are used solo — no shared, guided AI study sessions</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>No accountability layer in existing EdTech apps</div>
+        </div>
+        <div class="col-block">
+          <div class="col-block-title" style="color:var(--green);">Your opportunity wedge</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--green);"></div>Build "AI study rooms" — AI tutor + 3–5 matched peers on same topic</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--green);"></div>Start with one exam vertical (GATE / CAT / UPSC) to dominate niche</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--green);"></div>Freemium community → paid AI-personalised plans</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--green);"></div>Leverage founders' student network for early beta users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ICP & BUYER PERSONA -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">06</span><span class="sec-title">ICP &amp; Buyer Persona</span></div>
+    <div class="panel">
+      <div style="background:var(--blue-dim);border:1px solid #BFDBFE;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:10px;">Ideal Customer Profile (ICP)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;font-size:12.5px;">
+          <div><b>Name:</b> Arjun / Priya</div>
+          <div><b>Age:</b> 20–24</div>
+          <div><b>Location:</b> Tier-1 / Tier-2 India</div>
+          <div><b>Studying:</b> B.Tech / MBA / Competitive exam</div>
+          <div><b>Devices:</b> Android-first, WhatsApp daily</div>
+          <div><b>Budget:</b> ₹299–₹799/month if clear ROI</div>
+        </div>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>Core motivation</td><td>Get a good job / clear an exam / not fall behind peers</td></tr>
+          <tr><td>Current behavior</td><td>Uses YouTube for concepts, WhatsApp groups for doubts, ChatGPT for explanations</td></tr>
+          <tr><td>Frustration</td><td>Studies alone, no accountability, can't find serious study partners online</td></tr>
+          <tr><td>Decision trigger</td><td>Exam date approaching, friend got placed / cleared exam, peer recommendation</td></tr>
+          <tr><td>Willingness to pay</td><td>High IF they see others succeeding on the platform first (social proof driven)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7. PAIN POINTS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">07</span><span class="sec-title">Customer Pain Points</span></div>
+    <div class="panel">
+      <div class="two-col">
+        <div class="col-block">
+          <div class="col-block-title" style="color:var(--amber);">Functional pains</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--amber);"></div>Can't find peers at the same level to study with</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--amber);"></div>No structured way to hold themselves accountable</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--amber);"></div>Generic courses don't adapt to their pace</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--amber);"></div>Doubt-solving is slow — wait hours in forums</div>
+        </div>
+        <div class="col-block">
+          <div class="col-block-title" style="color:var(--red);">Emotional pains</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>Fear of being left behind while peers progress</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>Loneliness and isolation in self-study</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>Imposter syndrome — "Am I the only one struggling?"</div>
+          <div class="list-item"><div class="li-dot" style="background:var(--red);"></div>Anxiety about ROI on expensive courses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. BUYING TRIGGERS & OBJECTIONS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">08</span><span class="sec-title">Buying Triggers &amp; Objections</span></div>
+    <div class="panel" style="padding:14px;">
+      <table class="tbl">
+        <thead><tr><th>Trigger</th><th>Objection</th><th>Your Counter</th></tr></thead>
+        <tbody>
+          <tr><td>Upcoming exam in 60 days</td><td>"I'll just use YouTube for free"</td><td>Show AI personalisation YouTube can't do</td></tr>
+          <tr><td>Friend got placed using your app</td><td>"Will my study partners be serious?"</td><td>Vetting + commitment-pledge feature</td></tr>
+          <tr><td>Failed mock test, needs help</td><td>"Another app I'll abandon in a week"</td><td>Daily streaks + peer accountability nudges</td></tr>
+          <tr><td>Holiday / semester break</td><td>"It's too expensive for a student"</td><td>Freemium tier, ₹99 trial week</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 9. CUSTOMER JOURNEY -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">09</span><span class="sec-title">Customer Journey</span></div>
+    <div class="panel">
+      <div class="journey-row">
+        <div class="journey-step"><div class="js-num">1</div><div class="js-stage">Awareness</div><div class="js-desc">Sees LinkedIn / Instagram post or peer mention</div></div>
+        <div class="journey-step"><div class="js-num">2</div><div class="js-stage">Interest</div><div class="js-desc">Joins free community / takes AI learning quiz</div></div>
+        <div class="journey-step"><div class="js-num">3</div><div class="js-stage">Evaluation</div><div class="js-desc">Does 1 AI study session with matched peers</div></div>
+        <div class="journey-step"><div class="js-num">4</div><div class="js-stage">Decision</div><div class="js-desc">Pays ₹99 trial or ₹499/month plan</div></div>
+        <div class="journey-step"><div class="js-num">5</div><div class="js-stage">Loyalty</div><div class="js-desc">Refers friends, becomes community mentor</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. RISK ASSESSMENT -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">10</span><span class="sec-title">Risk Assessment</span></div>
+    <div class="panel">
+      <div class="risk-row">
+        <div class="risk-sev" style="background:var(--red-dim);color:var(--red);">HIGH</div>
+        <div class="risk-body"><div class="risk-title">Zero validation — no user interviews done</div><div class="risk-mit">Mitigation: Talk to 20 students in 2 weeks before writing any code.</div></div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-sev" style="background:var(--red-dim);color:var(--red);">HIGH</div>
+        <div class="risk-body"><div class="risk-title">Cold-start problem — community needs users to be valuable</div><div class="risk-mit">Mitigation: Seed with 50 friends/classmates manually before public launch.</div></div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-sev" style="background:var(--amber-dim);color:var(--amber);">MED</div>
+        <div class="risk-body"><div class="risk-title">Big EdTech players can copy the feature quickly</div><div class="risk-mit">Mitigation: Win on community depth and niche exam focus — own a vertical first.</div></div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-sev" style="background:var(--amber-dim);color:var(--amber);">MED</div>
+        <div class="risk-body"><div class="risk-title">AI infra cost can be high at scale</div><div class="risk-mit">Mitigation: Use OpenAI API with token limits per free user; upgrade on paid tier.</div></div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-sev" style="background:var(--green-dim);color:var(--green);">LOW</div>
+        <div class="risk-body"><div class="risk-title">Students switching to next app easily</div><div class="risk-mit">Mitigation: Build social identity / streak / badge system for retention.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. PIVOT OPPORTUNITIES -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">11</span><span class="sec-title">Pivot Opportunities</span></div>
+    <div class="panel">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+        <div class="col-block"><div class="col-block-title" style="color:var(--blue);">Pivot A</div><div style="font-size:12.5px;color:var(--ink-dim);">B2B — sell to colleges as an AI study platform for their students (guaranteed revenue, no CAC)</div></div>
+        <div class="col-block"><div class="col-block-title" style="color:var(--purple);">Pivot B</div><div style="font-size:12.5px;color:var(--ink-dim);">Niche vertical — GATE/CAT/UPSC only, go deep on one exam before expanding</div></div>
+        <div class="col-block"><div class="col-block-title" style="color:var(--amber);">Pivot C</div><div style="font-size:12.5px;color:var(--ink-dim);">Marketplace — let toppers monetise by hosting AI-assisted study rooms (creator economy model)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. VERDICT -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">12</span><span class="sec-title">Go / No-Go Recommendation</span></div>
+    <div class="verdict-box">
+      <div class="verdict-icon">✅</div>
+      <div class="verdict-label">Recommendation</div>
+      <div class="verdict-title">Conditional GO — Validate First, Build Second</div>
+      <p class="verdict-sub">The idea addresses a real gap. The market is large enough for a profitable small business. Founder passion is genuine. BUT — you have zero user validation. The single condition: speak to 20 students in the next 2 weeks, confirm they will pay ₹299–₹499/month, and find 3 people who say <em>"I need this right now."</em> If you find those 3, go build. If you don't, the market gap or pricing assumption needs revision.</p>
+    </div>
+  </div>
+
+  <!-- 13. 30-DAY ACTION PLAN -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-idx">13</span><span class="sec-title">30-Day Action Plan</span></div>
+    <div class="panel">
+      <div class="week-block">
+        <div class="week-label">Week 1 — Discover</div>
+        <div class="week-tasks">
+          <div class="task-row">📋 <span><b>Day 1–2:</b> Write 10 interview questions. Target: What do you do when you need a study partner today?</span></div>
+          <div class="task-row">👥 <span><b>Day 3–7:</b> Interview 20 students (classmates, LinkedIn, college groups). Record answers, look for patterns.</span></div>
+        </div>
+      </div>
+      <div class="week-block">
+        <div class="week-label">Week 2 — Define</div>
+        <div class="week-tasks">
+          <div class="task-row">📊 <span><b>Day 8–10:</b> Synthesise interviews. Identify the #1 pain that 15+ of 20 people mentioned unprompted.</span></div>
+          <div class="task-row">🎯 <span><b>Day 11–14:</b> Pick ONE exam vertical (e.g. GATE). Define the exact MVP: AI-matched study pairs + doubt-solving bot.</span></div>
+        </div>
+      </div>
+      <div class="week-block">
+        <div class="week-label">Week 3 — Prototype</div>
+        <div class="week-tasks">
+          <div class="task-row">🛠️ <span><b>Day 15–18:</b> Build a WhatsApp / Telegram bot MVP — AI tutor + manual peer matching. No app yet.</span></div>
+          <div class="task-row">🚀 <span><b>Day 19–21:</b> Onboard first 30 beta users. Run it manually ("Wizard of Oz" — you match peers by hand).</span></div>
+        </div>
+      </div>
+      <div class="week-block">
+        <div class="week-label">Week 4 — Validate Willingness to Pay</div>
+        <div class="week-tasks">
+          <div class="task-row">💳 <span><b>Day 22–25:</b> Ask 10 beta users: "Would you pay ₹99 for the next month?" Collect even ₹1 as proof.</span></div>
+          <div class="task-row">📈 <span><b>Day 26–30:</b> If 3+ pay → build. If not → run 5 more interviews and revise positioning or pricing.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:11.5px;color:var(--ink-faint);margin-top:16px;line-height:1.6;">
+    Report generated as a directional advisory. All market size figures are estimates based on publicly available EdTech research (2024–25).
+    This is not a certified VC assessment. Validate all assumptions with real users before committing resources.
+  </div>
+
+</div>
