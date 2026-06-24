@@ -1,0 +1,212 @@
+# Day 23 – Customer & MVP Blueprint using Claude AI
+
+## Objective
+
+The objective of this task was to analyze potential customers, understand their pain points, and create a Minimum Viable Product (MVP) strategy for an EdTech startup idea. The exercise focused on identifying customer needs and defining the most important features required for an initial product launch.
+
+## Startup Overview
+
+**Domain:** EdTech / Learning
+
+**Target Customers:** Students and Youth (18–25 years)
+
+**Target Market:** India
+
+**Stage:** Idea Validation
+
+## Ideal Customer Profile (ICP)
+
+The ideal customer is a student or young learner seeking affordable, accessible, and practical learning opportunities that can improve skills, knowledge, and career prospects.
+
+### Characteristics
+
+* Age: 18–25 years
+* College students and recent graduates
+* Active users of digital learning platforms
+* Interested in career growth and skill development
+* Comfortable using mobile and web applications
+
+## Buyer Persona
+
+### Persona: Career-Focused Student
+
+**Goals**
+
+* Improve technical and professional skills
+* Secure internships and job opportunities
+* Learn through practical experiences
+
+**Challenges**
+
+* Information overload
+* Difficulty choosing relevant courses
+* Lack of personalized guidance
+* Limited hands-on learning opportunities
+
+## Top Customer Pain Points
+
+1. Finding relevant learning content
+2. Lack of personalized learning paths
+3. High course costs
+4. Information overload
+5. Low engagement levels
+6. Lack of practical projects
+7. Difficulty tracking progress
+8. Limited mentorship opportunities
+9. Poor community interaction
+10. Unclear career guidance
+
+## Customer Journey
+
+### Awareness
+
+Students discover the platform through social media, referrals, and educational communities.
+
+### Consideration
+
+Users compare available learning solutions, features, and pricing options.
+
+### Purchase
+
+Students enroll in courses or learning programs based on value and affordability.
+
+### Retention
+
+Regular engagement, progress tracking, and personalized recommendations encourage continued usage.
+
+## Buying Triggers
+
+* Need for career advancement
+* Skill development requirements
+* Internship and job preparation
+* Affordable learning opportunities
+* Recommendations from peers
+
+## Customer Objections
+
+* Pricing concerns
+* Doubts about course quality
+* Lack of trust in new platforms
+* Time commitment requirements
+* Availability of free alternatives
+
+## MVP Recommendation
+
+### Build First
+
+* User registration and profiles
+* Learning dashboard
+* Course recommendations
+* Progress tracking
+* Basic community features
+
+### Do Not Build Initially
+
+* Advanced AI personalization
+* Complex gamification systems
+* Enterprise features
+* Large-scale integrations
+
+### Success Metrics
+
+* User signups
+* Active users
+* Course completion rate
+* Retention rate
+* User feedback scores
+
+## MoSCoW Prioritization
+
+### Must Have
+
+* User authentication
+* Learning content access
+* Progress tracking
+* Mobile-friendly design
+
+### Should Have
+
+* Community discussions
+* Personalized recommendations
+* Notifications
+
+### Could Have
+
+* Gamification
+* Achievement badges
+* Social sharing
+
+### Won't Have
+
+* Enterprise integrations
+* Advanced analytics
+* Premium automation features
+
+## Pricing Hypothesis
+
+A freemium model could attract initial users while offering premium learning resources and advanced features through subscription plans.
+
+## Top 5 Risks
+
+1. Strong competition in EdTech
+2. Customer acquisition challenges
+3. Low user retention
+4. Content quality expectations
+5. Scaling and operational costs
+
+## 30-Day MVP Plan
+
+### Week 1
+
+Research users and gather feedback.
+
+### Week 2
+
+Design MVP wireframes and user flows.
+
+### Week 3
+
+Develop core MVP features.
+
+### Week 4
+
+Test with early users and collect feedback.
+
+## Founder Action Sheet
+
+1. Conduct customer interviews
+2. Validate pain points
+3. Analyze competitors
+4. Define value proposition
+5. Create MVP wireframes
+6. Build prototype
+7. Test with users
+8. Gather feedback
+9. Improve product features
+10. Plan launch strategy
+
+## Scores
+
+| Metric           | Score  |
+| ---------------- | ------ |
+| Customer Clarity | 75/100 |
+| Problem Severity | 70/100 |
+| PMF Potential    | 72/100 |
+| MVP Readiness    | 68/100 |
+
+## Final Verdict
+
+🟡 Promising but Unvalidated
+
+The startup idea demonstrates potential within the EdTech sector. However, further customer validation, interviews, and MVP testing are necessary before significant investment or scaling efforts.
+
+## Key Learnings
+
+* Customer understanding is essential before development.
+* MVPs should focus on solving core problems.
+* Early feedback reduces product risk.
+* AI can accelerate product planning and customer analysis.
+
+## Conclusion
+
+This exercise helped transform a startup idea into a structured customer and MVP strategy. By focusing on customer needs, prioritization, and validation, the project established a practical roadmap for future product development.
