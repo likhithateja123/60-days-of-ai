@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Shark Tank Simulator</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Palette: Deep navy stage, electric gold spotlight, slate panels,
+   crimson danger, emerald deal — evokes a TV studio under pressure.
+   Signature: The animated "LIVE" broadcast dot in the header that
+   pulses like a real studio feed — makes the whole page feel on-air.
+============================================================ */
+:root {
+  /* Surface */
+  --bg-void:     #08090D;
+  --bg-stage:    #0E1018;
+  --bg-panel:    #141720;
+  --bg-card:     #1B1F2E;
+  --bg-lift:     #232840;
+  --bg-input:    #1A1E2C;
+
+  /* Brand */
+  --gold:        #F5A623;
+  --gold-dim:    #C47E0C;
+  --gold-glow:   rgba(245,166,35,0.18);
+  --gold-subtle: rgba(245,166,35,0.08);
+
+  /* Semantic */
+  --teal:        #00D4AA;
+  --crimson:     #FF4757;
+  --violet:      #7B5CF5;
+  --emerald:     #00C96B;
+
+  /* Text */
+  --text-primary:   #ECEEF5;
+  --text-secondary: #8A8FA8;
+  --text-muted:     #50556A;
+  --text-gold:      #F5A623;
+
+  /* Border */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-mid:     rgba(255,255,255,0.10);
+  --border-gold:    rgba(245,166,35,0.30);
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-gold: 0 0 40px rgba(245,166,35,0.15), 0 4px 20px rgba(245,166,35,0.10);
+  --shadow-btn:  0 4px 24px rgba(245,166,35,0.35);
+
+  /* Transitions */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── RESET ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── AMBIENT BACKGROUND LAYERS ───────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(245,166,35,0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(123,92,245,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 25% at 5% 70%,  rgba(0,212,170,0.04)  0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Z-LAYERING ─────────────────────────────────────────────────── */
+.z1 { position: relative; z-index: 1; }
+
+/* ============================================================
+   TYPOGRAPHY SCALE
+============================================================ */
+.t-display {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+}
+.t-headline {
+  font-size: clamp(20px, 3.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+.t-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.t-body  { font-size: 14px; line-height: 1.65; }
+.t-small { font-size: 12px; line-height: 1.5; }
+.t-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.t-gold { color: var(--gold); }
+.t-muted { color: var(--text-secondary); }
+
+/* ============================================================
+   LAYOUT WRAPPER
+============================================================ */
+.wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.wrap-wide {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ============================================================
+   SECTION SYSTEM — all sections hidden by default,
+   JS will toggle .is-active to show the current one.
+   Part 1 shows only #section-input.
+============================================================ */
+.app-section { display: none; }
+.app-section.is-active { display: block; }
+
+/* ============================================================
+   ── HEADER / HERO ──────────────────────────────────────────
+============================================================ */
+.site-header {
+  position: relative;
+  z-index: 1;
+  padding: 52px 20px 0;
+  text-align: center;
+}
+
+/* Animated "LIVE" broadcast badge — the signature element */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,71,87,0.12);
+  border: 1px solid rgba(255,71,87,0.30);
+  border-radius: 100px;
+  padding: 5px 14px 5px 10px;
+  margin-bottom: 24px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--crimson);
+  box-shadow: 0 0 8px var(--crimson);
+  animation: livePulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--crimson); }
+  50%       { opacity: 0.55; transform: scale(0.8); box-shadow: 0 0 3px var(--crimson); }
+}
+
+.hero-title {
+  background: linear-gradient(135deg, #FFFFFF 0%, var(--gold) 50%, #FFD580 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.hero-subtitle {
+  color: var(--text-secondary);
+  font-size: clamp(14px, 2vw, 17px);
+  max-width: 480px;
+  margin: 0 auto 36px;
+  line-height: 1.6;
+}
+
+/* ── Stage stats row ─────────────────────────────────────────── */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin: 0 auto 48px;
+  max-width: 560px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.hero-stat {
+  flex: 1;
+  padding: 18px 12px;
+  text-align: center;
+  border-right: 1px solid var(--border-subtle);
+  position: relative;
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+.hero-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── STEP INDICATOR (for later phases) ───────────────────────── */
+.step-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 0 auto 44px;
+  max-width: 580px;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--border-mid);
+}
+.step-item.is-done::after  { background: var(--gold-dim); }
+.step-item.is-active::after { background: var(--border-mid); }
+.step-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  border: 2px solid var(--border-mid);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  position: relative;
+  z-index: 1;
+  transition: all 0.35s var(--ease);
+}
+.step-item.is-active .step-num {
+  border-color: var(--gold);
+  background: var(--gold-subtle);
+  color: var(--gold);
+  box-shadow: 0 0 16px var(--gold-glow);
+}
+.step-item.is-done .step-num {
+  border-color: var(--gold-dim);
+  background: rgba(245,166,35,0.15);
+  color: var(--gold);
+}
+.step-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.step-item.is-active .step-label { color: var(--text-secondary); }
+
+/* ============================================================
+   ── INPUT SECTION (#section-input) ────────────────────────
+============================================================ */
+#section-input { padding-bottom: 80px; }
+
+/* ── Section header ──────────────────────────────────────────── */
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.section-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 10px;
+}
+.section-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ── Form card ───────────────────────────────────────────────── */
+.form-shell {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  animation: cardReveal 0.5s var(--ease) both;
+}
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gold top-bar accent */
+.form-shell-bar {
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 35%, var(--teal) 70%, transparent 100%);
+}
+
+.form-shell-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.form-shell-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: var(--gold-subtle);
+  border: 1px solid var(--border-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.form-shell-meta h3 { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+.form-shell-meta p  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Form grid body ──────────────────────────────────────────── */
+.form-body { padding: 28px; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-body { padding: 20px; }
+  .form-shell-head { padding: 18px 20px 16px; }
+}
+.field-full { grid-column: 1 / -1; }
+
+/* ── Field component ─────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: 7px; }
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-label .req {
+  color: var(--crimson);
+  font-size: 14px;
+  line-height: 1;
+}
+.field-label .field-hint {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+/* ── Input / Textarea base ───────────────────────────────────── */
+.field input,
+.field textarea,
+.field select {
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  width: 100%;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.field input:hover,
+.field textarea:hover {
+  border-color: var(--border-mid);
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--gold);
+  background: rgba(245,166,35,0.04);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.10);
+}
+.field textarea {
+  resize: vertical;
+  min-height: 88px;
+  max-height: 200px;
+}
+
+/* ── Field states ────────────────────────────────────────────── */
+.field.is-error input,
+.field.is-error textarea {
+  border-color: var(--crimson);
+  background: rgba(255,71,87,0.04);
+}
+.field.is-error input:focus,
+.field.is-error textarea:focus {
+  box-shadow: 0 0 0 3px rgba(255,71,87,0.12);
+}
+.field.is-valid input,
+.field.is-valid textarea {
+  border-color: var(--emerald);
+}
+.field.is-valid input:focus,
+.field.is-valid textarea:focus {
+  box-shadow: 0 0 0 3px rgba(0,201,107,0.10);
+}
+
+/* Error message */
+.field-error {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--crimson);
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+.field.is-error .field-error { display: flex; }
+
+/* Character counter */
+.field-counter {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: -2px;
+  display: none;
+}
+.field-counter.is-visible { display: block; }
+.field-counter.is-near    { color: var(--gold); }
+.field-counter.is-over    { color: var(--crimson); }
+
+/* ── Input prefix/suffix wrapper ─────────────────────────────── */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-wrap .field-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 15px;
+  pointer-events: none;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.input-wrap input {
+  padding-left: 36px;
+}
+.input-wrap:focus-within .field-icon { color: var(--gold); }
+
+/* Valid checkmark */
+.input-check {
+  position: absolute;
+  right: 12px;
+  font-size: 14px;
+  color: var(--emerald);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.field.is-valid .input-check { opacity: 1; }
+
+/* ── Divider within form ─────────────────────────────────────── */
+.form-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 8px 0 18px;
+  grid-column: 1 / -1;
+  position: relative;
+}
+.form-divider-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-card);
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ── Info callout inside form ────────────────────────────────── */
+.info-callout {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--gold-subtle);
+  border: 1px solid rgba(245,166,35,0.15);
+  border-radius: var(--r-sm);
+  padding: 13px 16px;
+}
+.info-callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.info-callout-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+.info-callout-text strong { color: var(--gold); }
+
+/* ── Form footer ─────────────────────────────────────────────── */
+.form-footer {
+  padding: 20px 28px 28px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .form-footer { padding: 16px 20px 20px; }
+}
+.form-progress-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.form-progress-text span {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ── Progress bar (field completion) ────────────────────────── */
+.mini-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  overflow: hidden;
+  width: 120px;
+  margin-top: 6px;
+}
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--teal));
+  border-radius: 2px;
+  transition: width 0.4s var(--ease);
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--r-md);
+  padding: 13px 28px;
+  transition: all 0.2s var(--ease);
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary — gold CTA */
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+  color: #0A0B0F;
+  box-shadow: var(--shadow-btn);
+  letter-spacing: 0.01em;
+  font-size: 15px;
+  padding: 14px 36px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(245,166,35,0.45);
+}
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-btn);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-mid);
+}
+.btn-ghost:hover {
+  border-color: var(--border-gold);
+  color: var(--text-primary);
+  background: var(--gold-subtle);
+}
+
+/* Btn with shimmer on hover */
+.btn-primary .btn-shimmer {
+  display: inline-block;
+  position: relative;
+}
+
+/* ── Button icon slot ────────────────────────────────────────── */
+.btn-icon { font-size: 17px; }
+
+/* ── CTA area ────────────────────────────────────────────────── */
+.cta-area {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .cta-area { flex-direction: column-reverse; align-items: stretch; }
+  .btn { width: 100%; justify-content: center; }
+}
+
+/* ============================================================
+   ── PLACEHOLDER SECTIONS (Parts 2–5 will populate these) ──
+============================================================ */
+.placeholder-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.placeholder-inner {
+  text-align: center;
+  padding: 60px 24px;
+}
+.placeholder-icon {
+  font-size: 52px;
+  margin-bottom: 20px;
+  display: block;
+  opacity: 0.25;
+}
+.placeholder-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.placeholder-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   TOAST NOTIFICATION
+============================================================ */
+#toast-root {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-lift);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-md);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: toastIn 0.3s var(--ease) both;
+}
+.toast.is-error   { border-color: rgba(255,71,87,0.4);  background: rgba(255,71,87,0.10); }
+.toast.is-success { border-color: rgba(0,201,107,0.4);  background: rgba(0,201,107,0.08); }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ============================================================
+   SCROLLBAR STYLING
+============================================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-stage); }
+::-webkit-scrollbar-thumb { background: var(--bg-lift); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-mid); }
+
+/* ============================================================
+   REDUCED MOTION
+============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ROOT ─────────────────────────────────────────────── -->
+<div id="toast-root" aria-live="polite"></div>
+
+<!-- ================================================================
+     SITE HEADER — always visible
+================================================================ -->
+<header class="site-header z1">
+  <div class="live-badge">
+    <span class="live-dot" aria-hidden="true"></span>
+    Live Session
+  </div>
+
+  <h1 class="t-display hero-title">AI Shark Tank<br>Simulator</h1>
+  <p class="hero-subtitle">
+    Pitch your startup to four AI investors.<br>
+    Get scored, grilled, funded — or rejected.
+  </p>
+
+  <div class="hero-stats z1">
+    <div class="hero-stat">
+      <div class="hero-stat-num">4</div>
+      <div class="hero-stat-lbl">AI Judges</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">8</div>
+      <div class="hero-stat-lbl">Questions</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">5</div>
+      <div class="hero-stat-lbl">Score Axes</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">1</div>
+      <div class="hero-stat-lbl">Big Decision</div>
+    </div>
+  </div>
+
+  <!-- Step progress track (Part 2+ will update active states) -->
+  <div class="step-track z1" id="step-track" role="list" aria-label="Pitch stages">
+    <div class="step-item is-active" role="listitem">
+      <div class="step-num" aria-current="step">1</div>
+      <div class="step-label">Pitch</div>
+    </div>
+    <div class="step-item" role="listitem">
+      <div class="step-num">2</div>
+      <div class="step-label">Judges</div>
+    </div>
+    <div class="step-item" role="listitem">
+      <div class="step-num">3</div>
+      <div class="step-label">Q &amp; A</div>
+    </div>
+    <div class="step-item" role="listitem">
+      <div class="step-num">4</div>
+      <div class="step-label">Score</div>
+    </div>
+    <div class="step-item" role="listitem">
+      <div class="step-num">5</div>
+      <div class="step-label">Verdict</div>
+    </div>
+  </div>
+</header>
+
+<!-- ================================================================
+     MAIN APP CONTAINER
+================================================================ -->
+<main id="app-root">
+
+  <!-- ============================================================
+       SECTION 1: STARTUP INPUT FORM
+  ============================================================ -->
+  <section id="section-input" class="app-section is-active z1" aria-label="Startup pitch form">
+    <div class="wrap">
+
+      <div class="section-header">
+        <p class="section-eyebrow">Step 1 of 5</p>
+        <h2 class="section-title">Define your startup</h2>
+        <p class="section-desc">
+          Fill in each field carefully — the AI judges will use every word
+          to craft their questions and scoring.
+        </p>
+      </div>
+
+      <!-- Form card -->
+      <div class="form-shell" role="form" aria-label="Startup details">
+        <div class="form-shell-bar" aria-hidden="true"></div>
+
+        <div class="form-shell-head">
+          <div class="form-shell-icon" aria-hidden="true">🦈</div>
+          <div class="form-shell-meta">
+            <h3>Startup Pitch Brief</h3>
+            <p>All fields required · be specific, not generic</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="form-grid">
+
+            <!-- Startup Name -->
+            <div class="field" id="field-name">
+              <label class="field-label" for="inp-name">
+                Startup name <span class="req" aria-label="required">*</span>
+                <span class="field-hint" id="cnt-name">0 / 60</span>
+              </label>
+              <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">🏢</span>
+                <input
+                  type="text"
+                  id="inp-name"
+                  name="startupName"
+                  placeholder="e.g. CareerAI India"
+                  maxlength="60"
+                  autocomplete="organization"
+                  aria-required="true"
+                  aria-describedby="err-name"
+                />
+                <span class="input-check" aria-hidden="true">✓</span>
+              </div>
+              <span class="field-error" id="err-name" role="alert">
+                <span aria-hidden="true">⚠</span> Please enter your startup name.
+              </span>
+            </div>
+
+            <!-- Target Audience -->
+            <div class="field" id="field-audience">
+              <label class="field-label" for="inp-audience">
+                Target audience <span class="req" aria-label="required">*</span>
+                <span class="field-hint" id="cnt-audience">0 / 80</span>
+              </label>
+              <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">👥</span>
+                <input
+                  type="text"
+                  id="inp-audience"
+                  name="targetAudience"
+                  placeholder="e.g. College students aged 18–25 in India"
+                  maxlength="80"
+                  aria-required="true"
+                  aria-describedby="err-audience"
+                />
+                <span class="input-check" aria-hidden="true">✓</span>
+              </div>
+              <span class="field-error" id="err-audience" role="alert">
+                <span aria-hidden="true">⚠</span> Describe who you're building this for.
+              </span>
+            </div>
+
+            <!-- Divider -->
+            <div class="form-divider field-full">
+              <span class="form-divider-label">Your pitch content</span>
+            </div>
+
+            <!-- Problem Statement -->
+            <div class="field field-full" id="field-problem">
+              <label class="field-label" for="inp-problem">
+                Problem statement <span class="req" aria-label="required">*</span>
+                <span class="field-hint" id="cnt-problem">0 / 300</span>
+              </label>
+              <textarea
+                id="inp-problem"
+                name="problem"
+                placeholder="What specific, painful problem does your startup solve? Be precise — 'students struggle to find affordable career guidance' beats 'the market is large'."
+                maxlength="300"
+                rows="3"
+                aria-required="true"
+                aria-describedby="err-problem"
+              ></textarea>
+              <span class="field-error" id="err-problem" role="alert">
+                <span aria-hidden="true">⚠</span> Describe the problem clearly (at least 20 characters).
+              </span>
+            </div>
+
+            <!-- Solution -->
+            <div class="field field-full" id="field-solution">
+              <label class="field-label" for="inp-solution">
+                Your solution <span class="req" aria-label="required">*</span>
+                <span class="field-hint" id="cnt-solution">0 / 300</span>
+              </label>
+              <textarea
+                id="inp-solution"
+                name="solution"
+                placeholder="How does your product or service solve the problem? What makes it work where others have failed?"
+                maxlength="300"
+                rows="3"
+                aria-required="true"
+                aria-describedby="err-solution"
+              ></textarea>
+              <span class="field-error" id="err-solution" role="alert">
+                <span aria-hidden="true">⚠</span> Explain your solution (at least 20 characters).
+              </span>
+            </div>
+
+            <!-- Divider -->
+            <div class="form-divider field-full">
+              <span class="form-divider-label">Business details</span>
+            </div>
+
+            <!-- Revenue Model -->
+            <div class="field" id="field-revenue">
+              <label class="field-label" for="inp-revenue">
+                Revenue model <span class="req" aria-label="required">*</span>
+              </label>
+              <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">💰</span>
+                <input
+                  type="text"
+                  id="inp-revenue"
+                  name="revenueModel"
+                  placeholder="e.g. SaaS subscription ₹199/mo"
+                  maxlength="100"
+                  aria-required="true"
+                  aria-describedby="err-revenue"
+                />
+                <span class="input-check" aria-hidden="true">✓</span>
+              </div>
+              <span class="field-error" id="err-revenue" role="alert">
+                <span aria-hidden="true">⚠</span> How do you make money?
+              </span>
+            </div>
+
+            <!-- Funding Ask -->
+            <div class="field" id="field-ask">
+              <label class="field-label" for="inp-ask">
+                Funding ask <span class="req" aria-label="required">*</span>
+              </label>
+              <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">🤝</span>
+                <input
+                  type="text"
+                  id="inp-ask"
+                  name="fundingAsk"
+                  placeholder="e.g. ₹50 Lakhs for 10% equity"
+                  maxlength="80"
+                  aria-required="true"
+                  aria-describedby="err-ask"
+                />
+                <span class="input-check" aria-hidden="true">✓</span>
+              </div>
+              <span class="field-error" id="err-ask" role="alert">
+                <span aria-hidden="true">⚠</span> Specify amount and equity offered.
+              </span>
+            </div>
+
+            <!-- Info callout -->
+            <div class="info-callout">
+              <span class="info-callout-icon" aria-hidden="true">💡</span>
+              <p class="info-callout-text">
+                <strong>Pro tip:</strong> Judges are trained to ask follow-up questions on whatever you write here.
+                Vague answers get vague questions — specific pitches get specific, tough ones.
+              </p>
+            </div>
+
+          </div><!-- /form-grid -->
+        </div><!-- /form-body -->
+
+        <div class="form-footer">
+          <div>
+            <p class="form-progress-text">
+              <span id="fields-complete">0</span> of 6 fields complete
+            </p>
+            <div class="mini-progress">
+              <div class="mini-progress-fill" id="mini-progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="cta-area">
+            <button type="button" class="btn btn-ghost" id="btn-clear" onclick="APP.clearForm()">
+              Clear
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-enter-tank" onclick="APP.submitPitch()">
+              <span class="btn-icon" aria-hidden="true">🦈</span>
+              Enter the Tank
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /form-shell -->
+    </div><!-- /wrap -->
+  </section><!-- /#section-input -->
+
+  <!-- ============================================================
+       SECTION 2: AI JUDGES  (Part 2 will populate)
+  ============================================================ -->
+  <section id="section-judges" class="app-section z1" aria-label="AI Judges panel">
+    <div class="placeholder-section">
+      <div class="placeholder-inner">
+        <span class="placeholder-icon" aria-hidden="true">🧠</span>
+        <p class="placeholder-title">AI Judges — Coming in Part 2</p>
+        <p class="placeholder-desc">Four investors will be introduced here.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3: PITCH ROUND / Q&A  (Part 3 will populate)
+  ============================================================ -->
+  <section id="section-pitch" class="app-section z1" aria-label="Pitch round">
+    <div class="placeholder-section">
+      <div class="placeholder-inner">
+        <span class="placeholder-icon" aria-hidden="true">🎙️</span>
+        <p class="placeholder-title">Pitch Round — Coming in Part 3</p>
+        <p class="placeholder-desc">Two questions per judge, eight rounds total.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4: SCORING  (Part 4 will populate)
+  ============================================================ -->
+  <section id="section-scoring" class="app-section z1" aria-label="Scoring">
+    <div class="placeholder-section">
+      <div class="placeholder-inner">
+        <span class="placeholder-icon" aria-hidden="true">📊</span>
+        <p class="placeholder-title">Scoring — Coming in Part 4</p>
+        <p class="placeholder-desc">Market, Innovation, Business Model, Execution, Investment Worthiness.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5: VERDICT + LEADERBOARD  (Part 5 will populate)
+  ============================================================ -->
+  <section id="section-verdict" class="app-section z1" aria-label="Final verdict">
+    <div class="placeholder-section">
+      <div class="placeholder-inner">
+        <span class="placeholder-icon" aria-hidden="true">🏆</span>
+        <p class="placeholder-title">Verdict — Coming in Part 5</p>
+        <p class="placeholder-desc">Investment decision, valuation, leaderboard, PDF report, confetti.</p>
+      </div>
+    </div>
+  </section>
+
+</main><!-- /#app-root -->
+
+<!-- ================================================================
+     JAVASCRIPT — Part 1: Form validation + state scaffold
+================================================================ -->
+<script>
+'use strict';
+
+/* ================================================================
+   GLOBAL APP STATE
+   All parts of the application read and write to this single object.
+   Parts 2–5 will extend APP.state with their own keys.
+================================================================ */
+const APP = (() => {
+
+  /* ── Persistent state object ─────────────────────────────────── */
+  const state = {
+    startup: {
+      name:        '',
+      problem:     '',
+      solution:    '',
+      revenueModel:'',
+      targetAudience: '',
+      fundingAsk:  '',
+    },
+    currentSection: 'section-input',
+    /* Parts 2–5 will add: judges, qaFlow, scores, verdict, leaderboard */
+  };
+
+  /* ── Field configuration ─────────────────────────────────────── */
+  const FIELDS = [
+    {
+      id:       'inp-name',
+      fieldId:  'field-name',
+      errId:    'err-name',
+      cntId:    'cnt-name',
+      key:      'name',
+      max:      60,
+      minLen:   2,
+      label:    'Startup name',
+      errMsg:   'Please enter your startup name.',
+    },
+    {
+      id:       'inp-audience',
+      fieldId:  'field-audience',
+      errId:    'err-audience',
+      cntId:    'cnt-audience',
+      key:      'targetAudience',
+      max:      80,
+      minLen:   5,
+      label:    'Target audience',
+      errMsg:   'Describe who you\'re building this for.',
+    },
+    {
+      id:       'inp-problem',
+      fieldId:  'field-problem',
+      errId:    'err-problem',
+      cntId:    'cnt-problem',
+      key:      'problem',
+      max:      300,
+      minLen:   20,
+      label:    'Problem statement',
+      errMsg:   'Describe the problem clearly (at least 20 characters).',
+    },
+    {
+      id:       'inp-solution',
+      fieldId:  'field-solution',
+      errId:    'err-solution',
+      cntId:    'cnt-solution',
+      key:      'solution',
+      max:      300,
+      minLen:   20,
+      label:    'Your solution',
+      errMsg:   'Explain your solution (at least 20 characters).',
+    },
+    {
+      id:       'inp-revenue',
+      fieldId:  'field-revenue',
+      errId:    'err-revenue',
+      key:      'revenueModel',
+      max:      100,
+      minLen:   5,
+      label:    'Revenue model',
+      errMsg:   'How do you make money?',
+    },
+    {
+      id:       'inp-ask',
+      fieldId:  'field-ask',
+      errId:    'err-ask',
+      key:      'fundingAsk',
+      max:      80,
+      minLen:   5,
+      label:    'Funding ask',
+      errMsg:   'Specify amount and equity offered.',
+    },
+  ];
+
+  /* ── Toast queue ─────────────────────────────────────────────── */
+  let toastTimer = null;
+
+  function showToast(msg, type = '', duration = 3500) {
+    const root = document.getElementById('toast-root');
+    if (!root) return;
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' is-' + type : '');
+    el.textContent = msg;
+    el.setAttribute('role', 'status');
+    root.appendChild(el);
+    setTimeout(() => {
+      el.style.animation = 'toastOut 0.3s ease forwards';
+      setTimeout(() => el.remove(), 320);
+    }, duration);
+  }
+
+  /* ── Section navigation ──────────────────────────────────────── */
+  function goToSection(sectionId) {
+    document.querySelectorAll('.app-section').forEach(s => s.classList.remove('is-active'));
+    const target = document.getElementById(sectionId);
+    if (target) target.classList.add('is-active');
+    state.currentSection = sectionId;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateStepTrack(sectionId);
+  }
+
+  function updateStepTrack(sectionId) {
+    const sectionOrder = [
+      'section-input',
+      'section-judges',
+      'section-pitch',
+      'section-scoring',
+      'section-verdict',
+    ];
+    const currentIdx = sectionOrder.indexOf(sectionId);
+    const items = document.querySelectorAll('.step-item');
+    items.forEach((item, i) => {
+      item.classList.remove('is-active', 'is-done');
+      if (i < currentIdx)      item.classList.add('is-done');
+      else if (i === currentIdx) item.classList.add('is-active');
+    });
+  }
+
+  /* ── Character counter ───────────────────────────────────────── */
+  function updateCounter(field, input) {
+    const cntEl = field.cntId ? document.getElementById(field.cntId) : null;
+    if (!cntEl) return;
+    const len = input.value.length;
+    cntEl.textContent = `${len} / ${field.max}`;
+    cntEl.classList.add('is-visible');
+    cntEl.classList.toggle('is-near', len >= field.max * 0.85);
+    cntEl.classList.toggle('is-over', len >= field.max);
+  }
+
+  /* ── Single-field validation ─────────────────────────────────── */
+  function validateField(field) {
+    const input   = document.getElementById(field.id);
+    const wrapper = document.getElementById(field.fieldId);
+    if (!input || !wrapper) return false;
+
+    const val = input.value.trim();
+    const valid = val.length >= field.minLen;
+
+    wrapper.classList.toggle('is-error', !valid);
+    wrapper.classList.toggle('is-valid',  valid);
+    return valid;
+  }
+
+  /* ── Full-form validation ────────────────────────────────────── */
+  function validateAll() {
+    let allValid = true;
+    let firstError = null;
+    FIELDS.forEach(f => {
+      const ok = validateField(f);
+      if (!ok && !firstError) firstError = f.id;
+      if (!ok) allValid = false;
+    });
+    if (!allValid && firstError) {
+      document.getElementById(firstError)?.focus();
+    }
+    return allValid;
+  }
+
+  /* ── Update progress indicator ───────────────────────────────── */
+  function updateProgress() {
+    let complete = 0;
+    FIELDS.forEach(f => {
+      const inp = document.getElementById(f.id);
+      if (inp && inp.value.trim().length >= f.minLen) complete++;
+    });
+    const pct = Math.round((complete / FIELDS.length) * 100);
+    const fillEl = document.getElementById('mini-progress-fill');
+    const cntEl  = document.getElementById('fields-complete');
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (cntEl)  cntEl.textContent  = complete;
+    return complete;
+  }
+
+  /* ── Save to state ───────────────────────────────────────────── */
+  function saveToState() {
+    FIELDS.forEach(f => {
+      const inp = document.getElementById(f.id);
+      if (inp) state.startup[f.key] = inp.value.trim();
+    });
+  }
+
+  /* ── Clear form ──────────────────────────────────────────────── */
+  function clearForm() {
+    FIELDS.forEach(f => {
+      const inp     = document.getElementById(f.id);
+      const wrapper = document.getElementById(f.fieldId);
+      if (inp)     inp.value = '';
+      if (wrapper) wrapper.classList.remove('is-error', 'is-valid');
+    });
+    // Reset counters
+    FIELDS.forEach(f => {
+      if (f.cntId) {
+        const cntEl = document.getElementById(f.cntId);
+        if (cntEl) cntEl.textContent = `0 / ${f.max}`;
+      }
+    });
+    updateProgress();
+    showToast('Form cleared.', '', 2000);
+  }
+
+  /* ── Submit pitch (transitions to Section 2 in Part 2) ──────── */
+  function submitPitch() {
+    const btn = document.getElementById('btn-enter-tank');
+
+    // Validate
+    if (!validateAll()) {
+      showToast('Fill in all fields before entering the tank.', 'error');
+      return;
+    }
+
+    // Save
+    saveToState();
+
+    // Visual feedback on button
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-icon">⏳</span> Entering the Tank…';
+    }
+
+    /* ── PLACEHOLDER: Part 2 will call goToSection('section-judges') ── */
+    // For now, show a coming-soon toast and re-enable
+    setTimeout(() => {
+      showToast('Pitch saved! AI judges coming in Part 2 🦈', 'success', 4000);
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">🦈</span> Enter the Tank';
+      }
+      /* Part 2 will replace the line above with:
+         goToSection('section-judges');
+      */
+    }, 900);
+  }
+
+  /* ── Bind live validation and counters ──────────────────────── */
+  function bindFieldEvents() {
+    FIELDS.forEach(f => {
+      const input = document.getElementById(f.id);
+      if (!input) return;
+
+      // Counter + progress on every keystroke
+      input.addEventListener('input', () => {
+        updateCounter(f, input);
+        updateProgress();
+        // If already marked invalid, re-validate in real time
+        const wrapper = document.getElementById(f.fieldId);
+        if (wrapper && wrapper.classList.contains('is-error')) {
+          validateField(f);
+        }
+        // Mark valid immediately once threshold met
+        const val = input.value.trim();
+        const wrapper2 = document.getElementById(f.fieldId);
+        if (wrapper2) {
+          wrapper2.classList.toggle('is-valid', val.length >= f.minLen);
+          if (val.length >= f.minLen) wrapper2.classList.remove('is-error');
+        }
+      });
+
+      // Validate on blur
+      input.addEventListener('blur', () => validateField(f));
+    });
+  }
+
+  /* ── Init ────────────────────────────────────────────────────── */
+  function init() {
+    bindFieldEvents();
+    updateProgress();
+    // Ensure only section-input is active on load
+    goToSection('section-input');
+  }
+
+  /* ── Public API (Parts 2–5 will add to this) ─────────────────── */
+  return {
+    state,
+    FIELDS,
+    goToSection,
+    showToast,
+    validateAll,
+    saveToState,
+    clearForm,
+    submitPitch,
+    init,
+    /* Placeholders for Part 2+ */
+    startJudgesPhase: null,   // Part 2
+    startPitchRound:  null,   // Part 3
+    startScoring:     null,   // Part 4
+    showVerdict:      null,   // Part 5
+  };
+
+})();
+
+/* Boot */
+document.addEventListener('DOMContentLoaded', () => APP.init());
+</script>
+
+<!-- Part 2: AI Judges section will be added here -->
+<!-- Part 3: Pitch Round / Q&A will be added here -->
+<!-- Part 4: Scoring System will be added here -->
+<!-- Part 5: Verdict, Leaderboard, PDF Download, Confetti, Share will be added here -->
+
+</body>
+</html>
