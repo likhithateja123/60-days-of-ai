@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Strategy Dashboard · EdTech India</title>
+<style>
+  :root {
+    --navy:   #0B1929;
+    --indigo: #1A237E;
+    --teal:   #00897B;
+    --teal-l: #E0F2F1;
+    --amber:  #F59E0B;
+    --amber-l:#FEF3C7;
+    --coral:  #EF4444;
+    --coral-l:#FEE2E2;
+    --purple: #7C3AED;
+    --purple-l:#EDE9FE;
+    --green:  #059669;
+    --green-l:#D1FAE5;
+    --slate:  #475569;
+    --light:  #F8FAFC;
+    --border: #E2E8F0;
+    --text:   #0F172A;
+    --muted:  #64748B;
+    --white:  #FFFFFF;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--light);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .hero {
+    background: var(--navy);
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,137,123,0.25);
+    color: #4DB6AC;
+    border: 1px solid rgba(77,182,172,0.4);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    padding: 4px 12px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    color: #fff;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  .hero p {
+    color: var(--amber);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pill {
+    background: rgba(255,255,255,0.08);
+    color: #CBD5E1;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  /* ── NAV ── */
+  .nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    background: none;
+    border: none;
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .nav-btn:hover { color: var(--teal); }
+  .nav-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+  /* ── LAYOUT ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  /* ── GRID HELPERS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+  @media(max-width:700px) {
+    .grid-2,.grid-3,.grid-5 { grid-template-columns: 1fr 1fr; }
+  }
+  @media(max-width:480px) {
+    .grid-2,.grid-3,.grid-5 { grid-template-columns: 1fr; }
+  }
+
+  /* ── TABLE ── */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tbl th {
+    background: var(--navy); color: #fff;
+    padding: 8px 10px; text-align: left; font-weight: 600; font-size: 11.5px;
+  }
+  .tbl td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:nth-child(even) td { background: #F8FAFC; }
+  .tbl tr:last-child td { border-bottom: none; }
+
+  /* ── SCORE CARDS ── */
+  .score-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 18px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .score-num {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .score-bar {
+    height: 4px; border-radius: 2px;
+    background: var(--border);
+    margin-top: 10px; overflow: hidden;
+  }
+  .score-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-teal   { background: var(--teal-l);   color: #00695C; }
+  .badge-amber  { background: var(--amber-l);  color: #92400E; }
+  .badge-red    { background: var(--coral-l);  color: #991B1B; }
+  .badge-green  { background: var(--green-l);  color: #065F46; }
+  .badge-purple { background: var(--purple-l); color: #5B21B6; }
+  .badge-navy   { background: #E8EDF5;         color: var(--navy); }
+
+  /* ── BMC BLOCK ── */
+  .bmc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 8px;
+  }
+  @media(max-width:750px) { .bmc-grid { grid-template-columns: 1fr 1fr; } }
+  .bmc-cell {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+  }
+  .bmc-cell h4 {
+    font-size: 11px; font-weight: 700; color: var(--teal);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em;
+  }
+  .bmc-cell ul { list-style: none; }
+  .bmc-cell ul li { padding: 2px 0; color: var(--slate); }
+  .bmc-cell ul li::before { content: "· "; color: var(--teal); }
+  .bmc-wide { grid-column: span 2; }
+  @media(max-width:750px) { .bmc-wide { grid-column: span 1; } }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex;
+    gap: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .flow-step {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+  }
+  .flow-step small {
+    display: block; font-weight: 400; font-size: 10.5px;
+    color: #94A3B8; margin-top: 3px;
+  }
+  .flow-arrow {
+    color: var(--teal); font-size: 18px; font-weight: 700;
+    flex-shrink: 0; padding: 0 2px;
+  }
+
+  /* ── MOAT ── */
+  .moat-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .moat-item:last-child { border-bottom: none; }
+  .moat-dot {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .moat-item h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .moat-item p  { font-size: 12px; color: var(--muted); }
+
+  /* ── RISKS ── */
+  .risk-row {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-indicator {
+    width: 6px; border-radius: 3px; flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .risk-row h4 { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .risk-row p  { font-size: 11.5px; color: var(--muted); }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; }
+  .tl-item {
+    display: flex; gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; color: #fff;
+    flex-shrink: 0;
+  }
+  .tl-line { width: 2px; background: var(--border); flex: 1; margin-top: 4px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-right { flex: 1; }
+  .tl-right h4 { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .tl-right p  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .tl-right .tag { font-size: 11px; color: var(--teal); font-weight: 600; margin-bottom: 4px; }
+
+  /* ── VERDICT ── */
+  .verdict-box {
+    background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .verdict-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 4px 16px; font-size: 11px;
+    font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .verdict-box h2 { font-size: clamp(18px,3vw,24px); font-weight: 800; margin-bottom: 10px; }
+  .verdict-box p  { font-size: 13px; opacity: .85; max-width: 600px; margin: 0 auto; }
+  .gate-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+  @media(max-width:600px) { .gate-grid { grid-template-columns: 1fr; } }
+  .gate {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: left;
+  }
+  .gate h4 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: rgba(255,255,255,0.9); }
+  .gate p  { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+  /* ── PITCH BOX ── */
+  .pitch {
+    background: #0B1929;
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    color: #E2E8F0;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .pitch .line { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .pitch .line:last-child { border-bottom: none; }
+  .pitch strong { color: var(--amber); }
+
+  /* ── UTILS ── */
+  .text-teal { color: var(--teal); }
+  .text-muted { color: var(--muted); font-size: 12px; }
+  .mt-4 { margin-top: 16px; }
+  .mb-2 { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">AI Co-Founder · Business Strategy Report</div>
+  <h1>EdTech India — Business Dashboard</h1>
+  <p>WhatsApp-First AI Career Navigator · Day 23 Blueprint Context</p>
+  <div class="hero-meta">
+    <span class="pill">Students 18–25</span>
+    <span class="pill">Tier-2/3 India</span>
+    <span class="pill">₹199–₹499/mo</span>
+    <span class="pill">Idea Validation</span>
+    <span class="pill">June 2026</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="show('model',this)">Business Model</button>
+  <button class="nav-btn" onclick="show('revenue',this)">Revenue</button>
+  <button class="nav-btn" onclick="show('gtm',this)">GTM Flow</button>
+  <button class="nav-btn" onclick="show('users',this)">First 100</button>
+  <button class="nav-btn" onclick="show('moat',this)">Moat</button>
+  <button class="nav-btn" onclick="show('risks',this)">Risks</button>
+  <button class="nav-btn" onclick="show('scores',this)">Scores</button>
+  <button class="nav-btn" onclick="show('verdict',this)">Verdict</button>
+</nav>
+
+<div class="main">
+
+<!-- ═══ BUSINESS MODEL ═══ -->
+<div id="tab-model" class="section active">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#E0F2F1">🏗️</span>Business Model Canvas</div>
+    <div class="bmc-grid">
+      <div class="bmc-cell">
+        <h4>Key Partners</h4>
+        <ul>
+          <li>WhatsApp Business API</li>
+          <li>Razorpay payments</li>
+          <li>Expert mentors (rev-share)</li>
+          <li>College placement cells</li>
+        </ul>
+      </div>
+      <div class="bmc-cell" style="grid-row:span 2">
+        <h4>Key Activities</h4>
+        <ul>
+          <li>AI quiz personalisation</li>
+          <li>Expert AMA curation</li>
+          <li>Community management</li>
+          <li>Ambassador programme</li>
+          <li>Product iteration</li>
+        </ul>
+      </div>
+      <div class="bmc-cell bmc-wide" style="grid-row:span 2">
+        <h4>Value Propositions</h4>
+        <ul>
+          <li>Personalised AI career roadmap in 3 min</li>
+          <li>Affordable — sub ₹500/mo</li>
+          <li>Outcome-linked (job/gig, not certificates)</li>
+          <li>WhatsApp-native — zero app download</li>
+          <li>Daily skill tasks + live expert access</li>
+          <li>Peer accountability cohort</li>
+        </ul>
+      </div>
+      <div class="bmc-cell" style="grid-row:span 2">
+        <h4>Customer Relationships</h4>
+        <ul>
+          <li>Daily WhatsApp micro-tasks</li>
+          <li>Peer cohort accountability</li>
+          <li>Weekly live AMA (trust anchor)</li>
+          <li>Referral reward programme</li>
+        </ul>
+      </div>
+      <div class="bmc-cell" style="grid-row:span 2">
+        <h4>Segments</h4>
+        <ul>
+          <li>18–24 yr students</li>
+          <li>Tier-2/3 cities</li>
+          <li>Final-year UG</li>
+          <li>Engg / BBA / BCom</li>
+          <li>Android-first</li>
+        </ul>
+      </div>
+      <div class="bmc-cell">
+        <h4>Key Resources</h4>
+        <ul>
+          <li>AI quiz engine</li>
+          <li>Expert mentor network</li>
+          <li>WhatsApp automation</li>
+          <li>Career outcome dataset</li>
+        </ul>
+      </div>
+      <div class="bmc-cell">
+        <h4>Channels</h4>
+        <ul>
+          <li>WhatsApp Business</li>
+          <li>Telegram study groups</li>
+          <li>College ambassadors</li>
+          <li>Organic SEO / YouTube</li>
+        </ul>
+      </div>
+      <div class="bmc-cell bmc-wide" style="background:var(--coral-l); border-color:#FECACA;">
+        <h4 style="color:#991B1B">Cost Structure</h4>
+        <ul style="color:#7F1D1D">
+          <li>Tech infra (low — no-code/API)</li>
+          <li>Expert AMA fees (rev-share)</li>
+          <li>WhatsApp API cost (~₹0.10/message)</li>
+          <li>Ambassador commissions (₹50/conversion)</li>
+        </ul>
+      </div>
+      <div class="bmc-cell bmc-wide" style="background:var(--green-l); border-color:#A7F3D0;">
+        <h4 style="color:#065F46">Revenue Streams</h4>
+        <ul style="color:#064E3B">
+          <li>Starter ₹199/mo · Pro ₹499/mo · Annual ₹1,499/yr</li>
+          <li>Future: B2B college placement partnerships</li>
+          <li>Future: Employer access to job-ready talent pool</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:#EDE9FE">🎯</span>Startup Summary</div>
+      <ul style="list-style:none;font-size:12.5px;line-height:1.8;color:var(--slate);">
+        <li>🚀 <strong>Mission:</strong> Default career OS for Indian students via WhatsApp</li>
+        <li>📱 <strong>Product:</strong> AI quiz → skill-gap report → daily tasks → AMA</li>
+        <li>💰 <strong>Revenue:</strong> Freemium → ₹199–₹499/mo subscription</li>
+        <li>📣 <strong>GTM:</strong> Ambassador-led, community-driven, zero paid ads M1</li>
+        <li>🎯 <strong>30-Day Goal:</strong> 100 paying users · ₹20K MRR · CAC &lt;₹200</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:#FEF3C7">✅</span>Reality Check</div>
+      <table class="tbl">
+        <tr><th>Dimension</th><th>Verdict</th></tr>
+        <tr><td>Market size</td><td><span class="badge badge-green">✅ Large</span></td></tr>
+        <tr><td>Problem acuity</td><td><span class="badge badge-green">✅ Real</span></td></tr>
+        <tr><td>Willingness to pay</td><td><span class="badge badge-green">✅ Proven</span></td></tr>
+        <tr><td>Competition gap</td><td><span class="badge badge-amber">🟡 Gap exists</span></td></tr>
+        <tr><td>Differentiation</td><td><span class="badge badge-green">✅ Distinct</span></td></tr>
+        <tr><td>Unit economics</td><td><span class="badge badge-green">✅ Attractive</span></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REVENUE ═══ -->
+<div id="tab-revenue" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#D1FAE5">💵</span>Pricing Tiers</div>
+    <div class="grid-2">
+      <div>
+        <table class="tbl">
+          <tr><th>Tier</th><th>Price</th><th>Key Feature</th><th>Target Mix</th></tr>
+          <tr><td>Free Hook</td><td>₹0</td><td>AI report + 1 AMA</td><td>60% signups</td></tr>
+          <tr><td><strong>Starter</strong></td><td><strong>₹199/mo</strong></td><td>Tasks + cohort + 2 AMAs</td><td>25% paid</td></tr>
+          <tr><td>Pro</td><td>₹499/mo</td><td>+ 1:1 mentor 30 min</td><td>10% paid</td></tr>
+          <tr><td>Annual</td><td>₹1,499/yr</td><td>Starter (37% off)</td><td>5% paid</td></tr>
+          <tr><td colspan="3"><strong>Blended ARPU</strong></td><td><strong>~₹280/mo</strong></td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="card" style="background:var(--navy);border-color:transparent;padding:16px;margin-bottom:0">
+          <div style="color:#94A3B8;font-size:11px;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;">Revenue Projections</div>
+          <div id="rev-bars"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#FEF3C7">📈</span>Growth Model</div>
+    <table class="tbl">
+      <tr><th>Milestone</th><th>Paying Users</th><th>MRR</th><th>ARR</th><th>CAC</th><th>LTV/CAC</th></tr>
+      <tr><td>Day 30</td><td>100</td><td>₹20K</td><td>₹2.4L</td><td>&lt;₹200</td><td class="text-teal">~12x</td></tr>
+      <tr><td>Month 3</td><td>500</td><td>₹1.0L</td><td>₹12L</td><td>&lt;₹150</td><td class="text-teal">~18x</td></tr>
+      <tr><td>Month 6</td><td>2,000</td><td>₹4.0L</td><td>₹48L</td><td>&lt;₹120</td><td class="text-teal">~22x</td></tr>
+      <tr><td>Month 12</td><td>8,000</td><td>₹16L</td><td>₹1.92Cr</td><td>&lt;₹100</td><td class="text-teal">~28x</td></tr>
+    </table>
+    <p class="text-muted mt-4">A/B test: ₹199 vs ₹299 Starter in Week 2. If conversion drops &lt;3pp, shift baseline to ₹299 before scaling.</p>
+  </div>
+</div>
+
+<!-- ═══ GTM FLOW ═══ -->
+<div id="tab-gtm" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#E0F2F1">🗺️</span>GTM Flow</div>
+    <div class="flow">
+      <div class="flow-step" style="background:#1A237E">Seed<small>Wk 1–2</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#00695C">Ignite<small>Wk 3–4</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#F59E0B;color:#1a1a1a">Amplify<small>Mo 2–3</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#7C3AED">Scale<small>Mo 4–6</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#059669">Expand<small>Mo 7–12</small></div>
+    </div>
+    <table class="tbl mt-4">
+      <tr><th>Phase</th><th>Channel</th><th>Tactic</th><th>Goal</th></tr>
+      <tr><td><span class="badge badge-navy">Seed</span></td><td>Personal network + Telegram</td><td>Post free career report in 10 groups</td><td>50 free users</td></tr>
+      <tr><td><span class="badge badge-teal">Ignite</span></td><td>Ambassador outreach</td><td>2 per college; referral reward ₹50</td><td>100 paying</td></tr>
+      <tr><td><span class="badge badge-amber">Amplify</span></td><td>YouTube Shorts + SEO</td><td>'I got placed using this' testimonials</td><td>500 users</td></tr>
+      <tr><td><span class="badge badge-purple">Scale</span></td><td>WhatsApp virality</td><td>Share prompt on every report card</td><td>2,000 users</td></tr>
+      <tr><td><span class="badge badge-green">Expand</span></td><td>B2B + LinkedIn Ads</td><td>Sell cohorts to placement cells</td><td>8,000 users</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#EDE9FE">🎯</span>Acquisition Channels</div>
+    <table class="tbl">
+      <tr><th>Channel</th><th>CAC</th><th>Priority</th><th>Tactic</th></tr>
+      <tr><td>Telegram / WhatsApp groups</td><td>₹0</td><td><span class="badge badge-red">🔴 #1</span></td><td>Free report; soft CTA to upgrade</td></tr>
+      <tr><td>College ambassador programme</td><td>₹80</td><td><span class="badge badge-red">🔴 #2</span></td><td>₹50/conversion rev-share; peer trust</td></tr>
+      <tr><td>Referral loop (in-product)</td><td>₹40</td><td><span class="badge badge-amber">🟠 #3</span></td><td>Share report → 1 month free</td></tr>
+      <tr><td>Organic SEO / blog</td><td>₹30</td><td><span class="badge badge-amber">🟠 #4</span></td><td>'How to prepare for placements'</td></tr>
+      <tr><td>YouTube Shorts</td><td>₹60</td><td><span class="badge badge-amber">🟡 #5</span></td><td>Alumni success stories ≤60s</td></tr>
+      <tr><td>Paid ads (Phase 2+)</td><td>₹150</td><td><span class="badge badge-navy">🔵 Later</span></td><td>Only after organic MRR &gt;₹50K</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ FIRST 100 ═══ -->
+<div id="tab-users" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#E0F2F1">🚀</span>First 100 Paying Users — Day-by-Day</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#1A237E">1</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 1–3</div><h4>Discovery calls + beta invite</h4><p>Founder calls 20 target students. Validate pain. Invite to free beta. → <strong>20 free signups</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#00695C">2</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 4–5</div><h4>Landing page live</h4><p>Publish AI quiz (Typeform) + skill-gap report (Carrd). WhatsApp broadcast to network. → <strong>30 free signups</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#F59E0B">3</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 6–7</div><h4>Telegram blitz</h4><p>Post free report offer in 10 engineering + BBA Telegram groups. → <strong>50 free signups</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#7C3AED">4</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 8–14</div><h4>First AMA + 'Founding Member' offer</h4><p>Run live AMA on Google Meet. Record + share clips. Push ₹199 Founding Member offer to free users. → <strong>25 paying users</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#059669">5</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 15–20</div><h4>Referral launch</h4><p>Share report = 1 month free. In-product share prompt on every report card. → <strong>50 paying users</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#EF4444">6</div><div class="tl-line"></div></div>
+        <div class="tl-right"><div class="tag">Day 21–25</div><h4>Ambassador recruitment</h4><p>Recruit 10 ambassadors (2 per college × 5 colleges) via LinkedIn DM. ₹50 per conversion. → <strong>75 paying users</strong></p></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot" style="background:#0B1929">7</div></div>
+        <div class="tl-right"><div class="tag">Day 26–30</div><h4>PMF survey + churn recovery</h4><p>Sean Ellis survey to all users. Personalised follow-up to churned free users. → <strong>100 paying users ✅</strong></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MOAT ═══ -->
+<div id="tab-moat" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#E0F2F1">🏰</span>Competitive Position</div>
+    <table class="tbl mb-2">
+      <tr><th>Competitor</th><th>Strength</th><th>Our Advantage</th></tr>
+      <tr><td>Unacademy / PW</td><td>Scale, brand, video content</td><td>Outcome-linked, not content-heavy; 10× cheaper</td></tr>
+      <tr><td>Internshala</td><td>Job listings, internships</td><td>We build the skill roadmap before the listing</td></tr>
+      <tr><td>Unstop</td><td>Competitions, hiring events</td><td>We own the daily habit loop — they're episodic</td></tr>
+      <tr><td>YouTube / Free</td><td>Free, vast</td><td>Personalisation + accountability + curation</td></tr>
+      <tr><td>College coaching</td><td>Local trust</td><td>Scale across 800 colleges with one WhatsApp number</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:#EDE9FE">🛡️</span>Moat Sources</div>
+    <div class="moat-item">
+      <div class="moat-dot" style="background:var(--teal-l)">📊</div>
+      <div><h4>Data Moat</h4><p>Every quiz response trains a better personalisation model. Gets smarter with scale — competitors can't replicate without our data.</p></div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-dot" style="background:var(--purple-l)">👥</div>
+      <div><h4>Community Moat</h4><p>Peer cohorts create switching costs (friends, streaks, shared progress). Users don't just leave a product — they leave a community.</p></div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-dot" style="background:var(--amber-l)">🏫</div>
+      <div><h4>Ambassador Network</h4><p>500+ campus reps = distributed trusted salesforce competitors can't replicate fast. Each ambassador owns a micro-community.</p></div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-dot" style="background:var(--green-l)">💬</div>
+      <div><h4>WhatsApp Habit Loop</h4><p>Daily task delivery builds muscle memory. Users check our messages like a teacher's assignment — not like an app they have to remember to open.</p></div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-dot" style="background:var(--coral-l)">🎯</div>
+      <div><h4>Outcome Data</h4><p>First-to-market tracking the quiz → job pipeline. A verifiable outcome dataset is worth more than any content library to B2B partners.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RISKS ═══ -->
+<div id="tab-risks" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:var(--coral-l)">⚠️</span>Key Risks & Mitigations</div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:60px;background:var(--coral)"></div>
+      <div><h4>Price sensitivity kills conversion</h4><p>Students won't pay ₹199. <strong>Mitigation:</strong> Free tier + 7-day trial + UPI EMI + peer referral discount. A/B test ₹199 vs ₹299 in Week 2.</p></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:60px;background:var(--coral)"></div>
+      <div><h4>Low completion → Week 1 churn</h4><p>Users sign up, get their report, and ghost. <strong>Mitigation:</strong> WhatsApp daily tasks (1/day), cohort accountability, streak rewards.</p></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:60px;background:var(--amber)"></div>
+      <div><h4>Undifferentiated — seen as an Unacademy clone</h4><p><strong>Mitigation:</strong> Zero video content. Own the 'first job/gig outcome' positioning — not 'courses'. Never compete on content library size.</p></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:60px;background:var(--amber)"></div>
+      <div><h4>WhatsApp API policy change</h4><p>Meta could restrict business messaging overnight. <strong>Mitigation:</strong> Collect email on sign-up. Build Telegram group as fallback from Day 1.</p></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:60px;background:var(--amber)"></div>
+      <div><h4>Expert AMA quality inconsistency</h4><p>One bad session breaks trust. <strong>Mitigation:</strong> Vet experts before public sessions. Record all AMAs. Mandatory rating form after each session.</p></div>
+    </div>
+    <div class="risk-row">
+      <div class="risk-indicator" style="height:55px;background:#94A3B8"></div>
+      <div><h4>CAC spikes if organic stalls</h4><p><strong>Mitigation:</strong> Zero paid ads until organic MRR &gt;₹50K. Ambassador programme is the CAC hedge — ₹80 vs ₹150 for paid.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:var(--teal-l)">🔄</span>Reverse SWOT — Reframes</div>
+    <table class="tbl">
+      <tr><th>Element</th><th>Standard View</th><th>Reverse Lens</th></tr>
+      <tr><td>WhatsApp-first</td><td>Reaches students where they are</td><td>API policy risk — build email fallback now</td></tr>
+      <tr><td>Low price ₹199</td><td>Reduces entry barrier</td><td>May attract low-commitment churners — add friction for free tier</td></tr>
+      <tr><td>No video content</td><td>Behind on content depth</td><td>Leaner = faster + higher margins — make it a feature, not a bug</td></tr>
+      <tr><td>Small team</td><td>Limited bandwidth</td><td>Forces brutal prioritisation — no feature bloat</td></tr>
+      <tr><td>Big EdTech copies us</td><td>Existential threat</td><td>Validates the category — our moat is community data, not features</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SCORES ═══ -->
+<div id="tab-scores" class="section">
+  <div class="grid-5" id="score-cards"></div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:var(--teal-l)">📋</span>Score Rationale</div>
+    <table class="tbl">
+      <tr><th>Dimension</th><th>Score</th><th>Rationale</th><th>What Moves It Up</th></tr>
+      <tr><td>Business Viability</td><td class="text-teal"><strong>8.0</strong></td><td>Large TAM, proven willingness to pay, lean cost structure</td><td>30-day revenue data</td></tr>
+      <tr><td>Revenue Potential</td><td class="text-teal"><strong>8.5</strong></td><td>₹1.92Cr ARR by Month 12 is conservative; ARPU can expand</td><td>Prove ≥15% conversion</td></tr>
+      <tr><td>GTM Strength</td><td style="color:var(--amber)"><strong>7.5</strong></td><td>WhatsApp + ambassadors is capital-efficient and validated</td><td>Execute 5 ambassador colleges</td></tr>
+      <tr><td>Competitive Strength</td><td style="color:var(--purple)"><strong>7.0</strong></td><td>Gap exists but moat is nascent — data & community are long-term</td><td>Build outcome dataset immediately</td></tr>
+      <tr><td>Investor Readiness</td><td style="color:var(--coral)"><strong>6.5</strong></td><td>Compelling story; needs 30-day traction before investor meetings</td><td>Get to 100 users — that's the ticket</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:var(--amber-l)">🎤</span>Investor One-Liner</div>
+    <div style="background:var(--teal-l);border-left:4px solid var(--teal);border-radius:8px;padding:16px 18px;font-size:13.5px;font-style:italic;color:#00695C;line-height:1.7;">
+      "We are building the WhatsApp-native AI career OS for India's 140M students — delivering a personalised roadmap, daily micro-skill tasks, and live expert access for less than the price of a chai per day, with a community moat that gets stronger every cohort."
+    </div>
+    <div class="pitch mt-4">
+      <div class="line"><strong>Problem:</strong> 100M+ Indian students have no affordable, personalised career guidance.</div>
+      <div class="line"><strong>Solution:</strong> We send a personalised career roadmap in 3 minutes via WhatsApp, then a daily skill task for 60 days.</div>
+      <div class="line"><strong>Traction:</strong> 100 paying users in 30 days. ₹280 ARPU. 40% 'very disappointed' if we shut down.</div>
+      <div class="line"><strong>Business:</strong> Freemium SaaS — ₹199/mo. LTV/CAC 15x. Community-led growth, CAC &lt;₹200.</div>
+      <div class="line"><strong>Ask:</strong> ₹50L seed → 2 engineers + 6 months ambassador growth → 5,000 paying users.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VERDICT ═══ -->
+<div id="tab-verdict" class="section">
+  <div class="verdict-box">
+    <div class="verdict-tag">Final Verdict</div>
+    <h2>✅ Validate — Strong Fundamentals, Needs 30-Day Proof</h2>
+    <p>The business has the ingredients of a fundable EdTech startup. The single open question — <em>will 15%+ of free users pay ₹199/month?</em> — is answerable in 30 days with zero external funding.</p>
+    <div class="gate-grid">
+      <div class="gate"><h4>30-Day Gate</h4><p>100 paying + PMF ≥35% + CAC &lt;₹200 → Raise ₹25–50L pre-seed</p></div>
+      <div class="gate"><h4>90-Day Gate</h4><p>500 users + MRR ₹1L + referral ≥20% → Raise ₹1–2Cr seed</p></div>
+      <div class="gate"><h4>180-Day Gate</h4><p>2,000 users + MRR ₹4L + B2B pilot → Series A narrative</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon" style="background:var(--coral-l)">⚡</span>Founder Action Sheet — Top 10</div>
+    <table class="tbl">
+      <tr><th>#</th><th>Action</th><th>Deadline</th><th>Impact</th></tr>
+      <tr><td>1</td><td>20 customer discovery calls — validate top 3 pain points</td><td>Day 3</td><td><span class="badge badge-red">🔴 Critical</span></td></tr>
+      <tr><td>2</td><td>Build & publish AI quiz + report landing page (Typeform + Carrd)</td><td>Day 5</td><td><span class="badge badge-red">🔴 Critical</span></td></tr>
+      <tr><td>3</td><td>Sign 3 expert mentors on rev-share for AMA sessions</td><td>Day 7</td><td><span class="badge badge-red">🔴 Critical</span></td></tr>
+      <tr><td>4</td><td>Post free report offer in 15 Telegram/WhatsApp student groups</td><td>Day 4</td><td><span class="badge badge-red">🔴 Critical</span></td></tr>
+      <tr><td>5</td><td>Set up Razorpay + WhatsApp onboarding automation flow</td><td>Day 6</td><td><span class="badge badge-red">🔴 Critical</span></td></tr>
+      <tr><td>6</td><td>Launch 'Founding Member' offer at ₹199 to beta users</td><td>Day 14</td><td><span class="badge badge-amber">🟠 High</span></td></tr>
+      <tr><td>7</td><td>Recruit 10 college ambassadors (2 per college × 5 colleges)</td><td>Day 14</td><td><span class="badge badge-amber">🟠 High</span></td></tr>
+      <tr><td>8</td><td>Build referral: share report = 1 month free</td><td>Day 10</td><td><span class="badge badge-amber">🟠 High</span></td></tr>
+      <tr><td>9</td><td>Run Sean Ellis PMF survey on first 50 users</td><td>Day 21</td><td><span class="badge badge-amber">🟠 High</span></td></tr>
+      <tr><td>10</td><td>Weekly OKR review every Sunday — kill what's not moving the needle</td><td>Ongoing</td><td><span class="badge badge-navy">🟡 Med</span></td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function show(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Revenue bar chart
+const revData = [
+  { label: 'Day 30', mrr: 20, color: '#1A237E' },
+  { label: 'Mo 3',  mrr: 100, color: '#00695C' },
+  { label: 'Mo 6',  mrr: 400, color: '#F59E0B' },
+  { label: 'Mo 12', mrr: 1600, color: '#059669' },
+];
+const maxMRR = 1600;
+const barHtml = revData.map(d => `
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <div style="width:42px;font-size:10.5px;color:#94A3B8;text-align:right;flex-shrink:0">${d.label}</div>
+    <div style="flex:1;background:rgba(255,255,255,0.08);border-radius:4px;height:20px;overflow:hidden;">
+      <div style="height:100%;width:${(d.mrr/maxMRR)*100}%;background:${d.color};border-radius:4px;display:flex;align-items:center;padding:0 6px;">
+        <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap">₹${d.mrr >= 100 ? (d.mrr/100).toFixed(1)+'L' : d.mrr+'K'}</span>
+      </div>
+    </div>
+  </div>
+`).join('');
+document.getElementById('rev-bars').innerHTML = barHtml;
+
+// Score cards
+const sc = [
+  { score: '8.0', label: 'Business Viability', color: '#00897B', pct: 80 },
+  { score: '8.5', label: 'Revenue Potential',  color: '#059669', pct: 85 },
+  { score: '7.5', label: 'GTM Strength',       color: '#F59E0B', pct: 75 },
+  { score: '7.0', label: 'Competitive Strength',color: '#7C3AED', pct: 70 },
+  { score: '6.5', label: 'Investor Readiness', color: '#EF4444', pct: 65 },
+];
+document.getElementById('score-cards').innerHTML = sc.map(s => `
+  <div class="score-card">
+    <div class="score-num" style="color:${s.color}">${s.score}</div>
+    <div class="score-label">${s.label}</div>
+    <div class="score-bar"><div class="score-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>
