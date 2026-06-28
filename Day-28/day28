@@ -1,0 +1,31 @@
+# Day 28 – Hospital Admission Readiness Simulator
+
+## Project Overview
+Built a Hospital Admission Readiness Simulator as a single HTML application using Claude AI.
+
+## Features
+- Provider & Physician Information
+- Diagnosis & Admission Type Selection
+- Prior Authorization Status
+- Admission Readiness Analysis
+- Workflow Actions
+- Risk Tracking
+- Governance Snapshot
+- Final Admission Decision
+- Responsive Healthcare UI
+
+## Technologies Used
+- HTML5
+- Tailwind CSS
+- Vanilla JavaScript
+
+## Key Learnings
+- Built a healthcare workflow simulation.
+- Learned admission readiness evaluation concepts.
+- Improved frontend development and prompt engineering.
+- Designed an interactive healthcare-themed UI.
+
+## Files Included
+- Hospital Admission Readiness Simulator.html
+- Screenshots
+- day28.md
