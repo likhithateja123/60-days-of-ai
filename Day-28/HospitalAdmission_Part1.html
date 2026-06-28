@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Admission Readiness Simulator</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TAILWIND CONFIG
+       Design tokens grounded in clinical reality:
+       — Slate-blue for the primary action layer (trust, authority)
+       — Teal for status/positive signals (hospital green evolved)
+       — Amber for warnings (observation status, auth gaps)
+       — Rose for risk flags
+       — Neutral-50 page canvas (not white, not cream — clinical grey)
+       Signature: A real-time "EHR pulse line" SVG animating in the
+       header — the one element that makes this unmistakably a
+       healthcare tool and not a generic admin dashboard.
+  ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // Primary clinical palette
+            clinical: {
+              50:  '#f0f7ff',
+              100: '#e0efff',
+              200: '#baddff',
+              300: '#7cc0ff',
+              400: '#369eff',
+              500: '#0878f0',
+              600: '#0060d1',
+              700: '#004da8',
+              800: '#003d87',
+              900: '#002d65',
+              950: '#001a3d',
+            },
+            // Status / vitals teal
+            vitals: {
+              50:  '#effefb',
+              100: '#c7fff4',
+              200: '#90ffe9',
+              300: '#51f7d9',
+              400: '#1de4c4',
+              500: '#05c9ab',
+              600: '#01a18b',
+              700: '#058070',
+              800: '#09655a',
+              900: '#0c534a',
+            },
+            // Warning amber
+            caution: {
+              50:  '#fffbeb',
+              100: '#fef3c7',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            },
+            // Risk rose
+            risk: {
+              50:  '#fff1f2',
+              100: '#ffe4e6',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            },
+          },
+          fontFamily: {
+            // Display: Inter for clinical authority
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            // Mono: for codes, IDs, timestamps
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          animation: {
+            'pulse-slow':   'pulse 2.8s cubic-bezier(0.4,0,0.6,1) infinite',
+            'slide-up':     'slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both',
+            'fade-in':      'fadeIn 0.35s ease both',
+            'shimmer':      'shimmer 1.6s linear infinite',
+            'draw-line':    'drawLine 2s ease-in-out infinite',
+          },
+          keyframes: {
+            slideUp:  { from: { opacity:'0', transform:'translateY(16px)' }, to: { opacity:'1', transform:'translateY(0)' } },
+            fadeIn:   { from: { opacity:'0' }, to: { opacity:'1' } },
+            shimmer:  { '0%': { backgroundPosition:'-400px 0' }, '100%': { backgroundPosition:'400px 0' } },
+            drawLine: {
+              '0%':   { strokeDashoffset: '800' },
+              '60%':  { strokeDashoffset: '0'   },
+              '100%': { strokeDashoffset: '0'   },
+            },
+          },
+          boxShadow: {
+            'clinical': '0 1px 3px rgba(0,61,135,0.08), 0 4px 16px rgba(0,61,135,0.06)',
+            'card':     '0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+            'active':   '0 0 0 3px rgba(8,120,240,0.20)',
+            'warn':     '0 0 0 3px rgba(245,158,11,0.22)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts — Inter only (no decorative font needed; clinical weight variation carries personality) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Custom base overrides (cannot express in Tailwind config) ── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #f8fafc; /* slate-50 — clinical floor */
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── EHR Pulse line animation (signature element) ── */
+    .pulse-path {
+      stroke-dasharray: 800;
+      stroke-dashoffset: 800;
+      animation: drawLine 2.4s ease-in-out infinite;
+    }
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 800; opacity: 1; }
+      65%  { stroke-dashoffset: 0;   opacity: 1; }
+      85%  { stroke-dashoffset: 0;   opacity: 0.3; }
+      100% { stroke-dashoffset: 800; opacity: 0; }
+    }
+
+    /* ── Shimmer skeleton loading ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.6s linear infinite;
+      border-radius: 6px;
+    }
+
+    /* ── Custom select arrow tint ── */
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230060d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    /* ── Focus ring: clinical blue ── */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(8,120,240,0.18), 0 1px 2px rgba(0,0,0,0.06);
+      border-color: #0878f0 !important;
+    }
+
+    /* ── Field error state ── */
+    .field-error input, .field-error select {
+      border-color: #e11d48 !important;
+    }
+    .field-error input:focus, .field-error select:focus {
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.16), 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* ── Transition helpers ── */
+    .transition-clinical { transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+
+    /* ── Card hover lift ── */
+    .card-lift:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,61,135,0.10); }
+
+    /* ── Placeholder card pulse overlay ── */
+    .placeholder-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(8,120,240,0.03) 0%, rgba(5,201,171,0.03) 100%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ── Print baseline ── */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<!-- ════════════════════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════════════════ -->
+<div id="app-root" class="min-h-screen flex flex-col">
+
+  <!-- ══════════════════════════════════════════════════════════
+       TOP NAV BAR
+  ══════════════════════════════════════════════════════════════ -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14">
+
+        <!-- Brand mark -->
+        <div class="flex items-center gap-3">
+          <!-- Minimal hospital cross icon -->
+          <div class="w-8 h-8 bg-clinical-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <rect x="7" y="2" width="4" height="14" rx="1.5" fill="white"/>
+              <rect x="2" y="7" width="14" height="4" rx="1.5" fill="white"/>
+            </svg>
+          </div>
+          <div class="leading-tight">
+            <div class="text-sm font-800 text-slate-900 tracking-tight font-bold">AdmissionIQ</div>
+            <div class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Readiness Simulator</div>
+          </div>
+        </div>
+
+        <!-- EHR Pulse line — SIGNATURE ELEMENT -->
+        <div class="hidden sm:flex items-center gap-2 flex-1 max-w-xs mx-8" aria-hidden="true">
+          <svg viewBox="0 0 260 36" class="w-full h-9" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              class="pulse-path"
+              d="M0 18 L40 18 L52 18 L58 4 L64 32 L70 10 L76 26 L82 18 L100 18 L112 18 L118 2 L124 34 L130 8 L136 28 L142 18 L160 18 L172 18 L178 6 L184 30 L190 12 L196 24 L202 18 L220 18 L260 18"
+              stroke="#0878f0"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+
+        <!-- Role badge + status -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-1.5 bg-vitals-50 border border-vitals-200 text-vitals-700 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+            <span class="w-1.5 h-1.5 bg-vitals-500 rounded-full animate-pulse-slow inline-block"></span>
+            Admission Coordinator
+          </div>
+          <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 text-sm font-semibold border border-slate-200">
+            AC
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════════════════════════ -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ── PAGE TITLE BLOCK ─────────────────────────────────── -->
+    <div class="mb-8 animate-fade-in">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold tracking-widest uppercase text-clinical-500 mb-1">
+            Hospital Admission Readiness
+          </p>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Admission Readiness Simulator
+          </h1>
+          <p class="mt-1.5 text-sm text-slate-500 max-w-xl">
+            Evaluate clinical, administrative, and authorization readiness before confirming inpatient or
+            observation admissions.
+          </p>
+        </div>
+        <!-- Session timestamp -->
+        <div class="flex-shrink-0 text-right">
+          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Session</div>
+          <div id="session-timestamp" class="font-mono text-xs text-slate-500 mt-0.5">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TRAINING DATA DISCLAIMER BANNER
+    ══════════════════════════════════════════════════════════ -->
+    <div
+      id="disclaimer-banner"
+      role="alert"
+      aria-label="Training data disclaimer"
+      class="mb-6 animate-slide-up bg-caution-50 border border-caution-400 rounded-xl p-4 flex gap-3 items-start"
+    >
+      <div class="flex-shrink-0 mt-0.5">
+        <svg class="w-5 h-5 text-caution-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-caution-800">Training &amp; Simulation Data Only</p>
+        <p class="text-xs text-caution-700 mt-0.5 leading-relaxed">
+          This simulator uses synthetic training data and does <strong>not</strong> access live EHR systems,
+          payer portals, or PHI. All outputs are for educational and workflow-readiness training purposes only.
+          Do not enter real patient data. Clinical decisions must always be validated by licensed professionals
+          following your facility's protocols.
+        </p>
+      </div>
+      <button
+        onclick="HARS.ui.dismissDisclaimer()"
+        class="flex-shrink-0 text-caution-500 hover:text-caution-700 transition-clinical"
+        aria-label="Dismiss disclaimer"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         OBSERVATION STATUS WARNING BANNER
+    ══════════════════════════════════════════════════════════ -->
+    <div
+      id="obs-warning-banner"
+      role="note"
+      aria-label="Observation status notice"
+      class="mb-6 animate-slide-up bg-risk-50 border border-risk-400 rounded-xl p-4 flex gap-3 items-start"
+      style="display:none !important;"
+    >
+      <div class="flex-shrink-0 mt-0.5">
+        <svg class="w-5 h-5 text-risk-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-risk-800">Observation Status — Patient Notice Required</p>
+        <p class="text-xs text-risk-700 mt-0.5 leading-relaxed">
+          Patients placed under <strong>Observation</strong> are classified as outpatients for Medicare billing
+          purposes even when they occupy an inpatient bed. This affects cost-sharing, SNF eligibility, and
+          self-pay liability. The <strong>NOTICE Act</strong> (effective 2016) requires written and verbal
+          notification within 36 hours. Ensure the Observation Notice workflow is initiated before this admission
+          is confirmed.
+        </p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-risk-700 bg-risk-100 border border-risk-200 px-2.5 py-0.5 rounded-full">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm-.75 4.75a.75.75 0 011.5 0v4.5a.75.75 0 01-1.5 0v-4.5zm.75 8a1 1 0 110-2 1 1 0 010 2z"/></svg>
+            MOON Act compliance required
+          </span>
+          <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-risk-700 bg-risk-100 border border-risk-200 px-2.5 py-0.5 rounded-full">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd"/></svg>
+            36-hour notification window
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TWO-COLUMN LAYOUT: Form (left) + Analysis (right)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+
+      <!-- ════════════════════════════════════════════════════
+           LEFT COLUMN — SETUP FORM  (lg: 2 of 5 cols)
+      ════════════════════════════════════════════════════════ -->
+      <div class="lg:col-span-2 animate-slide-up" style="animation-delay:0.08s">
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+
+          <!-- Form header -->
+          <div class="px-5 py-4 bg-clinical-950 flex items-center gap-3">
+            <div class="w-8 h-8 bg-clinical-700 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white leading-tight">Admission Setup</p>
+              <p class="text-[11px] text-clinical-300 mt-0.5">Complete all fields to analyze readiness</p>
+            </div>
+          </div>
+
+          <!-- Form body -->
+          <form id="admission-form" novalidate class="p-5 space-y-4" aria-label="Admission readiness setup">
+
+            <!-- ── Provider ───────────────────────────────── -->
+            <div class="form-field" data-field="provider">
+              <label for="inp-provider" class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                Provider / Facility
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <select
+                id="inp-provider"
+                name="provider"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 pr-8 transition-clinical hover:border-slate-300 cursor-pointer"
+                aria-required="true"
+                aria-describedby="err-provider"
+              >
+                <option value="">Select facility…</option>
+                <option value="metro_general">Metro General Hospital</option>
+                <option value="st_catherine">St. Catherine Medical Center</option>
+                <option value="riverside">Riverside Community Hospital</option>
+                <option value="northside">Northside Regional Medical</option>
+                <option value="valley_health">Valley Health System</option>
+                <option value="university">University Academic Medical Center</option>
+                <option value="childrens">Children's Specialty Hospital</option>
+              </select>
+              <p id="err-provider" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Select a facility to continue.
+              </p>
+            </div>
+
+            <!-- ── Attending Physician ────────────────────── -->
+            <div class="form-field" data-field="physician">
+              <label for="inp-physician" class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Attending Physician
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <select
+                id="inp-physician"
+                name="physician"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 pr-8 transition-clinical hover:border-slate-300 cursor-pointer"
+                aria-required="true"
+                aria-describedby="err-physician"
+              >
+                <option value="">Select physician…</option>
+                <option value="chen_li">Dr. Li Chen, MD — Internal Medicine</option>
+                <option value="patel_arjun">Dr. Arjun Patel, MD — Cardiology</option>
+                <option value="rodriguez_maria">Dr. Maria Rodriguez, MD — Hospitalist</option>
+                <option value="kim_james">Dr. James Kim, MD — Pulmonology</option>
+                <option value="okonkwo_adaeze">Dr. Adaeze Okonkwo, MD — Neurology</option>
+                <option value="thompson_sarah">Dr. Sarah Thompson, MD — Orthopedics</option>
+                <option value="mehta_raj">Dr. Raj Mehta, MD — Oncology</option>
+                <option value="garcia_elena">Dr. Elena Garcia, MD — Nephrology</option>
+              </select>
+              <p id="err-physician" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Select the attending physician.
+              </p>
+            </div>
+
+            <!-- ── Primary Diagnosis ──────────────────────── -->
+            <div class="form-field" data-field="diagnosis">
+              <label for="inp-diagnosis" class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                Primary Diagnosis / ICD-10
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <select
+                id="inp-diagnosis"
+                name="diagnosis"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 pr-8 transition-clinical hover:border-slate-300 cursor-pointer"
+                aria-required="true"
+                aria-describedby="err-diagnosis"
+              >
+                <option value="">Select diagnosis…</option>
+                <optgroup label="Cardiovascular">
+                  <option value="I21.9">I21.9 — Acute MI, unspecified</option>
+                  <option value="I50.9">I50.9 — Heart failure, unspecified</option>
+                  <option value="I48.91">I48.91 — Atrial fibrillation (unspecified)</option>
+                  <option value="I20.9">I20.9 — Angina pectoris, unspecified</option>
+                </optgroup>
+                <optgroup label="Pulmonary">
+                  <option value="J18.9">J18.9 — Pneumonia, unspecified organism</option>
+                  <option value="J44.1">J44.1 — COPD with acute exacerbation</option>
+                  <option value="J96.0">J96.00 — Acute respiratory failure</option>
+                  <option value="J45.51">J45.51 — Severe persistent asthma w/ acute exacerbation</option>
+                </optgroup>
+                <optgroup label="Metabolic / Renal">
+                  <option value="E11.65">E11.65 — Type 2 DM with hyperglycemia</option>
+                  <option value="N17.9">N17.9 — Acute kidney injury, unspecified</option>
+                  <option value="E87.1">E87.1 — Hyponatremia</option>
+                </optgroup>
+                <optgroup label="Neurological">
+                  <option value="I63.9">I63.9 — Cerebral infarction, unspecified</option>
+                  <option value="G43.909">G43.909 — Migraine, unspecified</option>
+                  <option value="R55">R55 — Syncope and collapse</option>
+                </optgroup>
+                <optgroup label="Sepsis / Infectious">
+                  <option value="A41.9">A41.9 — Sepsis, unspecified organism</option>
+                  <option value="A49.9">A49.9 — Bacterial infection, unspecified</option>
+                </optgroup>
+                <optgroup label="Surgical / Orthopedic">
+                  <option value="S72.001">S72.001A — Femoral neck fracture</option>
+                  <option value="M16.11">M16.11 — Osteoarthritis, hip — surgical candidate</option>
+                </optgroup>
+              </select>
+              <p id="err-diagnosis" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Select the primary diagnosis / ICD-10 code.
+              </p>
+            </div>
+
+            <!-- ── Admission Type ─────────────────────────── -->
+            <div class="form-field" data-field="admission_type">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Admission Type
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <!-- Radio card group -->
+              <div
+                id="admission-type-group"
+                role="radiogroup"
+                aria-labelledby="admission-type-label"
+                aria-required="true"
+                aria-describedby="err-admission_type"
+                class="grid grid-cols-2 gap-2"
+              >
+                <!-- Inpatient -->
+                <label
+                  class="admission-type-card flex flex-col gap-1 p-3 rounded-xl border-2 border-slate-200 cursor-pointer transition-clinical hover:border-clinical-300 hover:bg-clinical-50 has-[:checked]:border-clinical-500 has-[:checked]:bg-clinical-50"
+                  aria-label="Inpatient admission"
+                >
+                  <input type="radio" name="admission_type" value="inpatient" class="sr-only" onchange="HARS.form.handleAdmissionTypeChange(this.value)" />
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-clinical-100 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3.5 h-3.5 text-clinical-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800">Inpatient</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 leading-tight pl-8">Medicare Part A · 2+ midnight rule applies</span>
+                </label>
+                <!-- Observation -->
+                <label
+                  class="admission-type-card flex flex-col gap-1 p-3 rounded-xl border-2 border-slate-200 cursor-pointer transition-clinical hover:border-caution-400 hover:bg-caution-50 has-[:checked]:border-caution-500 has-[:checked]:bg-caution-50"
+                  aria-label="Observation status — requires special notice"
+                >
+                  <input type="radio" name="admission_type" value="observation" class="sr-only" onchange="HARS.form.handleAdmissionTypeChange(this.value)" />
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-caution-100 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3.5 h-3.5 text-caution-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800">Observation</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 leading-tight pl-8">Outpatient billing · NOTICE Act required</span>
+                </label>
+                <!-- Surgical -->
+                <label
+                  class="admission-type-card flex flex-col gap-1 p-3 rounded-xl border-2 border-slate-200 cursor-pointer transition-clinical hover:border-vitals-400 hover:bg-vitals-50 has-[:checked]:border-vitals-500 has-[:checked]:bg-vitals-50"
+                  aria-label="Scheduled surgical admission"
+                >
+                  <input type="radio" name="admission_type" value="surgical" class="sr-only" onchange="HARS.form.handleAdmissionTypeChange(this.value)" />
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-vitals-100 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3.5 h-3.5 text-vitals-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m0 14v1M4 12H3m18 0h-1m-2.05-6.536l-.707.707M6.757 17.829l-.707.707m11.314-1.414l.707.707M6.05 6.464l.707.707"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800">Surgical</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 leading-tight pl-8">Scheduled procedure · Pre-auth required</span>
+                </label>
+                <!-- Emergency -->
+                <label
+                  class="admission-type-card flex flex-col gap-1 p-3 rounded-xl border-2 border-slate-200 cursor-pointer transition-clinical hover:border-risk-400 hover:bg-risk-50 has-[:checked]:border-risk-500 has-[:checked]:bg-risk-50"
+                  aria-label="Emergency admission"
+                >
+                  <input type="radio" name="admission_type" value="emergency" class="sr-only" onchange="HARS.form.handleAdmissionTypeChange(this.value)" />
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-risk-100 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3.5 h-3.5 text-risk-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800">Emergency</span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 leading-tight pl-8">Emergent admit · retrospective auth</span>
+                </label>
+              </div>
+              <p id="err-admission_type" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Select an admission type.
+              </p>
+            </div>
+
+            <!-- ── Prior Authorization Status ───────────────── -->
+            <div class="form-field" data-field="auth_status">
+              <label for="inp-auth" class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Prior Authorization Status
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <select
+                id="inp-auth"
+                name="auth_status"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 pr-8 transition-clinical hover:border-slate-300 cursor-pointer"
+                aria-required="true"
+                aria-describedby="err-auth_status"
+              >
+                <option value="">Select authorization status…</option>
+                <option value="approved">✅ Approved — Authorization received</option>
+                <option value="pending">⏳ Pending — Awaiting payer decision</option>
+                <option value="not_required">⚪ Not Required — Emergency / exempt</option>
+                <option value="denied">❌ Denied — Authorization refused</option>
+                <option value="partial">⚠️ Partial — Limited approval received</option>
+                <option value="not_initiated">🔴 Not Initiated — Process not started</option>
+              </select>
+              <p id="err-auth_status" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Select the current authorization status.
+              </p>
+            </div>
+
+            <!-- ── Admission Date ─────────────────────────── -->
+            <div class="form-field" data-field="admission_date">
+              <label for="inp-date" class="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Admission Date
+                <span class="text-risk-500 ml-auto" aria-label="required">*</span>
+              </label>
+              <input
+                type="date"
+                id="inp-date"
+                name="admission_date"
+                class="w-full rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-800 px-3 py-2.5 transition-clinical hover:border-slate-300 cursor-pointer"
+                aria-required="true"
+                aria-describedby="err-admission_date"
+              />
+              <p id="err-admission_date" class="field-error-msg hidden mt-1 text-[11px] font-medium text-risk-600 flex items-center gap-1" role="alert">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Enter a valid admission date.
+              </p>
+            </div>
+
+            <!-- ── Form-level error summary ───────────────── -->
+            <div
+              id="form-error-summary"
+              role="alert"
+              aria-live="polite"
+              class="hidden rounded-xl bg-risk-50 border border-risk-200 p-3 text-xs text-risk-700 font-medium flex items-start gap-2"
+            >
+              <svg class="w-4 h-4 text-risk-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+              </svg>
+              <span id="form-error-text">Please complete all required fields before analyzing.</span>
+            </div>
+
+          </form><!-- /admission-form -->
+
+          <!-- Form footer + CTA -->
+          <div class="px-5 pb-5">
+            <!-- Field completion indicator -->
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-medium text-slate-400">
+                <span id="fields-complete-count">0</span> of 6 fields complete
+              </span>
+              <div class="flex-1 mx-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  id="form-progress-bar"
+                  class="h-full bg-gradient-to-r from-clinical-500 to-vitals-400 rounded-full transition-all duration-500"
+                  style="width:0%"
+                  aria-hidden="true"
+                ></div>
+              </div>
+              <span id="form-progress-pct" class="text-[11px] font-bold text-clinical-500">0%</span>
+            </div>
+
+            <!-- CTA Button -->
+            <button
+              id="btn-analyze"
+              type="button"
+              onclick="HARS.form.submit()"
+              class="w-full flex items-center justify-center gap-2 bg-clinical-600 hover:bg-clinical-700 active:bg-clinical-800 text-white font-bold text-sm rounded-xl px-4 py-3.5 transition-clinical shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-clinical-500 focus:ring-offset-2 group"
+              aria-label="Analyze admission readiness"
+            >
+              <span class="text-lg" aria-hidden="true">🏥</span>
+              Analyze Admission Readiness
+              <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-clinical" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+
+        </div><!-- /form card -->
+
+        <!-- ── Quick reference legend ──────────────────────── -->
+        <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-card">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2.5">Status Legend</p>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="w-2 h-2 rounded-full bg-vitals-500 flex-shrink-0"></span>
+              <span><strong>Ready</strong> — All criteria met, safe to proceed</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="w-2 h-2 rounded-full bg-caution-500 flex-shrink-0"></span>
+              <span><strong>Caution</strong> — Gaps identified, action required</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="w-2 h-2 rounded-full bg-risk-500 flex-shrink-0"></span>
+              <span><strong>At Risk</strong> — Compliance or safety flag raised</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span class="w-2 h-2 rounded-full bg-slate-400 flex-shrink-0"></span>
+              <span><strong>Pending</strong> — Awaiting data or decision</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /left column -->
+
+      <!-- ════════════════════════════════════════════════════
+           RIGHT COLUMN — ANALYSIS PANELS  (lg: 3 of 5 cols)
+      ════════════════════════════════════════════════════════ -->
+      <div class="lg:col-span-3 space-y-4" id="analysis-column">
+
+        <!-- ── DEFAULT STATE — Before analysis ───────────────── -->
+        <div id="panel-idle" class="animate-fade-in">
+          <div class="bg-white rounded-2xl border border-slate-200 border-dashed shadow-card p-10 flex flex-col items-center justify-center text-center min-h-[320px]">
+            <!-- Hospital icon -->
+            <div class="w-16 h-16 bg-clinical-50 rounded-2xl border border-clinical-100 flex items-center justify-center mb-5">
+              <svg class="w-8 h-8 text-clinical-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-700 mb-1.5">Readiness Analysis</h3>
+            <p class="text-sm text-slate-400 max-w-xs leading-relaxed">
+              Complete the setup form and click <strong class="text-clinical-600">Analyze Admission Readiness</strong>
+              to run the full readiness evaluation.
+            </p>
+            <!-- Animated dots hinting at activity -->
+            <div class="flex gap-1.5 mt-6" aria-hidden="true">
+              <span class="w-2 h-2 rounded-full bg-slate-200 animate-pulse-slow" style="animation-delay:0s"></span>
+              <span class="w-2 h-2 rounded-full bg-slate-200 animate-pulse-slow" style="animation-delay:0.3s"></span>
+              <span class="w-2 h-2 rounded-full bg-slate-200 animate-pulse-slow" style="animation-delay:0.6s"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LOADING STATE ───────────────────────────────────── -->
+        <div id="panel-loading" class="hidden space-y-4 animate-fade-in">
+
+          <!-- Loading header -->
+          <div class="bg-white rounded-2xl border border-clinical-200 shadow-card p-5">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 bg-clinical-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-clinical-600 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-slate-800" id="loading-title">Running Admission Readiness Analysis…</p>
+                <p class="text-xs text-slate-400 mt-0.5" id="loading-subtitle">Evaluating clinical, administrative, and authorization criteria</p>
+              </div>
+            </div>
+            <!-- Loading steps checklist -->
+            <div class="space-y-2" id="loading-steps">
+              <div class="loading-step flex items-center gap-2.5 text-xs font-medium text-slate-500 opacity-40" data-step="0">
+                <div class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                  <div class="step-dot w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                </div>
+                Verifying clinical documentation requirements
+              </div>
+              <div class="loading-step flex items-center gap-2.5 text-xs font-medium text-slate-500 opacity-40" data-step="1">
+                <div class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                  <div class="step-dot w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                </div>
+                Checking prior authorization status
+              </div>
+              <div class="loading-step flex items-center gap-2.5 text-xs font-medium text-slate-500 opacity-40" data-step="2">
+                <div class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                  <div class="step-dot w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                </div>
+                Calculating readiness score across 5 domains
+              </div>
+              <div class="loading-step flex items-center gap-2.5 text-xs font-medium text-slate-500 opacity-40" data-step="3">
+                <div class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                  <div class="step-dot w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                </div>
+                Building workflow action checklist
+              </div>
+              <div class="loading-step flex items-center gap-2.5 text-xs font-medium text-slate-500 opacity-40" data-step="4">
+                <div class="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                  <div class="step-dot w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                </div>
+                Generating risk flags and final recommendation
+              </div>
+            </div>
+          </div>
+
+          <!-- Skeleton placeholder cards (shown while loading) -->
+
+          <!-- Skeleton: Initial Analysis -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-5 relative overflow-hidden">
+            <div class="placeholder-overlay"></div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="skeleton w-8 h-8 rounded-lg"></div>
+              <div class="skeleton h-4 w-36 rounded"></div>
+              <div class="skeleton h-5 w-16 rounded-full ml-auto"></div>
+            </div>
+            <div class="space-y-2">
+              <div class="skeleton h-3 w-full rounded"></div>
+              <div class="skeleton h-3 w-5/6 rounded"></div>
+              <div class="skeleton h-3 w-4/6 rounded"></div>
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="skeleton h-14 rounded-lg"></div>
+              <div class="skeleton h-14 rounded-lg"></div>
+              <div class="skeleton h-14 rounded-lg"></div>
+            </div>
+          </div>
+
+          <!-- Skeleton: Readiness Score -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-5 relative overflow-hidden">
+            <div class="placeholder-overlay"></div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="skeleton w-8 h-8 rounded-lg"></div>
+              <div class="skeleton h-4 w-32 rounded"></div>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="skeleton h-12 w-24 rounded-xl"></div>
+              <div class="skeleton h-8 w-28 rounded-full"></div>
+            </div>
+            <div class="space-y-2.5">
+              <div class="skeleton h-2 w-full rounded-full"></div>
+              <div class="skeleton h-2 w-4/5 rounded-full"></div>
+              <div class="skeleton h-2 w-full rounded-full"></div>
+              <div class="skeleton h-2 w-3/5 rounded-full"></div>
+              <div class="skeleton h-2 w-full rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- Skeleton: Workflow -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-5 relative overflow-hidden">
+            <div class="placeholder-overlay"></div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="skeleton w-8 h-8 rounded-lg"></div>
+              <div class="skeleton h-4 w-40 rounded"></div>
+              <div class="skeleton h-5 w-12 rounded-full ml-auto"></div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex gap-3"><div class="skeleton w-5 h-5 rounded flex-shrink-0"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-4/5 rounded"></div><div class="skeleton h-2.5 w-3/5 rounded"></div></div></div>
+              <div class="flex gap-3"><div class="skeleton w-5 h-5 rounded flex-shrink-0"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-full rounded"></div><div class="skeleton h-2.5 w-4/6 rounded"></div></div></div>
+              <div class="flex gap-3"><div class="skeleton w-5 h-5 rounded flex-shrink-0"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-3 w-3/5 rounded"></div><div class="skeleton h-2.5 w-4/5 rounded"></div></div></div>
+            </div>
+          </div>
+
+        </div><!-- /#panel-loading -->
+
+        <!-- ── RESULTS STATE ───────────────────────────────────── -->
+        <div id="panel-results" class="hidden space-y-4">
+
+          <!-- ── Card: Initial Analysis ── -->
+          <div id="card-initial-analysis"
+            class="result-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden opacity-0 animate-slide-up"
+            style="animation-delay:0.05s"
+            aria-label="Initial analysis results"
+          >
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 bg-clinical-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-clinical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-sm font-bold text-slate-800">Initial Analysis</h2>
+                <p class="text-[11px] text-slate-400">Admission snapshot &amp; clinical context</p>
+              </div>
+              <!-- Status badge — Part 2 will populate dynamically -->
+              <div id="badge-initial" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                Pending Analysis
+              </div>
+            </div>
+            <!-- Placeholder body — Part 2 will inject real content here -->
+            <div class="p-5" id="content-initial-analysis">
+              <div class="grid grid-cols-3 gap-3 mb-4" id="stats-initial">
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+                  <div class="text-lg font-extrabold text-slate-300 mb-0.5">—</div>
+                  <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Facility</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+                  <div class="text-lg font-extrabold text-slate-300 mb-0.5">—</div>
+                  <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Admit Type</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+                  <div class="text-lg font-extrabold text-slate-300 mb-0.5">—</div>
+                  <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Auth Status</div>
+                </div>
+              </div>
+              <div class="space-y-2 text-xs text-slate-400 italic">
+                <p>↳ Diagnosis context, clinical flag summary, and payer notes will appear here after analysis (Part 2).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card: Readiness Score ── -->
+          <div id="card-readiness-score"
+            class="result-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden opacity-0 animate-slide-up"
+            style="animation-delay:0.12s"
+            aria-label="Readiness score"
+          >
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 bg-vitals-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-vitals-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-sm font-bold text-slate-800">Readiness Score</h2>
+                <p class="text-[11px] text-slate-400">Composite score across 5 domains</p>
+              </div>
+            </div>
+            <div class="p-5" id="content-readiness-score">
+              <!-- Score placeholder — Part 2 will populate with actual scored rings / bars -->
+              <div class="flex items-center gap-4 mb-5">
+                <div class="w-20 h-20 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center flex-shrink-0">
+                  <span class="text-2xl font-black text-slate-300">—</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-slate-400 mb-1">Overall Readiness</p>
+                  <div class="h-2 bg-slate-100 rounded-full w-full mb-2"></div>
+                  <p class="text-[11px] text-slate-400 italic">Score engine active in Part 2</p>
+                </div>
+              </div>
+              <!-- Domain score placeholders -->
+              <div class="space-y-2.5" id="domain-scores">
+                <div class="text-[11px] text-slate-400 italic">↳ Domain scores (Clinical, Administrative, Authorization, Bed Availability, Care Coordination) will render here.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card: Workflow Actions ── -->
+          <div id="card-workflow"
+            class="result-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden opacity-0 animate-slide-up"
+            style="animation-delay:0.19s"
+            aria-label="Workflow action checklist"
+          >
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 bg-caution-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-caution-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-sm font-bold text-slate-800">Workflow Checklist</h2>
+                <p class="text-[11px] text-slate-400">Pre-admission actions by priority</p>
+              </div>
+              <div id="badge-workflow" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                — items
+              </div>
+            </div>
+            <div class="p-5" id="content-workflow">
+              <p class="text-xs text-slate-400 italic">↳ Prioritized workflow actions — critical, high, medium — will be generated based on gaps identified in the readiness score. Implemented in Part 2.</p>
+            </div>
+          </div>
+
+          <!-- ── Card: Risk Tracking ── -->
+          <div id="card-risk"
+            class="result-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden opacity-0 animate-slide-up"
+            style="animation-delay:0.26s"
+            aria-label="Risk flag tracker"
+          >
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 bg-risk-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-risk-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-sm font-bold text-slate-800">Risk Tracking</h2>
+                <p class="text-[11px] text-slate-400">Compliance, billing &amp; clinical flags</p>
+              </div>
+              <div id="badge-risk" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                — flags
+              </div>
+            </div>
+            <div class="p-5" id="content-risk">
+              <p class="text-xs text-slate-400 italic">↳ Risk flags (NOTICE Act compliance, auth denial risk, 2-midnight rule exposure, billing class mismatch) will populate here. Implemented in Part 2.</p>
+            </div>
+          </div>
+
+          <!-- ── Card: Final Decision ── -->
+          <div id="card-decision"
+            class="result-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden opacity-0 animate-slide-up"
+            style="animation-delay:0.33s"
+            aria-label="Final admission decision"
+          >
+            <div class="px-5 pt-5 pb-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="w-8 h-8 bg-clinical-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-clinical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h2 class="text-sm font-bold text-slate-800">Final Decision</h2>
+                <p class="text-[11px] text-slate-400">Recommendation based on full readiness analysis</p>
+              </div>
+            </div>
+            <div class="p-5" id="content-decision">
+              <div class="rounded-xl bg-slate-50 border border-slate-200 border-dashed p-6 text-center">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-bold text-slate-400 mb-1">Decision Pending</p>
+                <p class="text-xs text-slate-400">Final decision logic, valuation, and action pathway implemented in Part 2.</p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /#panel-results -->
+
+      </div><!-- /right column -->
+    </div><!-- /grid -->
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════════ -->
+  <footer class="mt-auto border-t border-slate-200 bg-white no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p class="text-[11px] text-slate-400 font-medium">
+        AdmissionIQ · Hospital Admission Readiness Simulator · Training data only — not for clinical use
+      </p>
+      <div class="flex items-center gap-4">
+        <span class="text-[11px] text-slate-400">Part 1 of 4</span>
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-vitals-600 bg-vitals-50 border border-vitals-200 px-2 py-0.5 rounded-full">
+          <span class="w-1.5 h-1.5 bg-vitals-500 rounded-full animate-pulse-slow"></span>
+          System Active
+        </span>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /#app-root -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT — HARS Module (Part 1: Form + Loading + Placeholders)
+     Namespace: HARS (Hospital Admission Readiness Simulator)
+     Module structure is ready for Parts 2–4 to extend.
+════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════════
+   HARS — Global application namespace
+   Parts 2–4 will attach their own sub-modules:
+     HARS.scoring   — readiness score engine
+     HARS.workflow  — action checklist generator
+     HARS.risk      — risk flag evaluator
+     HARS.decision  — final recommendation engine
+     HARS.report    — PDF / print report
+════════════════════════════════════════════════════════════════ */
+const HARS = (() => {
+
+  /* ── Application state ──────────────────────────────────────────
+     Parts 2–4 will read from and write to this object.
+     Never mutate state.formData directly from result cards —
+     always use state.analysisResult for post-processing.
+  ─────────────────────────────────────────────────────────────── */
+  const state = {
+    phase: 'idle',    // 'idle' | 'loading' | 'results'
+    formData: {
+      provider:       '',
+      physician:      '',
+      diagnosis:      '',
+      admission_type: '',
+      auth_status:    '',
+      admission_date: '',
+    },
+    /* Parts 2–4 will populate: */
+    analysisResult: {
+      readinessScore:  null,   // Part 2: 0–100
+      domainScores:    {},     // Part 2: { clinical, admin, auth, bed, care }
+      workflowItems:   [],     // Part 2: [{ priority, action, owner, deadline }]
+      riskFlags:       [],     // Part 2: [{ severity, category, message, regulation }]
+      finalDecision:   null,   // Part 3: { status, recommendation, blockers }
+      timeline:        [],     // Part 3: [{ date, event, type }]
+      governance:      {},     // Part 4: snapshot object
+    },
+  };
+
+  /* ── FIELD CONFIGURATION ────────────────────────────────────────
+     Single source of truth for validation rules and DOM references.
+     Parts 2+ must not add form fields without updating this config.
+  ─────────────────────────────────────────────────────────────── */
+  const FIELD_CONFIG = [
+    {
+      key:       'provider',
+      inputId:   'inp-provider',
+      errorId:   'err-provider',
+      fieldAttr: 'provider',
+      type:      'select',
+      label:     'Provider / Facility',
+      required:  true,
+      validate:  v => v && v.trim() !== '',
+      errMsg:    'Select a facility to continue.',
+    },
+    {
+      key:       'physician',
+      inputId:   'inp-physician',
+      errorId:   'err-physician',
+      fieldAttr: 'physician',
+      type:      'select',
+      label:     'Attending Physician',
+      required:  true,
+      validate:  v => v && v.trim() !== '',
+      errMsg:    'Select the attending physician.',
+    },
+    {
+      key:       'diagnosis',
+      inputId:   'inp-diagnosis',
+      errorId:   'err-diagnosis',
+      fieldAttr: 'diagnosis',
+      type:      'select',
+      label:     'Primary Diagnosis',
+      required:  true,
+      validate:  v => v && v.trim() !== '',
+      errMsg:    'Select the primary diagnosis / ICD-10 code.',
+    },
+    {
+      key:       'admission_type',
+      inputId:   null,  // radio group — read via querySelector
+      errorId:   'err-admission_type',
+      fieldAttr: 'admission_type',
+      type:      'radio',
+      label:     'Admission Type',
+      required:  true,
+      validate:  v => v && v.trim() !== '',
+      errMsg:    'Select an admission type.',
+    },
+    {
+      key:       'auth_status',
+      inputId:   'inp-auth',
+      errorId:   'err-auth_status',
+      fieldAttr: 'auth_status',
+      type:      'select',
+      label:     'Prior Authorization Status',
+      required:  true,
+      validate:  v => v && v.trim() !== '',
+      errMsg:    'Select the current authorization status.',
+    },
+    {
+      key:       'admission_date',
+      inputId:   'inp-date',
+      errorId:   'err-admission_date',
+      fieldAttr: 'admission_date',
+      type:      'date',
+      label:     'Admission Date',
+      required:  true,
+      validate:  v => {
+        if (!v) return false;
+        const d = new Date(v);
+        return !isNaN(d.getTime());
+      },
+      errMsg:    'Enter a valid admission date.',
+    },
+  ];
+
+  /* ──────────────────────────────────────────────────────────────
+     ui — DOM helpers and panel transitions
+  ─────────────────────────────────────────────────────────────── */
+  const ui = {
+
+    /* Set session timestamp in header */
+    stampSession() {
+      const el = document.getElementById('session-timestamp');
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+    },
+
+    /* Dismiss disclaimer banner */
+    dismissDisclaimer() {
+      const el = document.getElementById('disclaimer-banner');
+      if (el) { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 320); }
+    },
+
+    /* Show / hide observation warning based on admission type */
+    toggleObsWarning(show) {
+      const el = document.getElementById('obs-warning-banner');
+      if (!el) return;
+      if (show) {
+        el.style.removeProperty('display');
+        el.classList.add('animate-slide-up');
+      } else {
+        el.style.display = 'none !important';
+        el.style.setProperty('display', 'none', 'important');
+      }
+    },
+
+    /* Transition from idle → loading */
+    showLoading() {
+      document.getElementById('panel-idle').classList.add('hidden');
+      document.getElementById('panel-results').classList.add('hidden');
+      document.getElementById('panel-loading').classList.remove('hidden');
+      state.phase = 'loading';
+      ui._animateLoadingSteps();
+    },
+
+    /* Animate loading checklist steps sequentially */
+    _animateLoadingSteps() {
+      const steps = document.querySelectorAll('.loading-step');
+      const delays = [0, 600, 1200, 1900, 2700];
+      steps.forEach((step, i) => {
+        setTimeout(() => {
+          // Fade in this step
+          step.style.opacity = '1';
+          step.style.transition = 'opacity 0.4s';
+          // Animate dot → check
+          const dot = step.querySelector('.step-dot');
+          const ring = step.querySelector('div');
+          if (dot && ring) {
+            dot.style.background = '#0878f0';
+            ring.style.borderColor = '#0878f0';
+          }
+        }, delays[i]);
+      });
+    },
+
+    /* Transition from loading → results */
+    showResults() {
+      document.getElementById('panel-loading').classList.add('hidden');
+      document.getElementById('panel-results').classList.remove('hidden');
+      state.phase = 'results';
+      // Trigger CSS animations on result cards
+      const cards = document.querySelectorAll('.result-card');
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+          card.style.transition = 'all 0.45s cubic-bezier(0.22,1,0.36,1)';
+        }, i * 80);
+      });
+    },
+
+    /* Update form completion progress bar */
+    updateProgress(count, total) {
+      const pct = Math.round((count / total) * 100);
+      const bar  = document.getElementById('form-progress-bar');
+      const cntEl = document.getElementById('fields-complete-count');
+      const pctEl = document.getElementById('form-progress-pct');
+      if (bar)   bar.style.width   = pct + '%';
+      if (cntEl) cntEl.textContent = count;
+      if (pctEl) pctEl.textContent = pct + '%';
+    },
+
+    /* Show / hide form error summary */
+    setFormError(show, msg) {
+      const el  = document.getElementById('form-error-summary');
+      const txt = document.getElementById('form-error-text');
+      if (!el) return;
+      el.classList.toggle('hidden', !show);
+      el.classList.toggle('flex',    show);
+      if (txt && msg) txt.textContent = msg;
+    },
+
+    /* Mark a field as error or valid */
+    setFieldState(fieldAttr, isError) {
+      const wrapper = document.querySelector(`[data-field="${fieldAttr}"]`);
+      if (!wrapper) return;
+      wrapper.classList.toggle('field-error', isError);
+    },
+
+    /* Show / hide inline field error message */
+    setFieldError(errorId, show) {
+      const el = document.getElementById(errorId);
+      if (!el) return;
+      el.classList.toggle('hidden', !show);
+      el.classList.toggle('flex',    show);
+    },
+
+    /* Stamp the initial analysis card header stats after form submit */
+    stampInitialStats(data) {
+      const providerLabels = {
+        metro_general: 'Metro General', st_catherine: 'St. Catherine',
+        riverside: 'Riverside', northside: 'Northside', valley_health: 'Valley Health',
+        university: 'University AMC', childrens: "Children's",
+      };
+      const typeLabels = {
+        inpatient: 'Inpatient', observation: 'Observation',
+        surgical: 'Surgical', emergency: 'Emergency',
+      };
+      const authLabels = {
+        approved: 'Approved', pending: 'Pending', not_required: 'Not Req.',
+        denied: 'Denied', partial: 'Partial', not_initiated: 'Not Init.',
+      };
+      const authColors = {
+        approved: 'text-vitals-700 bg-vitals-50 border-vitals-200',
+        pending:  'text-caution-700 bg-caution-50 border-caution-200',
+        denied:   'text-risk-700 bg-risk-50 border-risk-200',
+        partial:  'text-caution-700 bg-caution-50 border-caution-200',
+        not_required: 'text-slate-600 bg-slate-50 border-slate-200',
+        not_initiated: 'text-risk-700 bg-risk-50 border-risk-200',
+      };
+      const statContainer = document.getElementById('stats-initial');
+      if (!statContainer) return;
+      const authClass = authColors[data.auth_status] || 'text-slate-600 bg-slate-50 border-slate-200';
+      statContainer.innerHTML = `
+        <div class="bg-clinical-50 border border-clinical-100 rounded-xl p-3 text-center">
+          <div class="text-xs font-extrabold text-clinical-700 mb-0.5 truncate">${providerLabels[data.provider] || data.provider}</div>
+          <div class="text-[10px] font-semibold text-clinical-400 uppercase tracking-wide">Facility</div>
+        </div>
+        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+          <div class="text-xs font-extrabold text-slate-700 mb-0.5">${typeLabels[data.admission_type] || data.admission_type}</div>
+          <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Admit Type</div>
+        </div>
+        <div class="${authClass} border rounded-xl p-3 text-center">
+          <div class="text-xs font-extrabold mb-0.5">${authLabels[data.auth_status] || data.auth_status}</div>
+          <div class="text-[10px] font-semibold uppercase tracking-wide opacity-70">Auth Status</div>
+        </div>
+      `;
+      // Update "Pending Analysis" badge to reflect date
+      const badge = document.getElementById('badge-initial');
+      if (badge && data.admission_date) {
+        const d = new Date(data.admission_date + 'T00:00:00');
+        badge.className = 'inline-flex items-center gap-1.5 bg-clinical-50 text-clinical-600 border border-clinical-200 text-[11px] font-semibold px-2.5 py-1 rounded-full';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-clinical-400"></span>
+          ${d.toLocaleDateString('en-US', { month:'short', day:'numeric' })}`;
+      }
+    },
+  };
+
+  /* ──────────────────────────────────────────────────────────────
+     form — validation, reading, progress tracking
+  ─────────────────────────────────────────────────────────────── */
+  const form = {
+
+    /* Read the current value for a field config entry */
+    readValue(fieldCfg) {
+      if (fieldCfg.type === 'radio') {
+        const checked = document.querySelector(`input[name="${fieldCfg.key}"]:checked`);
+        return checked ? checked.value : '';
+      }
+      const el = document.getElementById(fieldCfg.inputId);
+      return el ? el.value.trim() : '';
+    },
+
+    /* Validate a single field — returns true if valid */
+    validateField(fieldCfg) {
+      const val   = form.readValue(fieldCfg);
+      const valid = fieldCfg.validate(val);
+      ui.setFieldState(fieldCfg.fieldAttr, !valid);
+      ui.setFieldError(fieldCfg.errorId, !valid);
+      return valid;
+    },
+
+    /* Validate all fields — returns true if all pass */
+    validateAll() {
+      let allValid = true;
+      let firstInvalidId = null;
+      FIELD_CONFIG.forEach(cfg => {
+        const valid = form.validateField(cfg);
+        if (!valid) {
+          allValid = false;
+          if (!firstInvalidId) firstInvalidId = cfg.inputId;
+        }
+      });
+      if (!allValid && firstInvalidId) {
+        const el = document.getElementById(firstInvalidId);
+        if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      }
+      return allValid;
+    },
+
+    /* Snapshot form into state.formData */
+    snapshot() {
+      FIELD_CONFIG.forEach(cfg => {
+        state.formData[cfg.key] = form.readValue(cfg);
+      });
+    },
+
+    /* Count completed fields for progress bar */
+    countComplete() {
+      return FIELD_CONFIG.filter(cfg => cfg.validate(form.readValue(cfg))).length;
+    },
+
+    /* Called when admission type radio changes */
+    handleAdmissionTypeChange(value) {
+      state.formData.admission_type = value;
+      // Show observation warning if observation type selected
+      ui.toggleObsWarning(value === 'observation');
+      // Clear any radio validation error on change
+      ui.setFieldState('admission_type', false);
+      ui.setFieldError('err-admission_type', false);
+      form.refreshProgress();
+    },
+
+    /* Refresh form progress bar */
+    refreshProgress() {
+      const count = form.countComplete();
+      ui.updateProgress(count, FIELD_CONFIG.length);
+    },
+
+    /* Main submit handler */
+    submit() {
+      // Clear previous form-level error
+      ui.setFormError(false);
+
+      // Validate
+      if (!form.validateAll()) {
+        ui.setFormError(true, 'Please complete all required fields before analyzing.');
+        return;
+      }
+
+      // Snapshot form data into state
+      form.snapshot();
+
+      // Disable button during loading
+      const btn = document.getElementById('btn-analyze');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Analyzing…
+        `;
+      }
+
+      // Scroll analysis panel into view on mobile
+      const col = document.getElementById('analysis-column');
+      if (col && window.innerWidth < 1024) {
+        setTimeout(() => col.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      }
+
+      // Show loading state
+      ui.showLoading();
+
+      /* ── SIMULATED ANALYSIS DELAY ───────────────────────────────
+         Part 2 will replace this setTimeout with the real scoring
+         engine (HARS.scoring.run(state.formData)) and populate
+         state.analysisResult before calling ui.showResults().
+      ────────────────────────────────────────────────────────── */
+      setTimeout(() => {
+
+        // Stamp the initial analysis card with form data
+        ui.stampInitialStats(state.formData);
+
+        // Show result panel shells
+        ui.showResults();
+
+        // Re-enable button (Part 2 keeps it disabled until results are shown)
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <span class="text-lg" aria-hidden="true">🏥</span>
+            Analyze Admission Readiness
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          `;
+        }
+
+        /* ── PART 2 HOOK ────────────────────────────────────────────
+           When Part 2 is integrated, replace this comment block with:
+             HARS.scoring.run(state.formData).then(result => {
+               state.analysisResult = result;
+               HARS.scoring.render(result);
+               HARS.workflow.render(result.workflowItems);
+               HARS.risk.render(result.riskFlags);
+             });
+        ─────────────────────────────────────────────────────────── */
+
+      }, 3400); // Simulated delay matches 5-step loading animation timing
+    },
+
+  };
+
+  /* ──────────────────────────────────────────────────────────────
+     init — bind events and boot
+  ─────────────────────────────────────────────────────────────── */
+  function init() {
+
+    // Stamp session time
+    ui.stampSession();
+
+    // Set default admission date to today
+    const dateInput = document.getElementById('inp-date');
+    if (dateInput) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+      state.formData.admission_date = today;
+    }
+
+    // Live progress tracking — bind input/change on all form elements
+    const formEl = document.getElementById('admission-form');
+    if (formEl) {
+      formEl.addEventListener('change', () => form.refreshProgress());
+      formEl.addEventListener('input',  () => form.refreshProgress());
+    }
+
+    // Initial progress read (default date counts as 1)
+    form.refreshProgress();
+
+    // Observation warning is hidden by default via inline style
+    // (will show when 'observation' radio is selected)
+    const obsEl = document.getElementById('obs-warning-banner');
+    if (obsEl) obsEl.style.setProperty('display', 'none', 'important');
+  }
+
+  /* ── Public API ─────────────────────────────────────────────── */
+  return {
+    state,
+    FIELD_CONFIG,
+    ui,
+    form,
+    init,
+    /* Namespace slots for Parts 2–4 */
+    scoring:   null,   // Part 2: { run(formData), render(result) }
+    workflow:  null,   // Part 2: { render(items) }
+    risk:      null,   // Part 2: { render(flags) }
+    decision:  null,   // Part 3: { run(result), render(decision) }
+    timeline:  null,   // Part 3: { render(timeline) }
+    governance:null,   // Part 4: { render(snapshot) }
+    report:    null,   // Part 4: { generate(), download() }
+  };
+
+})();
+
+/* Boot on DOM ready */
+document.addEventListener('DOMContentLoaded', () => HARS.init());
+</script>
+
+<!--
+  ════════════════════════════════════════════════════════════════
+  CONTINUATION NOTES FOR PARTS 2–4
+  ════════════════════════════════════════════════════════════════
+
+  PART 2 — Scoring Engine + Workflow + Risk Flags (25–50%)
+  ─────────────────────────────────────────────────────────────
+  Attach to: HARS.scoring, HARS.workflow, HARS.risk
+  Populate:
+    · #content-readiness-score  — domain score bars (Clinical, Admin,
+      Authorization, Bed Availability, Care Coordination), composite ring
+    · #content-workflow         — prioritized checklist cards (Critical /
+      High / Medium), each with owner tag and deadline
+    · #content-risk             — risk flag rows with severity chip,
+      regulation cite, and recommended action
+    · #badge-workflow           — update item count
+    · #badge-risk               — update flag count
+  Replace the setTimeout stub in HARS.form.submit() with the real engine.
+
+  PART 3 — Final Decision + Timeline + Care Coordination (50–75%)
+  ─────────────────────────────────────────────────────────────
+  Attach to: HARS.decision, HARS.timeline
+  Populate:
+    · #content-decision         — ADMIT / HOLD / DENY banner with
+      blockers list and recommended pathway
+    · New #card-timeline        — horizontal or vertical event timeline
+    · New #card-care-coordination — referral checklist, services needed
+  Add the Restart / New Admission button (currently excluded per spec).
+
+  PART 4 — Governance Snapshot + PDF + Charts (75–100%)
+  ─────────────────────────────────────────────────────────────
+  Attach to: HARS.governance, HARS.report
+  Populate:
+    · New #card-governance      — compliance dashboard, audit trail
+    · New #card-charts          — readiness radar chart, trend bar
+    · HARS.report.generate()    — print-optimised full report
+    · HARS.report.download()    — PDF via window.print() or jsPDF
+  ════════════════════════════════════════════════════════════════
+-->
+
+</body>
+</html>
