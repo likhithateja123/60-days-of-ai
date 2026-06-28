@@ -1,0 +1,35 @@
+# Day 25 – AI Shark Tank Simulator
+
+## Project Overview
+Built a fully functional AI Shark Tank Simulator as a single HTML application using Claude AI.
+
+## Features
+- Startup Pitch Form
+- 4 AI Shark Judges
+- Interactive Pitch Round
+- AI-Based Startup Scoring
+- Investment Decision
+- Valuation & Funding Recommendation
+- Leaderboard
+- Download Pitch Report
+- Share Result
+- Responsive Dark UI
+
+## Technologies Used
+- HTML5
+- CSS3
+- JavaScript
+
+## Learning Outcomes
+- Built an interactive AI-inspired web application.
+- Improved frontend development skills.
+- Learned UI/UX design for startup simulation.
+- Practiced prompt engineering with Claude AI.
+
+## Screenshots
+(Add your screenshots here)
+
+## Files Included
+- AI Shark Tank Simulator.html
+- Screenshots
+- Results
