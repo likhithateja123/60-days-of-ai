@@ -1,0 +1,32 @@
+# Day 29 – Operation Lifeline: Supply Chain Crisis Lab
+
+## Project Overview
+Built an interactive Supply Chain Crisis Lab simulation using React, HTML, CSS, and JavaScript with Claude AI.
+
+## Features
+- Random Company Generator
+- Supply Chain Crisis Simulation
+- War Room Decision Making
+- Supplier Negotiation Rounds
+- CEO Leadership Assessment
+- AI Supply Chain Investments
+- Executive Business Dashboard
+- Replay Simulation
+
+## Technologies Used
+- HTML5
+- CSS3
+- React (CDN)
+- Babel JSX
+- Vanilla JavaScript
+
+## Key Learnings
+- Understood supply chain crisis management.
+- Learned strategic decision-making under uncertainty.
+- Improved React component design and state management.
+- Enhanced prompt engineering skills using Claude AI.
+
+## Files Included
+- Operation Lifeline Supply Chain Crisis Lab.html
+- Screenshots
+- day29.md
