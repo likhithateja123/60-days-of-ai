@@ -1,0 +1,76 @@
+# Day 30 – Supply Chain Builder using Claude AI
+
+## Objective
+
+The objective of this task was to understand the fundamentals of supply chain management by building an interactive Supply Chain Builder application using Claude AI. The application demonstrates how different business decisions affect operational performance, cost, risk, customer satisfaction, and sustainability.
+
+## Project Summary
+
+* Application: Supply Chain Builder
+* Technology: HTML, CSS, JavaScript, React (CDN)
+* Type: Interactive Business Simulation
+* Target Audience: Beginners learning Supply Chain Management
+* Goal: Build an optimized supply chain through strategic decision-making.
+
+## Features Implemented
+
+* Beginner-friendly introduction to supply chain concepts
+* Random company profile generation
+* Supplier strategy selection
+* Factory location selection
+* Warehouse strategy selection
+* Transportation method selection
+* Inventory strategy selection
+* Live business metrics
+* Overall Supply Chain Score
+* Strengths and weaknesses analysis
+* Risk assessment
+* Improvement recommendations
+* Responsive dashboard
+* Replay functionality
+
+## Supply Chain Decisions
+
+The simulator allows users to make decisions in the following areas:
+
+* Supplier Strategy
+* Factory Location
+* Warehouse Strategy
+* Transportation Method
+* Inventory Strategy
+
+Each decision immediately updates the company's business performance metrics.
+
+## Business Metrics
+
+The dashboard evaluates:
+
+* Cost
+* Delivery Speed
+* Business Risk
+* Customer Satisfaction
+* Sustainability
+
+These metrics change dynamically based on the user's decisions.
+
+## Optimization Dashboard
+
+The final dashboard provides:
+
+* Overall Supply Chain Score
+* Strengths
+* Weaknesses
+* Biggest Business Risk
+* Three Practical Improvement Recommendations
+
+## Key Learnings
+
+* Every supply chain decision involves trade-offs.
+* Lower costs may increase operational risks.
+* Inventory management directly impacts customer satisfaction.
+* Transportation choices influence delivery speed and sustainability.
+* AI can simplify complex business concepts through interactive simulations.
+
+## Conclusion
+
+This project provided a practical introduction to supply chain management by combining business strategy with interactive learning. Claude AI accelerated the development process and demonstrated how AI can be used to build educational simulations that make complex topics easier to understand.
