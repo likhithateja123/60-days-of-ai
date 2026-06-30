@@ -1,0 +1,54 @@
+# Day 26 – Prior Authorization Workflow Simulator using Claude AI
+
+## Objective
+
+The objective of this task was to build an interactive Prior Authorization Workflow Simulator that demonstrates the healthcare prior authorization process through a gamified drag-and-drop experience. The application was designed to help users understand how patients, providers, and payers collaborate to obtain treatment approvals.
+
+## Project Summary
+
+* Application: Prior Authorization Workflow Simulator
+* Technology: HTML, CSS, Vanilla JavaScript
+* Type: Interactive Healthcare Workflow Simulation
+* Goal: Simulate the complete Prior Authorization process in an educational and engaging way.
+
+## Features Implemented
+
+* Interactive drag-and-drop workflow
+* Three workflow lanes: Patient, Provider, and Payer
+* Multiple patient scenarios
+* Medical necessity evaluation
+* Prior Authorization document collection
+* Payer submission workflow
+* Approval, Pend, Denial, Appeal, and Peer-to-Peer Review outcomes
+* Educational explanations after every stage
+* Progress tracker
+* Days elapsed counter
+* Efficiency score
+* Workflow completion summary
+* Responsive interface
+* Restart and New Patient functionality
+
+## Workflow Stages
+
+The simulator demonstrates the following workflow:
+
+* Patient Registration
+* Medical Evaluation
+* Medical Necessity Review
+* Document Collection
+* Prior Authorization Submission
+* Payer Review
+* Approval / Pend / Denial Decision
+* Appeal and Peer-to-Peer Review (when applicable)
+
+## Key Learnings
+
+* Learned how the Prior Authorization process works in the US healthcare system.
+* Understood the responsibilities of patients, providers, and payers.
+* Explored the importance of proper documentation and medical necessity.
+* Improved interactive workflow design using HTML, CSS, and JavaScript.
+* Learned how AI can simplify complex healthcare workflows into engaging educational simulations.
+
+## Conclusion
+
+This project provided valuable insights into the Prior Authorization process by converting a complex healthcare workflow into an interactive learning experience. Claude AI accelerated the development process while enhancing my understanding of healthcare operations and workflow visualization.
