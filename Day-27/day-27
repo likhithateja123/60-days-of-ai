@@ -1,0 +1,51 @@
+# Day 27 – Prior Authorization Story Simulator using Claude AI
+
+## Objective
+
+The objective of this task was to build an interactive Prior Authorization Story Simulator that explains the healthcare prior authorization process through a story-based learning experience. The application simplifies complex healthcare workflows using conversations, decision-making, and educational explanations.
+
+## Project Summary
+
+* Application: Prior Authorization Story Simulator
+* Technology: HTML, Tailwind CSS, Vanilla JavaScript
+* Type: Interactive Story-Based Healthcare Simulator
+* Goal: Learn the Prior Authorization process through Rahul's healthcare journey.
+
+## Features Implemented
+
+* Interactive story with 8 chapters
+* Rahul and Priya conversation flow
+* Progress tracker
+* Two choices after every scene
+* Educational healthcare explanations
+* Insurance review simulation
+* Denial and appeal workflow
+* Final approval scenario
+* Workflow summary and key takeaways
+* Responsive user interface
+* Restart story functionality
+
+## Story Flow
+
+The simulator covers the following stages:
+
+* Doctor Visit
+* Insurance Roadblock
+* Understanding Prior Authorization
+* Insurance Review
+* Denial
+* Appeal
+* Approval
+* Final Takeaways
+
+## Key Learnings
+
+* Learned how Prior Authorization works in a real-world healthcare workflow.
+* Understood why documentation and medical necessity are important.
+* Explored how denials can be appealed with proper supporting documents.
+* Improved interactive storytelling and front-end development skills.
+* Learned how AI can make complex healthcare concepts easier to understand.
+
+## Conclusion
+
+This project transformed a complex healthcare process into an engaging interactive story. Claude AI helped create an educational experience that combines storytelling, healthcare knowledge, and web development in a beginner-friendly way.
