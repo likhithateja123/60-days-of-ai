@@ -1,0 +1,66 @@
+# Day 31 – AI Supply Chain Control Tower using Claude AI
+
+## Objective
+
+The objective of this task was to build an interactive AI Supply Chain Control Tower that simulates real-world supply chain operations. The application helps users make operational decisions by managing alerts, monitoring business KPIs, and optimizing overall supply chain performance.
+
+## Project Summary
+
+* Application: AI Supply Chain Control Tower
+* Technology: HTML, CSS, Vanilla JavaScript
+* Type: Interactive Operations Management Simulator
+* Goal: Improve operational performance by making strategic supply chain decisions.
+
+## Features Implemented
+
+* Interactive operations dashboard
+* Live KPI monitoring
+* Random operational alerts
+* Priority-based incident management
+* Multiple corrective action options
+* Dynamic KPI updates
+* Live event log
+* Countdown timer
+* Performance score tracking
+* Final operational dashboard
+* Pause and Help functionality
+* Responsive user interface
+* Replay simulation
+
+## Operational Alerts
+
+The simulator generates various supply chain incidents including:
+
+* Port Congestion
+* Supplier Delay
+* Truck Breakdown
+* Warehouse Stock Shortage
+* Customs Inspection
+* Demand Spike
+* Factory Machine Failure
+* Weather Disruption
+* Inventory Mismatch
+* Damaged Shipment
+
+## Key Performance Indicators
+
+The dashboard continuously tracks:
+
+* Service Level
+* Customer Satisfaction
+* Inventory Health
+* Transportation Efficiency
+* Operating Cost
+* Revenue Protected
+* Overall Score
+
+## Key Learnings
+
+* Supply chain management requires balancing multiple priorities simultaneously.
+* Every operational decision directly impacts business performance.
+* Data-driven decision-making improves efficiency and customer satisfaction.
+* AI can simplify complex operations through interactive simulations and dashboards.
+
+## Conclusion
+
+This project provided practical experience in supply chain operations by simulating real-time business challenges. Claude AI helped transform operational concepts into an engaging, interactive learning experience while strengthening my front-end development and problem-solving skills.
