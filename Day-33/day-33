@@ -1,0 +1,62 @@
+# Day 33 – Media Integrity Analyzer using Claude AI
+
+## Objective
+
+The objective of this task was to build an interactive Media Integrity Analyzer that helps users develop media literacy skills by identifying misleading headlines, recognizing emotional manipulation, and understanding how media influences public perception.
+
+## Project Summary
+
+* **Application:** Media Integrity Analyzer
+* **Technology:** HTML, CSS, Vanilla JavaScript
+* **Type:** Interactive Media Literacy Learning Tool
+* **Goal:** Teach users how to critically evaluate news headlines and social media content through guided interactive challenges.
+
+## Features Implemented
+
+* Theme Selection
+* Headline Detective Challenge
+* Emotion Detector Challenge
+* Live Media Integrity Metrics
+* Headline Accuracy Analysis
+* Emotional Manipulation Analysis
+* Fair Headline Rewriting
+* Media Integrity Dashboard
+* Progress Tracking
+* Replay Functionality
+* Responsive User Interface
+
+## Application Workflow
+
+The simulator guides users through:
+
+* Theme Selection
+* Headline Detective Challenge
+* Headline Analysis
+* Emotion Detector Challenge
+* Emotional Analysis
+* Media Integrity Dashboard
+* Learning Summary
+
+## Dashboard Insights
+
+The final dashboard includes:
+
+* Overall Media Integrity Score
+* Headline Accuracy
+* Source Reliability
+* Emotional Manipulation Analysis
+* Audience Targeting Insights
+* Biggest Red Flag
+* Three Practical Media Literacy Habits
+
+## Key Learnings
+
+* Not every headline accurately reflects the full story.
+* Emotional language can influence readers' decisions and opinions.
+* Verifying information from reliable sources is essential.
+* Media literacy helps users make informed decisions online.
+* AI can simplify complex educational topics through interactive learning.
+
+## Conclusion
+
+This project demonstrated how AI can transform media literacy concepts into an engaging educational application. It strengthened my understanding of critical thinking, responsible media consumption, and AI-assisted web development.
