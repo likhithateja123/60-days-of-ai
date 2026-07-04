@@ -1,0 +1,60 @@
+# Day 34 – Marketing Detective using Claude AI
+
+## Objective
+
+The objective of this task was to build an interactive Marketing Detective application that teaches marketing concepts through investigative case studies. Users analyze campaign data, identify marketing mistakes, and learn effective marketing strategies through gamified problem-solving.
+
+## Project Summary
+
+* Application: Marketing Detective
+* Technology: HTML, CSS, JavaScript (React CDN or Vanilla JavaScript)
+* Type: Interactive Marketing Investigation Game
+* Goal: Learn marketing strategy by solving fictional campaign cases.
+
+## Features Implemented
+
+* Theme Selection
+* Random Marketing Cases
+* Investigation Board
+* Drag-and-Drop Evidence Analysis
+* Campaign Performance Metrics
+* Marketing Mistake Detection
+* Expert Explanation
+* Learning Report
+* Progress Tracking
+* Replay Functionality
+* Responsive User Interface
+
+## Investigation Workflow
+
+The application guides users through:
+
+* Theme Selection
+* Case Assignment
+* Investigation Board
+* Evidence Analysis
+* Case Solution
+* Expert Verdict
+* Marketing Learning Report
+
+## Learning Report
+
+The report summarizes:
+
+* Marketing Mistake Identified
+* Supporting Evidence
+* Correct Marketing Strategy
+* Suggested Improvements
+* Key Marketing Lessons
+
+## Key Learnings
+
+* Marketing success depends on understanding customer behavior.
+* Campaign data helps identify strengths and weaknesses.
+* Every marketing decision impacts business growth.
+* Data-driven strategies improve campaign performance.
+* AI can make marketing education interactive and engaging.
+
+## Conclusion
+
+This project transformed marketing analysis into a detective-style learning experience. Claude AI helped create an engaging educational application while strengthening my understanding of marketing strategy, analytical thinking, and front-end development.
