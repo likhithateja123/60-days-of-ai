@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧩 Prompt Puzzle – Master AI Prompting Through Play</title>
+<style>
+  :root{
+    --bg:#0b0d14; --panel:#151826; --panel2:#1d2133; --border:#2b3049;
+    --text:#eef0f8; --muted:#9aa1ba; --accent:#7c5cff; --accent2:#22d3ee;
+    --good:#3ddc97; --bad:#f0556a; --warn:#f2b84b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:radial-gradient(circle at top,#1a1f33,var(--bg) 65%);color:var(--text);min-height:100vh;}
+  #app{max-width:960px;margin:0 auto;padding:22px 16px 70px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:fadeIn .4s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pop{0%{transform:scale(.8);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  h1{font-size:1.7rem;margin:0 0 6px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  h2{font-size:1.25rem;margin:0 0 10px;}
+  h3{font-size:1rem;margin:0 0 6px;color:var(--accent2);}
+  p{color:var(--muted);line-height:1.6;margin:0 0 10px;}
+  .btn{background:var(--accent);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-size:.95rem;cursor:pointer;margin:6px 8px 6px 0;transition:transform .15s,filter .15s;}
+  .btn:hover{filter:brightness(1.12);transform:translateY(-2px);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+  .btn.secondary{background:var(--panel2);border:1px solid var(--border);color:var(--text);}
+  .btn.small{padding:7px 14px;font-size:.82rem;}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .stat-strip{display:flex;gap:10px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);}
+  .stat-chip{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
+  .progress-wrap{margin-bottom:18px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+  .progress-bar{height:8px;background:var(--panel2);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease;}
+  .block{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:grab;font-size:.88rem;transition:border .15s,transform .15s;}
+  .block:hover{border-color:var(--accent2);transform:translateX(2px);}
+  .block.dragging{opacity:.4;}
+  .zone{background:var(--panel2);border:1px dashed var(--border);border-radius:12px;padding:12px;min-height:120px;}
+  .zone.dragover{border-color:var(--accent);background:#232841;}
+  .zone-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
+  @media (max-width:640px){.cols{grid-template-columns:1fr;}}
+  .choice-list{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .choice-item{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border .15s,transform .15s;}
+  .choice-item:hover{border-color:var(--accent);}
+  .choice-item.selected{border-color:var(--accent2);background:#20263a;}
+  .choice-item.correct{border-color:var(--good);background:rgba(61,220,151,.08);}
+  .choice-item.incorrect{border-color:var(--bad);background:rgba(240,85,106,.08);}
+  textarea{width:100%;min-height:90px;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:.9rem;resize:vertical;}
+  .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-weight:700;font-size:.85rem;}
+  .badge.good{background:rgba(61,220,151,.15);color:var(--good);}
+  .badge.bad{background:rgba(240,85,106,.15);color:var(--bad);}
+  .badge.warn{background:rgba(242,184,75,.15);color:var(--warn);}
+  .report-section{border-left:3px solid var(--accent);padding-left:14px;margin-bottom:16px;}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent2);padding:3px 10px;border-radius:20px;font-size:.75rem;margin:3px 4px 3px 0;}
+  .center{text-align:center;}
+  .toast{position:fixed;top:16px;right:16px;background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    padding:12px 18px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.4);z-index:99;animation:pop .25s ease;font-size:.88rem;}
+  .toast.good{border-color:var(--good);color:var(--good);}
+  .toast.bad{border-color:var(--bad);color:var(--bad);}
+  .muted-small{font-size:.78rem;color:var(--muted);}
+  .output-box{background:#10121c;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:.88rem;color:var(--text);}
+  @media (max-width:520px){h1{font-size:1.35rem;} .card{padding:16px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toastHost"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= DOMAIN DATA (Marketing / Beginner) ================= */
+
+var SCENARIO_POOL = [
+  {
+    type:"build",
+    title:"Social Media Caption",
+    desiredOutput:"A short, catchy Instagram caption promoting a weekend sale at a local bakery.",
+    correctBlocks:[
+      "Write an Instagram caption",
+      "for a weekend sale at a local bakery",
+      "in a fun, upbeat tone",
+      "under 30 words",
+      "including one relevant emoji"
+    ],
+    distractorBlocks:[
+      "Explain the history of bread making",
+      "Write a 5-page essay",
+      "Use formal legal language",
+      "Include a bibliography"
+    ],
+    weakPrompt:"write something for my bakery sale",
+    optimizedPrompt:"Write an Instagram caption for a weekend sale at a local bakery, in a fun upbeat tone, under 30 words, including one relevant emoji.",
+    overEngineeredPrompt:"Write an Instagram caption for a weekend sale at a local bakery, in a fun upbeat tone, under 30 words, including one relevant emoji, formatted as a haiku, translated into three languages, with a full SEO keyword analysis and hashtag research report attached, cross-referenced against five competitor bakeries in a table.",
+    weakOutput:"Check out our bakery this weekend! We have sales.",
+    optimizedOutput:"🥐 Weekend treat alert! Everything's 20% off at the bakery this Sat & Sun — grab your favorites before they're gone!",
+    principle:"Specificity beats vagueness: naming the platform, tone, length, and format turns a generic request into a usable result."
+  },
+  {
+    type:"clean",
+    title:"Email Subject Line",
+    desiredOutput:"A clean, professional prompt asking for 5 email subject line options for a product launch.",
+    weakPrompt:"can u make subjcet lines for my email thing about the new product launch we are doing next week i think it would be gr8 if it was catchy and also maybe funny idk just make it good and give me alot of options like maybe 5 or so thanks",
+    optimizedPrompt:"Write 5 catchy, professional email subject lines announcing next week's product launch.",
+    overEngineeredPrompt:"Write 5 catchy, professional, humorous, urgent, curiosity-driven, benefit-focused, personalized, mobile-optimized email subject lines announcing next week's product launch, each under a different psychological trigger framework, with A/B testing notes, character counts, emoji variants, and open-rate predictions.",
+    weakOutput:"Here are some subject lines: New product! Check it out! Big news! You'll love this! Don't miss out!",
+    optimizedOutput:"1) Introducing [Product]: Here First 2) The Wait Is Over 3) Your Early Access Starts Now 4) Meet What's Next 5) Launch Week Is Here",
+    principle:"Cleaning a prompt means removing filler, typos, and vague hedging while keeping the clear request intact — the AI performs far better on precise language.",
+    correctBlocks:[], distractorBlocks:[]
+  },
+  {
+    type:"choose",
+    title:"Ad Copy for a Fitness App",
+    desiredOutput:"Persuasive, benefit-driven ad copy for a fitness app targeting busy professionals.",
+    options:[
+      {text:"Write ad copy for a fitness app.", quality:"weak"},
+      {text:"Write persuasive ad copy for a fitness app targeting busy professionals, highlighting quick 15-minute workouts, in an energetic tone, under 40 words.", quality:"optimized"},
+      {text:"Write persuasive ad copy for a fitness app targeting busy professionals, highlighting quick 15-minute workouts, in an energetic tone, under 40 words, in the style of five different award-winning copywriters, with three tonal variants each, formatted as a comparison spreadsheet including projected click-through rates.", quality:"over"}
+    ],
+    weakPrompt:"Write ad copy for a fitness app.",
+    optimizedPrompt:"Write persuasive ad copy for a fitness app targeting busy professionals, highlighting quick 15-minute workouts, in an energetic tone, under 40 words.",
+    overEngineeredPrompt:"Write persuasive ad copy for a fitness app targeting busy professionals, highlighting quick 15-minute workouts, in an energetic tone, under 40 words, in the style of five different award-winning copywriters, with three tonal variants each, formatted as a comparison spreadsheet including projected click-through rates.",
+    weakOutput:"Get fit with our app. Download now.",
+    optimizedOutput:"No gym. No excuses. Just 15 minutes a day to feel unstoppable. Fit your workout into your world — download free today.",
+    principle:"The best prompt balances detail and simplicity: enough context to guide the AI (audience, benefit, tone, length), without piling on unnecessary complexity that dilutes focus.",
+    correctBlocks:[], distractorBlocks:[]
+  },
+  {
+    type:"build",
+    title:"Customer Review Response",
+    desiredOutput:"A short, empathetic reply to a negative customer review about a late delivery.",
+    correctBlocks:[
+      "Write a customer service reply",
+      "to a negative review about a late delivery",
+      "with an empathetic, apologetic tone",
+      "offering a discount on their next order",
+      "in 3 sentences or fewer"
+    ],
+    distractorBlocks:[
+      "Write a legal disclaimer",
+      "Use aggressive language",
+      "Include company financial data",
+      "Write in third person about the company"
+    ],
+    weakPrompt:"respond to this bad review",
+    optimizedPrompt:"Write a customer service reply to a negative review about a late delivery, with an empathetic apologetic tone, offering a discount on their next order, in 3 sentences or fewer.",
+    overEngineeredPrompt:"Write a customer service reply to a negative review about a late delivery, with an empathetic apologetic tone, offering a discount on their next order, in 3 sentences or fewer, referencing our full shipping policy, apologizing in two paragraphs first, including a legal disclaimer, and citing our customer satisfaction statistics from the last four quarters.",
+    weakOutput:"Sorry about that. We'll try to do better next time.",
+    optimizedOutput:"We're so sorry your order arrived late — that's not the experience we want for you. As an apology, here's 15% off your next order. Thank you for your patience!",
+    principle:"Naming the tone AND the desired action (offer a discount) gives the AI both emotional direction and a concrete task, producing a response that actually resolves the situation.",
+  },
+  {
+    type:"clean",
+    title:"Blog Post Outline",
+    desiredOutput:"A clear prompt requesting a blog post outline about social media marketing tips for small businesses.",
+    weakPrompt:"i need help with blog post like maybe outline idk about social media marketing tips for small business owners can u also make it long and detailed and maybe add some examples too if u can ty",
+    optimizedPrompt:"Create a blog post outline with 5 sections covering social media marketing tips for small business owners, including one example per section.",
+    overEngineeredPrompt:"Create a blog post outline with 5 sections covering social media marketing tips for small business owners, including one example per section, cross-referenced with SEO keyword density targets, competitor content gap analysis, reader persona mapping, estimated reading time per section, and a full editorial calendar for the next six months.",
+    weakOutput:"1. Intro 2. Tips 3. More tips 4. Examples 5. Conclusion",
+    optimizedOutput:"1. Why Social Media Matters for Small Businesses (e.g. local bakery case) 2. Choosing the Right Platform (e.g. Instagram vs. Facebook) 3. Content Ideas That Convert (e.g. behind-the-scenes posts) 4. Posting Consistency Tips (e.g. content calendars) 5. Measuring What Works (e.g. simple engagement tracking)",
+    principle:"A cleaned prompt states a clear format (5 sections), a specific topic, and one small enhancement (one example per section) — precise but not bloated.",
+    correctBlocks:[], distractorBlocks:[]
+  },
+  {
+    type:"choose",
+    title:"Product Description",
+    desiredOutput:"An engaging product description for an eco-friendly reusable water bottle.",
+    options:[
+      {text:"Write a product description for a water bottle that is good.", quality:"weak"},
+      {text:"Write an engaging product description for an eco-friendly reusable water bottle, highlighting sustainability and durability, in a warm and inviting tone, around 50 words.", quality:"optimized"},
+      {text:"Write an engaging product description for an eco-friendly reusable water bottle, highlighting sustainability and durability, in a warm and inviting tone, around 50 words, in the voice of a nature documentary narrator, referencing seventeen environmental statistics, formatted in iambic pentameter with footnotes.", quality:"over"}
+    ],
+    weakPrompt:"Write a product description for a water bottle that is good.",
+    optimizedPrompt:"Write an engaging product description for an eco-friendly reusable water bottle, highlighting sustainability and durability, in a warm and inviting tone, around 50 words.",
+    overEngineeredPrompt:"Write an engaging product description for an eco-friendly reusable water bottle, highlighting sustainability and durability, in a warm and inviting tone, around 50 words, in the voice of a nature documentary narrator, referencing seventeen environmental statistics, formatted in iambic pentameter with footnotes.",
+    weakOutput:"This is a good water bottle. It is eco-friendly. Buy it.",
+    optimizedOutput:"Stay hydrated while treading lightly. Our reusable bottle is built from sustainable materials designed to last for years — no single-use plastic required. Durable, refillable, and kind to the planet, one sip at a time.",
+    principle:"Choosing 'the best' prompt often means picking the middle option: it has real direction (audience, tone, length) without unnecessary complexity that would confuse or dilute the output.",
+    correctBlocks:[], distractorBlocks:[]
+  }
+];
+
+var RANKS = [
+  {min:90, name:"Prompt Master", rating:"Excellent"},
+  {min:75, name:"Prompt Strategist", rating:"Great"},
+  {min:55, name:"Prompt Apprentice", rating:"Good"},
+  {min:0,  name:"Prompt Novice", rating:"Keep Practicing"}
+];
+
+/* ================= STATE ================= */
+
+var state = {
+  step:"welcome", // welcome -> scenario -> report
+  scenarios:[],
+  currentIndex:0,
+  startTime:null,
+  stats:{ moves:0, wrongPlacements:0, hints:0, correctCount:0, optimizationBonus:0 },
+  perScenario:[],
+  // build challenge state
+  buildPool:[], buildPlaced:[],
+  // clean challenge state
+  cleanInput:"",
+  cleanSubmitted:false,
+  // choose challenge state
+  chooseSelected:null,
+  chooseSubmitted:false
+};
+
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function esc(s){
+  var d=document.createElement("div"); d.textContent=s; return d.innerHTML;
+}
+function pickScenarios(){
+  // pick all 6, shuffle order
+  return shuffle(SCENARIO_POOL);
+}
+
+function showToast(msg, kind){
+  var host = document.getElementById("toastHost");
+  var t = document.createElement("div");
+  t.className = "toast " + (kind||"");
+  t.textContent = msg;
+  host.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2200);
+}
+
+/* ================= RENDER ================= */
+
+function progressPct(){
+  if(state.step==="welcome") return 0;
+  if(state.step==="report") return 100;
+  return Math.round((state.currentIndex/6)*100);
+}
+
+function renderTopBar(){
+  var elapsed = state.startTime ? Math.floor((Date.now()-state.startTime)/1000) : 0;
+  var html = '<div class="top-bar">';
+  html += '<div><strong>🧩 Prompt Puzzle</strong> <span class="muted-small">— Marketing · Beginner</span></div>';
+  if(state.step!=="welcome"){
+    html += '<div class="stat-strip">' +
+      '<span class="stat-chip">⏱ ' + elapsed + 's</span>' +
+      '<span class="stat-chip">Moves: ' + state.stats.moves + '</span>' +
+      '<span class="stat-chip">Wrong: ' + state.stats.wrongPlacements + '</span>' +
+      '<span class="stat-chip">Hints: ' + state.stats.hints + '</span>' +
+      '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderProgress(){
+  if(state.step==="welcome") return "";
+  var pct = progressPct();
+  var label = state.step==="report" ? "Complete" : ("Scenario " + (state.currentIndex+1) + " of 6");
+  return '<div class="progress-wrap"><div class="progress-label"><span>' + label + '</span><span>' + pct + '%</span></div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;"></div></div></div>';
+}
+
+function renderWelcome(){
+  return '<div class="card center">' +
+    '<h1>🧩 Prompt Puzzle</h1>' +
+    '<p>Master AI Prompting Through Play — Domain: <strong style="color:var(--text);">Marketing</strong> · Difficulty: <strong style="color:var(--text);">Beginner</strong></p>' +
+    '<p>You\'ll face 6 scenarios mixing three challenge types: <strong>Build the Prompt</strong>, <strong>Clean the Prompt</strong>, and <strong>Choose the Best Prompt</strong>. Sharpen your instincts for what makes a prompt actually work.</p>' +
+    '<button class="btn" id="startBtn">Start Puzzle 🚀</button>' +
+    '</div>';
+}
+
+function renderScenario(){
+  var sc = state.scenarios[state.currentIndex];
+  var html = '<div class="card">';
+  html += '<h2>' + esc(sc.title) + '</h2>';
+  html += '<p><strong style="color:var(--text);">Desired Output:</strong> ' + esc(sc.desiredOutput) + '</p>';
+
+  if(sc.type==="build") html += renderBuildChallenge(sc);
+  else if(sc.type==="clean") html += renderCleanChallenge(sc);
+  else if(sc.type==="choose") html += renderChooseChallenge(sc);
+
+  html += '</div>';
+  return html;
+}
+
+function renderBuildChallenge(sc){
+  var html = '<p class="muted-small">Challenge: Build the Prompt — drag or click the correct blocks into the prompt zone, avoid the distractors.</p>';
+  html += '<div class="cols">';
+  html += '<div class="zone" id="poolZone"><div class="zone-title">Available Blocks</div>';
+  state.buildPool.forEach(function(b, idx){
+    html += '<div class="block" draggable="true" data-idx="' + idx + '" data-from="pool">' + esc(b) + '</div>';
+  });
+  html += '</div>';
+  html += '<div class="zone" id="placedZone"><div class="zone-title">Your Prompt</div>';
+  state.buildPlaced.forEach(function(b, idx){
+    html += '<div class="block" data-idx="' + idx + '" data-from="placed">' + esc(b) + '</div>';
+  });
+  html += '</div>';
+  html += '</div>';
+  html += '<button class="btn small secondary" id="hintBtn" style="margin-top:12px;">💡 Hint</button>';
+  html += '<button class="btn" id="submitBuild" style="margin-top:12px;" ' + (state.buildPlaced.length>0?"":"disabled") + '>Submit Prompt</button>';
+  return html;
+}
+
+function renderCleanChallenge(sc){
+  var html = '<p class="muted-small">Challenge: Clean the Prompt — rewrite the messy prompt below into a clear, concise version.</p>';
+  html += '<div class="output-box" style="margin-bottom:12px;"><strong>Messy Prompt:</strong><br>' + esc(sc.weakPrompt) + '</div>';
+  html += '<textarea id="cleanInput" placeholder="Write your cleaned-up prompt here...">' + esc(state.cleanInput) + '</textarea>';
+  html += '<div><button class="btn small secondary" id="hintBtn" style="margin-top:10px;">💡 Hint</button>';
+  html += '<button class="btn" id="submitClean" style="margin-top:10px;">Submit Cleaned Prompt</button></div>';
+  return html;
+}
+
+function renderChooseChallenge(sc){
+  var html = '<p class="muted-small">Challenge: Choose the Best Prompt — pick the option that best balances clarity and detail.</p>';
+  html += '<div class="choice-list">';
+  var opts = sc._shuffledOptions || (sc._shuffledOptions = shuffle(sc.options));
+  opts.forEach(function(opt, idx){
+    var cls = "choice-item";
+    if(state.chooseSubmitted){
+      if(opt.quality==="optimized") cls += " correct";
+      else if(state.chooseSelected===opt) cls += " incorrect";
+    } else if(state.chooseSelected===opt){
+      cls += " selected";
+    }
+    html += '<div class="' + cls + '" data-idx="' + idx + '">' + esc(opt.text) + '</div>';
+  });
+  html += '</div>';
+  html += '<button class="btn small secondary" id="hintBtn" style="margin-top:12px;">💡 Hint</button>';
+  if(!state.chooseSubmitted){
+    html += '<button class="btn" id="submitChoose" style="margin-top:12px;" ' + (state.chooseSelected?"":"disabled") + '>Submit Choice</button>';
+  } else {
+    html += '<button class="btn" id="nextScenario" style="margin-top:12px;">Continue</button>';
+  }
+  return html;
+}
+
+function renderFeedbackPanel(sc, resultGood, extraHtml){
+  var html = '<div class="card" style="margin-top:-4px;">';
+  html += '<h3>' + (resultGood ? "✅ Nice work!" : "📝 Let's compare") + '</h3>';
+  html += extraHtml || "";
+  html += '<div class="cols" style="margin-top:10px;">';
+  html += '<div><h3>Weak Prompt</h3><div class="output-box">' + esc(sc.weakPrompt) + '</div><p class="muted-small" style="margin-top:6px;">Output: ' + esc(sc.weakOutput) + '</p></div>';
+  html += '<div><h3>Optimized Prompt</h3><div class="output-box">' + esc(sc.optimizedPrompt) + '</div><p class="muted-small" style="margin-top:6px;">Output: ' + esc(sc.optimizedOutput) + '</p></div>';
+  html += '</div>';
+  html += '<div class="report-section" style="margin-top:14px;"><h3>Prompt Principle</h3><p>' + esc(sc.principle) + '</p></div>';
+  html += '<button class="btn" id="nextScenario">Next Scenario</button>';
+  html += '</div>';
+  return html;
+}
+
+function computeScore(){
+  var base = state.stats.correctCount * 15; // up to 90 for 6 correct
+  var penalty = state.stats.wrongPlacements * 3 + state.stats.hints * 4;
+  var bonus = state.stats.optimizationBonus;
+  var score = base + bonus - penalty;
+  if(score<0) score=0;
+  if(score>100) score=100;
+  return Math.round(score);
+}
+
+function getRank(score){
+  for(var i=0;i<RANKS.length;i++){
+    if(score>=RANKS[i].min) return RANKS[i];
+  }
+  return RANKS[RANKS.length-1];
+}
+
+function renderReport(){
+  var score = computeScore();
+  var rank = getRank(score);
+  var elapsed = Math.floor((Date.now()-state.startTime)/1000);
+  var badgeClass = score>=75 ? "good" : (score>=50 ? "warn" : "bad");
+
+  var dnaTraits = [];
+  dnaTraits.push(state.stats.wrongPlacements<=2 ? "Precise" : "Exploratory");
+  dnaTraits.push(state.stats.hints<=1 ? "Independent" : "Guided Learner");
+  dnaTraits.push(state.stats.optimizationBonus>=10 ? "Optimization-Minded" : "Foundational");
+
+  var lastScenario = state.scenarios[state.scenarios.length-1];
+
+  var html = '<div class="card">';
+  html += '<h1 style="font-size:1.5rem;">📊 Prompt Performance Report</h1>';
+  html += '<p><span class="badge ' + badgeClass + '">Prompt Score: ' + score + '/100</span> &nbsp; <span class="badge warn">' + esc(rank.rating) + '</span></p>';
+
+  html += '<div class="report-section"><h3>Rank</h3><p>' + esc(rank.name) + '</p></div>';
+
+  html += '<div class="report-section"><h3>Prompt DNA</h3>';
+  dnaTraits.forEach(function(t){ html += '<span class="tag">' + esc(t) + '</span>'; });
+  html += '</div>';
+
+  html += '<div class="report-section"><h3>Performance Breakdown</h3>' +
+    '<p>Correct: ' + state.stats.correctCount + '/6 &nbsp;|&nbsp; Moves: ' + state.stats.moves +
+    ' &nbsp;|&nbsp; Wrong Placements: ' + state.stats.wrongPlacements +
+    ' &nbsp;|&nbsp; Hints Used: ' + state.stats.hints +
+    ' &nbsp;|&nbsp; Optimization Bonus: +' + state.stats.optimizationBonus +
+    ' &nbsp;|&nbsp; Time: ' + elapsed + 's</p></div>';
+
+  html += '<div class="report-section"><h3>Personalized Feedback</h3><p>' + esc(feedbackText(score)) + '</p></div>';
+
+  html += '<div class="report-section"><h3>Next Milestone</h3><p>' + esc(nextMilestone(rank)) + '</p></div>';
+
+  html += '<div class="report-section"><h3>Final Optimized Prompt (example)</h3><div class="output-box">' + esc(lastScenario.optimizedPrompt) + '</div></div>';
+
+  html += '<div class="center"><button class="btn secondary" id="replayBtn">🔁 Replay with New Scenarios</button></div>';
+  html += '</div>';
+  return html;
+}
+
+function feedbackText(score){
+  if(score>=90) return "Outstanding instinct for prompt clarity — you consistently balanced detail with focus and avoided both vague and over-engineered prompts.";
+  if(score>=75) return "Strong performance. You're clearly picking up on what makes a prompt effective — a little more consistency on avoiding distractors will push you even higher.";
+  if(score>=55) return "Solid foundation. You understand the basics of specific, well-scoped prompts, but review the side-by-side comparisons to sharpen your instincts further.";
+  return "You're just getting started — that's okay! Focus on the 'Prompt Principle' notes after each scenario; they show exactly what separates a weak prompt from an optimized one.";
+}
+
+function nextMilestone(rank){
+  if(rank.name==="Prompt Master") return "Try Intermediate or Advanced difficulty, or a new domain, to keep sharpening your edge.";
+  if(rank.name==="Prompt Strategist") return "Aim for zero wrong placements next run to reach Prompt Master rank.";
+  if(rank.name==="Prompt Apprentice") return "Focus on reducing hint usage and comparing weak vs. optimized outputs carefully before submitting.";
+  return "Replay this domain at Beginner level and pay close attention to each Prompt Principle explanation.";
+}
+
+/* ================= MAIN RENDER ================= */
+
+function render(){
+  var app = document.getElementById("app");
+  var html = renderTopBar() + renderProgress();
+
+  if(state.step==="welcome") html += renderWelcome();
+  else if(state.step==="scenario") html += renderScenario();
+  else if(state.step==="feedback") html += renderFeedbackHTML();
+  else if(state.step==="report") html += renderReport();
+
+  app.innerHTML = html;
+  bindEvents();
+}
+
+var feedbackData = null; // {sc, resultGood}
+
+function renderFeedbackHTML(){
+  return renderFeedbackPanel(feedbackData.sc, feedbackData.resultGood, feedbackData.extra);
+}
+
+/* ================= EVENTS ================= */
+
+function bindEvents(){
+  var startBtn = document.getElementById("startBtn");
+  if(startBtn){
+    startBtn.addEventListener("click", function(){
+      state.scenarios = pickScenarios();
+      state.currentIndex = 0;
+      state.startTime = Date.now();
+      state.stats = { moves:0, wrongPlacements:0, hints:0, correctCount:0, optimizationBonus:0 };
+      setupCurrentScenario();
+      state.step = "scenario";
+      render();
+    });
+  }
+
+  bindBuildEvents();
+  bindCleanEvents();
+  bindChooseEvents();
+
+  var hintBtn = document.getElementById("hintBtn");
+  if(hintBtn){
+    hintBtn.addEventListener("click", function(){
+      state.stats.hints++;
+      var sc = state.scenarios[state.currentIndex];
+      var msg = "Hint: " + sc.principle;
+      showToast(msg, "warn");
+      render();
+    });
+  }
+
+  var nextScenario = document.getElementById("nextScenario");
+  if(nextScenario){
+    nextScenario.addEventListener("click", function(){
+      state.currentIndex++;
+      if(state.currentIndex>=6){
+        state.step = "report";
+      } else {
+        setupCurrentScenario();
+        state.step = "scenario";
+      }
+      render();
+    });
+  }
+
+  var replayBtn = document.getElementById("replayBtn");
+  if(replayBtn){
+    replayBtn.addEventListener("click", function(){
+      state = {
+        step:"welcome", scenarios:[], currentIndex:0, startTime:null,
+        stats:{ moves:0, wrongPlacements:0, hints:0, correctCount:0, optimizationBonus:0 },
+        perScenario:[], buildPool:[], buildPlaced:[], cleanInput:"", cleanSubmitted:false,
+        chooseSelected:null, chooseSubmitted:false
+      };
+      render();
+    });
+  }
+}
+
+function setupCurrentScenario(){
+  var sc = state.scenarios[state.currentIndex];
+  if(sc.type==="build"){
+    state.buildPool = shuffle(sc.correctBlocks.concat(sc.distractorBlocks));
+    state.buildPlaced = [];
+  } else if(sc.type==="clean"){
+    state.cleanInput = "";
+    state.cleanSubmitted = false;
+  } else if(sc.type==="choose"){
+    state.chooseSelected = null;
+    state.chooseSubmitted = false;
+  }
+}
+
+/* ---- Build the Prompt drag/drop ---- */
+function bindBuildEvents(){
+  var blocks = document.querySelectorAll(".block[draggable='true']");
+  var placedZone = document.getElementById("placedZone");
+  blocks.forEach(function(b){
+    b.addEventListener("dragstart", function(e){
+      b.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", b.getAttribute("data-idx"));
+    });
+    b.addEventListener("dragend", function(){ b.classList.remove("dragging"); });
+    b.addEventListener("click", function(){
+      var idx = parseInt(b.getAttribute("data-idx"),10);
+      moveBlockToPlaced(idx);
+    });
+  });
+  if(placedZone){
+    placedZone.addEventListener("dragover", function(e){ e.preventDefault(); placedZone.classList.add("dragover"); });
+    placedZone.addEventListener("dragleave", function(){ placedZone.classList.remove("dragover"); });
+    placedZone.addEventListener("drop", function(e){
+      e.preventDefault();
+      placedZone.classList.remove("dragover");
+      var idx = parseInt(e.dataTransfer.getData("text/plain"),10);
+      moveBlockToPlaced(idx);
+    });
+  }
+
+  var submitBuild = document.getElementById("submitBuild");
+  if(submitBuild){
+    submitBuild.addEventListener("click", function(){
+      var sc = state.scenarios[state.currentIndex];
+      var correctSet = sc.correctBlocks.slice();
+      var placedCorrect = state.buildPlaced.filter(function(b){ return correctSet.indexOf(b)!==-1; }).length;
+      var placedWrong = state.buildPlaced.length - placedCorrect;
+      var allCorrectPlaced = placedCorrect === correctSet.length && placedWrong===0;
+      state.stats.wrongPlacements += placedWrong;
+      if(allCorrectPlaced){
+        state.stats.correctCount++;
+        state.stats.optimizationBonus += 3;
+        showToast("Great prompt structure!", "good");
+      } else {
+        showToast("Some blocks were off — check the comparison.", "bad");
+      }
+      feedbackData = { sc: sc, resultGood: allCorrectPlaced, extra:'<p>You built: <em>' + esc(state.buildPlaced.join(" ")) + '</em></p>' };
+      state.step = "feedback";
+      render();
+    });
+  }
+}
+function moveBlockToPlaced(idx){
+  var item = state.buildPool[idx];
+  if(item===undefined) return;
+  state.buildPool.splice(idx,1);
+  state.buildPlaced.push(item);
+  state.stats.moves++;
+  render();
+}
+
+/* ---- Clean the Prompt ---- */
+function bindCleanEvents(){
+  var input = document.getElementById("cleanInput");
+  if(input){
+    input.addEventListener("input", function(){
+      state.cleanInput = input.value;
+    });
+  }
+  var submitClean = document.getElementById("submitClean");
+  if(submitClean){
+    submitClean.addEventListener("click", function(){
+      var sc = state.scenarios[state.currentIndex];
+      state.stats.moves++;
+      var userText = (state.cleanInput || "").trim().toLowerCase();
+      var optWords = sc.optimizedPrompt.toLowerCase().split(/\W+/).filter(function(w){ return w.length>4; });
+      var hitCount = 0;
+      optWords.forEach(function(w){ if(userText.indexOf(w)!==-1) hitCount++; });
+      var ratio = optWords.length ? hitCount/optWords.length : 0;
+      var isGood = ratio >= 0.35 && userText.length > 15 && userText.length < sc.weakPrompt.length + 20;
+      if(isGood){
+        state.stats.correctCount++;
+        state.stats.optimizationBonus += 3;
+        showToast("Cleaner and clearer — nice edit!", "good");
+      } else {
+        showToast("Compare your version to the optimized prompt below.", "bad");
+      }
+      feedbackData = { sc: sc, resultGood: isGood, extra: (state.cleanInput ? '<p>Your version: <em>' + esc(state.cleanInput) + '</em></p>' : '<p class="muted-small">No prompt entered — review the optimized version below.</p>') };
+      state.step = "feedback";
+      render();
+    });
+  }
+}
+
+/* ---- Choose the Best Prompt ---- */
+function bindChooseEvents(){
+  var items = document.querySelectorAll(".choice-item");
+  items.forEach(function(item){
+    item.addEventListener("click", function(){
+      if(state.chooseSubmitted) return;
+      var sc = state.scenarios[state.currentIndex];
+      var opts = sc._shuffledOptions;
+      var idx = parseInt(item.getAttribute("data-idx"),10);
+      state.chooseSelected = opts[idx];
+      render();
+    });
+  });
+  var submitChoose = document.getElementById("submitChoose");
+  if(submitChoose){
+    submitChoose.addEventListener("click", function(){
+      state.chooseSubmitted = true;
+      state.stats.moves++;
+      var correct = state.chooseSelected && state.chooseSelected.quality==="optimized";
+      if(correct){
+        state.stats.correctCount++;
+        state.stats.optimizationBonus += 3;
+        showToast("Exactly the right balance!", "good");
+      } else {
+        state.stats.wrongPlacements++;
+        showToast("Not quite the best balance — see why below.", "bad");
+      }
+      render();
+    });
+  }
+  var nextBtn = document.getElementById("nextScenario");
+  if(nextBtn && state.chooseSubmitted){
+    // handled generically below via feedback step instead
+  }
+}
+
+/* after choose submit, transition to feedback panel on next render click via a dedicated path */
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitChoose"){
+    setTimeout(function(){
+      var sc = state.scenarios[state.currentIndex];
+      var correct = state.chooseSelected && state.chooseSelected.quality==="optimized";
+      feedbackData = { sc: sc, resultGood: correct, extra: state.chooseSelected ? '<p>You chose: <em>' + esc(state.chooseSelected.text) + '</em></p>' : '' };
+      state.step = "feedback";
+      render();
+    }, 550);
+  }
+});
+
+/* ================= INIT ================= */
+render();
+})();
+</script>
+</body>
+</html>
