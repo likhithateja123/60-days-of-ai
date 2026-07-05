@@ -1,0 +1,34 @@
+# Day 35 – Prompt Puzzle
+
+## Objective
+
+Built an interactive Prompt Puzzle application to learn Prompt Engineering through hands-on challenges.
+
+## Features
+
+- Domain & Difficulty Selection
+- Build the Prompt Challenge
+- Clean the Prompt Challenge
+- Choose the Best Prompt Challenge
+- Live Score Tracking
+- Prompt Performance Report
+- Replay with Random Scenarios
+- Responsive UI
+
+## Tech Stack
+
+- HTML
+- CSS
+- JavaScript
+
+## Key Learnings
+
+- Prompt quality directly impacts AI responses.
+- Clear context and structured instructions improve output quality.
+- Interactive learning makes prompt engineering easier to understand.
+
+## Files Included
+
+- prompt-puzzle.html
+- Screenshots
+- day35.md
