@@ -1,0 +1,36 @@
+# Day 36 – Cognitive Pattern Explorer using Claude AI
+
+## Objective
+
+Built an interactive Cognitive Pattern Explorer to understand different thinking tendencies through guided scenarios and reflection activities.
+
+## Features
+
+- Calm Mode & Stress Mode
+- Interactive Thinking Scenarios
+- Drag-and-Drop Priority Cards
+- Thinking Timeline Activity
+- Personalized Reflection Journal
+- Thinking Pattern Breakdown
+- Progress Tracker
+- Responsive Design
+- Replay Functionality
+
+## Tech Stack
+
+- HTML
+- CSS
+- JavaScript
+
+## Key Learnings
+
+- Different situations influence decision-making styles.
+- Reflection improves self-awareness and critical thinking.
+- Interactive applications make learning more engaging.
+- AI can support educational experiences without making personal assessments.
+
+## Files Included
+
+- cognitive-pattern-explorer.html
+- Screenshots
+- day36.md
