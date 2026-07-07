@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Compass — Tech Company Edition</title>
+<style>
+  :root{
+    --bg1:#0b0e1a; --bg2:#131a2e; --glass:rgba(255,255,255,.06); --glass-border:rgba(255,255,255,.14);
+    --text:#eef1fb; --muted:#a3aac4; --accent:#7c9cff; --accent2:#4fe3c1; --warn:#f2c76b; --bad:#ff7a8a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',Arial,sans-serif;color:var(--text);min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(124,156,255,.18), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(79,227,193,.14), transparent 45%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+  }
+  #app{max-width:960px;margin:0 auto;padding:24px 16px 80px;}
+  .glass{
+    background:var(--glass); border:1px solid var(--glass-border); border-radius:20px; padding:26px;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    box-shadow:0 12px 40px rgba(0,0,0,.35); margin-bottom:20px; animation:fadeIn .5s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(124,156,255,.5);}100%{box-shadow:0 0 0 14px rgba(124,156,255,0);}}
+  @keyframes flowMove{0%{transform:translateX(0);opacity:.4;}50%{opacity:1;}100%{transform:translateX(100%);opacity:.4;}}
+  h1{font-size:1.8rem;margin:0 0 8px;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));
+     -webkit-background-clip:text;background-clip:text;color:transparent;}
+  h2{font-size:1.25rem;margin:0 0 10px;font-weight:700;}
+  h3{font-size:1rem;margin:0 0 6px;color:var(--accent2);font-weight:700;}
+  p{color:var(--muted);line-height:1.6;margin:0 0 10px;}
+  .btn{
+    background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#08101f; border:none;
+    padding:12px 22px;border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;margin:6px 8px 6px 0;
+    transition:transform .15s, filter .15s;
+  }
+  .btn:hover{filter:brightness(1.08);transform:translateY(-2px);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+  .btn.secondary{background:var(--glass);border:1px solid var(--glass-border);color:var(--text);}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .brand{font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:8px;}
+  .progress-wrap{margin-bottom:20px;}
+  .progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+  .progress-bar{height:8px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;border:1px solid var(--glass-border);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .45s ease;}
+
+  .drag-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+  @media (max-width:640px){.drag-area{grid-template-columns:1fr;}}
+  .zone{background:rgba(255,255,255,.04);border:1px dashed var(--glass-border);border-radius:16px;padding:14px;min-height:150px;}
+  .zone.dragover{border-color:var(--accent2);background:rgba(79,227,193,.08);}
+  .zone-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px;}
+  .chip{
+    background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:12px;padding:10px 14px;
+    margin-bottom:9px;cursor:grab;font-size:.88rem;transition:border .15s, transform .15s;touch-action:none;user-select:none;
+  }
+  .chip:hover{border-color:var(--accent);transform:translateX(2px);}
+  .chip.dragging{opacity:.4;}
+  .chip .mini-btn{
+    display:inline-block;margin-top:6px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);
+    color:var(--muted);border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;
+  }
+  .chip .mini-btn:hover{color:var(--text);border-color:var(--accent2);}
+
+  .scenario-box{background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .scenario-box h3{color:var(--text);}
+  .result-box{margin-top:14px;padding:14px;border-radius:14px;background:rgba(79,227,193,.06);border:1px solid var(--glass-border);}
+  .result-box.wrong{background:rgba(255,122,138,.08);}
+  .tag{display:inline-block;background:rgba(255,255,255,.07);border:1px solid var(--glass-border);color:var(--accent2);
+    padding:3px 10px;border-radius:20px;font-size:.75rem;margin:3px 4px 3px 0;}
+
+  .flow-track{position:relative;height:14px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;margin:10px 0 16px;}
+  .flow-dot{position:absolute;top:0;left:0;width:24%;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:flowMove 1.8s linear infinite;}
+
+  .order-list{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .order-slot{
+    background:rgba(255,255,255,.04);border:1px dashed var(--glass-border);border-radius:12px;padding:12px 14px;
+    display:flex;align-items:center;gap:10px;min-height:48px;
+  }
+  .order-slot.filled{border-style:solid;}
+  .order-slot .idx{font-weight:800;color:var(--accent2);min-width:22px;}
+  .order-slot.dragover{border-color:var(--accent2);}
+
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px;}
+  .team-card{
+    background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:12px;padding:12px;text-align:center;
+    cursor:pointer;transition:border .15s, transform .15s;
+  }
+  .team-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .team-card.selected{border-color:var(--accent2);background:rgba(79,227,193,.1);}
+  .team-card .role-label{font-size:.68rem;color:var(--muted);margin-top:4px;}
+
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:14px;}
+  .dash-box{background:rgba(255,255,255,.05);border:1px solid var(--glass-border);border-radius:14px;padding:14px;text-align:center;}
+  .dash-box .dash-label{font-size:.75rem;color:var(--muted);margin-bottom:6px;}
+  .dash-box .dash-val{font-size:1.5rem;font-weight:800;color:var(--accent2);}
+  .bar-bg{height:8px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-top:8px;border:1px solid var(--glass-border);}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s ease;}
+
+  textarea{
+    width:100%;min-height:80px;background:rgba(255,255,255,.05);border:1px solid var(--glass-border);color:var(--text);
+    padding:10px 12px;border-radius:12px;font-family:inherit;font-size:.9rem;resize:vertical;
+  }
+  .center{text-align:center;}
+  .muted-small{font-size:.78rem;color:var(--muted);}
+  svg text{font-family:'Segoe UI',Arial,sans-serif;fill:var(--muted);}
+  @media (max-width:520px){h1{font-size:1.4rem;} .glass{padding:18px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+var WORKPLACE = "Tech Company";
+
+/* ================= DATA ================= */
+
+var ROLES_POOL = ["Product Manager","Engineering Team","Design Team","QA Team","DevOps/Infra","Customer Support","Data/Analytics Team","Security Team","Sales Team","Marketing Team"];
+
+var STAGE1_SCENARIOS = [
+  {
+    situation:"A customer reports that the app crashes every time they upload a profile photo.",
+    correctOwner:"Engineering Team",
+    supporting:["QA Team","Customer Support"],
+    reasoning:"This is a functional bug affecting core app behavior, so Engineering owns the fix. QA verifies the issue and confirms the resolution, while Customer Support manages communication with the affected user."
+  },
+  {
+    situation:"Leadership wants a new feature roadmap for the next quarter based on user feedback trends.",
+    correctOwner:"Product Manager",
+    supporting:["Data/Analytics Team","Design Team"],
+    reasoning:"Roadmap planning is a Product Manager's core responsibility — balancing user needs, business goals, and feasibility. Data/Analytics supplies trend insights, and Design helps shape early concepts."
+  },
+  {
+    situation:"The production server goes down during peak traffic hours.",
+    correctOwner:"DevOps/Infra",
+    supporting:["Engineering Team","Customer Support"],
+    reasoning:"Infrastructure outages are owned by DevOps, who manage uptime and server health. Engineering may assist in diagnosing app-level causes, while Support handles user-facing communication during the incident."
+  }
+];
+
+var STAGE2_SCENARIOS = [
+  {
+    title:"Shipping a New Feature",
+    steps:[
+      {id:"design", text:"Design creates wireframes and UI mockups"},
+      {id:"dev", text:"Engineering builds the feature"},
+      {id:"qa", text:"QA tests functionality and edge cases"},
+      {id:"deploy", text:"DevOps deploys to production"}
+    ],
+    correctOrder:["design","dev","qa","deploy"],
+    explanation:"Good feature delivery flows from concept to reality: design shapes the experience first, engineering builds it, QA verifies quality, and DevOps safely ships it live."
+  },
+  {
+    title:"Handling a Critical Bug Report",
+    steps:[
+      {id:"support", text:"Support logs and triages the customer report"},
+      {id:"eng", text:"Engineering investigates and identifies the root cause"},
+      {id:"fix", text:"Engineering implements and tests a fix"},
+      {id:"release", text:"DevOps releases the patch and Support confirms resolution"}
+    ],
+    correctOrder:["support","eng","fix","release"],
+    explanation:"Bug handling starts with proper intake and triage, moves to root-cause investigation, then a tested fix, and finally a safe release with confirmation back to the customer."
+  },
+  {
+    title:"Launching a Data-Driven Marketing Campaign",
+    steps:[
+      {id:"data", text:"Data/Analytics identifies target user segments"},
+      {id:"marketing", text:"Marketing designs the campaign messaging"},
+      {id:"eng", text:"Engineering implements tracking and campaign infrastructure"},
+      {id:"review", text:"Data/Analytics reviews performance after launch"}
+    ],
+    correctOrder:["data","marketing","eng","review"],
+    explanation:"Effective campaigns start with data-backed targeting, move into creative messaging, require technical tracking setup, and close the loop with a post-launch performance review."
+  }
+];
+
+var TEAMS_POOL = ["Engineering","Design","QA","DevOps","Product","Data/Analytics","Security","Support","Marketing","Sales"];
+
+var STAGE3_SCENARIOS = [
+  {
+    situation:"The company is launching a brand-new mobile app from scratch.",
+    idealPrimary:"Engineering",
+    idealSupport:["Design","Product","QA"],
+    commFlow:"Product defines scope → Design creates the experience → Engineering builds it → QA validates before release.",
+    reasoning:"A full app launch is fundamentally an engineering build, but it depends heavily on product direction, design execution, and quality validation working in sync."
+  },
+  {
+    situation:"A major security vulnerability is discovered in the login system.",
+    idealPrimary:"Security",
+    idealSupport:["Engineering","DevOps","Support"],
+    commFlow:"Security identifies and assesses risk → Engineering patches the vulnerability → DevOps deploys the fix urgently → Support manages any user-facing concerns.",
+    reasoning:"Security owns vulnerability response end-to-end, but resolving it requires fast collaboration with engineering for the fix and DevOps for safe, rapid deployment."
+  },
+  {
+    situation:"The company wants to expand into a new international market.",
+    idealPrimary:"Product",
+    idealSupport:["Marketing","Sales","Data/Analytics"],
+    commFlow:"Data/Analytics researches market viability → Product defines localization requirements → Marketing builds go-to-market messaging → Sales activates regional pipelines.",
+    reasoning:"Market expansion is a product-level strategic decision, but it can't succeed without market data, coordinated marketing messaging, and a sales team ready to execute regionally."
+  }
+];
+
+/* ================= STATE ================= */
+
+var state = {
+  step:"welcome", // welcome -> s1-intro -> s1 -> s2-intro -> s2 -> s3-intro -> s3 -> dashboard
+  s1Index:0, s1Results:[], // {correct:bool}
+  s1Pool:[], s1Placed:null,
+
+  s2Index:0, s2Results:[], // {correct:bool}
+  s2Pool:[], s2Slots:[],
+
+  s3Index:0, s3Results:[], // {primaryCorrect:bool, supportOverlap:number}
+  s3Selected:[],
+
+  reflection:{ well:"", overassigned:"", underestimated:"", insight:"" }
+};
+
+var STEP_ORDER = ["welcome","s1-intro","s1","s2-intro","s2","s3-intro","s3","dashboard"];
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+function shuffle(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+
+/* ================= PROGRESS ================= */
+
+function progressPct(){
+  var idx = STEP_ORDER.indexOf(state.step);
+  return Math.round((idx/(STEP_ORDER.length-1))*100);
+}
+function stepLabel(){
+  var labels = {
+    "welcome":"Welcome","s1-intro":"Stage 1: Intro","s1":"Stage 1: Who Owns This?",
+    "s2-intro":"Stage 2: Intro","s2":"Stage 2: Task Routing",
+    "s3-intro":"Stage 3: Intro","s3":"Stage 3: Collaboration Challenge",
+    "dashboard":"Organizational Thinking Dashboard"
+  };
+  return labels[state.step] || "";
+}
+
+function renderTopBar(){
+  return '<div class="top-bar"><div class="brand">🧭 Task Compass <span class="muted-small">— ' + esc(WORKPLACE) + '</span></div></div>';
+}
+function renderProgress(){
+  if(state.step==="welcome") return "";
+  var pct = progressPct();
+  return '<div class="progress-wrap"><div class="progress-label"><span>' + stepLabel() + '</span><span>' + pct + '%</span></div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;"></div></div></div>';
+}
+
+/* ================= WELCOME ================= */
+
+function renderWelcome(){
+  return '<div class="glass center">' +
+    '<h1>Task Compass</h1>' +
+    '<p>Explore how ownership, delegation, and collaboration really work inside a <strong style="color:var(--text);">' + esc(WORKPLACE) + '</strong>. You\'ll navigate three stages: identifying task owners, routing workflows in order, and coordinating cross-team collaboration.</p>' +
+    '<button class="btn" id="startBtn">Start Exploring 🧭</button>' +
+    '</div>';
+}
+
+/* ================= STAGE 1 ================= */
+
+function renderS1Intro(){
+  return '<div class="glass">' +
+    '<h3>Stage 1: Who Owns This?</h3>' +
+    '<p>You\'ll see three real workplace situations. Drag the role you believe should be the <strong style="color:var(--text);">primary owner</strong> into the scenario box.</p>' +
+    '<button class="btn" id="toS1">Begin Stage 1</button>' +
+    '</div>';
+}
+
+function renderS1(){
+  var sc = STAGE1_SCENARIOS[state.s1Index];
+  var html = '<div class="glass">';
+  html += '<h2>Scenario ' + (state.s1Index+1) + ' of 3</h2>';
+  html += '<div class="scenario-box"><p>' + esc(sc.situation) + '</p></div>';
+  html += '<div class="drag-area">';
+  html += '<div class="zone" id="s1Pool" data-zone="pool"><div class="zone-title">Available Roles</div>';
+  state.s1Pool.forEach(function(role, idx){
+    html += '<div class="chip" draggable="true" tabindex="0" data-idx="' + idx + '" data-zone="pool1">' + esc(role) +
+      '<div><span class="mini-btn" data-action="assign" data-idx="' + idx + '">Assign as Owner</span></div></div>';
+  });
+  html += '</div>';
+  html += '<div class="zone" id="s1Drop" data-zone="drop"><div class="zone-title">Primary Owner</div>';
+  if(state.s1Placed){
+    html += '<div class="chip" data-zone="placed1">' + esc(state.s1Placed) +
+      '<div><span class="mini-btn" data-action="unassign">Remove</span></div></div>';
+  } else {
+    html += '<p class="muted-small">Drop or assign a role here</p>';
+  }
+  html += '</div></div>';
+
+  if(state.s1Placed){
+    html += '<button class="btn" id="submitS1" style="margin-top:14px;">Submit Owner</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderS1Result(){
+  var sc = STAGE1_SCENARIOS[state.s1Index];
+  var res = state.s1Results[state.s1Index];
+  var html = '<div class="glass">';
+  html += '<h2>' + (res.correct ? "✅ Correct Ownership" : "🔎 Let\'s Compare") + '</h2>';
+  html += '<div class="result-box' + (res.correct ? "" : " wrong") + '">';
+  html += '<p><strong style="color:var(--text);">Your pick:</strong> ' + esc(res.picked) + '</p>';
+  html += '<p><strong style="color:var(--text);">Primary Owner:</strong> ' + esc(sc.correctOwner) + '</p>';
+  html += '<p><strong style="color:var(--text);">Supporting Roles:</strong> ';
+  sc.supporting.forEach(function(s){ html += '<span class="tag">' + esc(s) + '</span>'; });
+  html += '</p>';
+  html += '<p><strong style="color:var(--text);">Reasoning:</strong> ' + esc(sc.reasoning) + '</p>';
+  html += '</div>';
+  html += '<button class="btn" id="nextS1" style="margin-top:14px;">' + (state.s1Index<2 ? "Next Scenario" : "Continue to Stage 2") + '</button>';
+  html += '</div>';
+  return html;
+}
+
+/* ================= STAGE 2 ================= */
+
+function renderS2Intro(){
+  return '<div class="glass">' +
+    '<h3>Stage 2: Task Routing</h3>' +
+    '<p>Arrange each workflow\'s steps in the correct order by dragging them into the timeline. Watch the flow animate once it\'s complete.</p>' +
+    '<button class="btn" id="toS2">Begin Stage 2</button>' +
+    '</div>';
+}
+
+function renderS2(){
+  var sc = STAGE2_SCENARIOS[state.s2Index];
+  var html = '<div class="glass">';
+  html += '<h2>' + esc(sc.title) + ' (' + (state.s2Index+1) + ' of 3)</h2>';
+  html += '<div class="drag-area">';
+  html += '<div class="zone" id="s2Pool" data-zone="pool"><div class="zone-title">Steps</div>';
+  state.s2Pool.forEach(function(step, idx){
+    html += '<div class="chip" draggable="true" tabindex="0" data-idx="' + idx + '" data-zone="pool2">' + esc(step.text) +
+      '<div><span class="mini-btn" data-action="place2" data-idx="' + idx + '">Place in Next Slot</span></div></div>';
+  });
+  html += '</div>';
+  html += '<div class="zone" id="s2Timeline" data-zone="timeline"><div class="zone-title">Workflow Order</div>';
+  html += '<div class="order-list">';
+  state.s2Slots.forEach(function(step, i){
+    html += '<div class="order-slot' + (step ? " filled" : "") + '" data-slot="' + i + '" tabindex="0">' +
+      '<span class="idx">' + (i+1) + '</span><span>' + (step ? esc(step.text) : '<span class="muted-small">Empty slot</span>') + '</span>';
+    if(step) html += '<span class="mini-btn" data-action="clear2" data-slot="' + i + '" style="margin-left:auto;">✕</span>';
+    html += '</div>';
+  });
+  html += '</div></div></div>';
+
+  var filled = state.s2Slots.filter(function(s){return s;}).length;
+  html += '<button class="btn" id="submitS2" style="margin-top:14px;" ' + (filled===sc.steps.length ? "" : "disabled") + '>Check Workflow Order</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderS2Result(){
+  var sc = STAGE2_SCENARIOS[state.s2Index];
+  var res = state.s2Results[state.s2Index];
+  var html = '<div class="glass">';
+  html += '<h2>' + (res.correct ? "✅ Workflow Confirmed" : "🔁 Correct Sequence") + '</h2>';
+  html += '<div class="flow-track"><div class="flow-dot"></div></div>';
+  html += '<div class="order-list">';
+  sc.correctOrder.forEach(function(id, i){
+    var step = sc.steps.filter(function(s){return s.id===id;})[0];
+    html += '<div class="order-slot filled"><span class="idx">' + (i+1) + '</span><span>' + esc(step.text) + '</span></div>';
+  });
+  html += '</div>';
+  html += '<div class="result-box' + (res.correct ? "" : " wrong") + '" style="margin-top:14px;">' +
+    '<p><strong style="color:var(--text);">Explanation:</strong> ' + esc(sc.explanation) + '</p></div>';
+  html += '<button class="btn" id="nextS2" style="margin-top:14px;">' + (state.s2Index<2 ? "Next Workflow" : "Continue to Stage 3") + '</button>';
+  html += '</div>';
+  return html;
+}
+
+/* ================= STAGE 3 ================= */
+
+function renderS3Intro(){
+  return '<div class="glass">' +
+    '<h3>Stage 3: Collaboration Challenge</h3>' +
+    '<p>For each situation, select up to 4 teams you believe should be involved. You\'ll then see the ideal primary owner, supporting teams, and how communication should flow between them.</p>' +
+    '<button class="btn" id="toS3">Begin Stage 3</button>' +
+    '</div>';
+}
+
+function renderS3(){
+  var sc = STAGE3_SCENARIOS[state.s3Index];
+  var html = '<div class="glass">';
+  html += '<h2>Scenario ' + (state.s3Index+1) + ' of 3</h2>';
+  html += '<div class="scenario-box"><p>' + esc(sc.situation) + '</p></div>';
+  html += '<p class="muted-small">Select up to 4 teams (' + state.s3Selected.length + '/4 selected):</p>';
+  html += '<div class="team-grid">';
+  TEAMS_POOL.forEach(function(team){
+    var sel = state.s3Selected.indexOf(team)!==-1;
+    html += '<div class="team-card' + (sel ? " selected" : "") + '" data-team="' + esc(team) + '">' + esc(team) + '</div>';
+  });
+  html += '</div>';
+  html += '<button class="btn" id="submitS3" style="margin-top:14px;" ' + (state.s3Selected.length>0 ? "" : "disabled") + '>Submit Team Selection</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderS3Result(){
+  var sc = STAGE3_SCENARIOS[state.s3Index];
+  var res = state.s3Results[state.s3Index];
+  var html = '<div class="glass">';
+  html += '<h2>' + (res.primaryCorrect ? "✅ Strong Read" : "🔎 Let\'s Compare") + '</h2>';
+  html += '<div class="result-box' + (res.primaryCorrect ? "" : " wrong") + '">';
+  html += '<p><strong style="color:var(--text);">Your Selections:</strong> ';
+  state.s3Selected.forEach(function(t){ html += '<span class="tag">' + esc(t) + '</span>'; });
+  html += '</p>';
+  html += '<p><strong style="color:var(--text);">Ideal Primary Owner:</strong> ' + esc(sc.idealPrimary) + '</p>';
+  html += '<p><strong style="color:var(--text);">Ideal Supporting Teams:</strong> ';
+  sc.idealSupport.forEach(function(t){ html += '<span class="tag">' + esc(t) + '</span>'; });
+  html += '</p>';
+  html += '<p><strong style="color:var(--text);">Communication Flow:</strong> ' + esc(sc.commFlow) + '</p>';
+  html += '<p><strong style="color:var(--text);">Reasoning:</strong> ' + esc(sc.reasoning) + '</p>';
+  html += '</div>';
+  html += '<button class="btn" id="nextS3" style="margin-top:14px;">' + (state.s3Index<2 ? "Next Scenario" : "Continue to Reflection") + '</button>';
+  html += '</div>';
+  return html;
+}
+
+/* ================= REFLECTION + DASHBOARD ================= */
+
+function computeMetrics(){
+  var ownershipScore = Math.round((state.s1Results.filter(function(r){return r.correct;}).length / 3) * 100);
+  var workflowScore = Math.round((state.s2Results.filter(function(r){return r.correct;}).length / 3) * 100);
+
+  var collabTotal = 0, collabHits = 0, overAssignPenalty = 0, primaryHits=0;
+  state.s3Results.forEach(function(r, i){
+    var sc = STAGE3_SCENARIOS[i];
+    if(r.primaryCorrect) primaryHits++;
+    collabTotal += sc.idealSupport.length;
+    collabHits += r.supportOverlap;
+    if(r.selectedCount > (sc.idealSupport.length+1)) overAssignPenalty++;
+  });
+  var collaborationScore = collabTotal ? Math.round((collabHits/collabTotal)*100) : 0;
+  var delegationScore = Math.round(((primaryHits/3)*70) + (collaborationScore*0.3));
+  if(delegationScore>100) delegationScore=100;
+
+  return {
+    ownership: ownershipScore,
+    delegation: delegationScore,
+    collaboration: collaborationScore,
+    workflow: workflowScore,
+    overAssignCount: overAssignPenalty
+  };
+}
+
+function renderDashboard(){
+  var m = computeMetrics();
+  var html = '<div class="glass">';
+  html += '<h1 style="font-size:1.5rem;">🧭 Organizational Thinking Dashboard</h1>';
+
+  html += '<div class="dash-grid">';
+  html += dashBox("Ownership", m.ownership);
+  html += dashBox("Delegation", m.delegation);
+  html += dashBox("Collaboration", m.collaboration);
+  html += dashBox("Workflow Thinking", m.workflow);
+  html += '</div>';
+
+  html += '<div style="margin-top:20px;">' + renderRadar(m) + '</div>';
+
+  html += '<div class="glass" style="margin-top:20px;background:rgba(255,255,255,.03);">';
+  html += '<h3>Reflection</h3>';
+  html += '<p class="muted-small">What did you understand well?</p>';
+  html += '<textarea id="ref1" placeholder="Write freely...">' + esc(state.reflection.well) + '</textarea>';
+  html += '<p class="muted-small" style="margin-top:10px;">Where might you have over-assigned responsibility to one role or team?</p>';
+  html += '<textarea id="ref2" placeholder="Write freely...">' + esc(state.reflection.overassigned) + '</textarea>';
+  html += '<p class="muted-small" style="margin-top:10px;">Where was collaboration underestimated?</p>';
+  html += '<textarea id="ref3" placeholder="Write freely...">' + esc(state.reflection.underestimated) + '</textarea>';
+  html += '<p class="muted-small" style="margin-top:10px;">What\'s one key workplace insight you\'re taking away?</p>';
+  html += '<textarea id="ref4" placeholder="Write freely...">' + esc(state.reflection.insight) + '</textarea>';
+  html += '</div>';
+
+  html += '<div class="center" style="margin-top:18px;"><button class="btn secondary" id="replayBtn">🔁 Replay Task Compass</button></div>';
+  html += '</div>';
+  return html;
+}
+
+function dashBox(label, val){
+  return '<div class="dash-box"><div class="dash-label">' + esc(label) + '</div><div class="dash-val">' + val + '%</div>' +
+    '<div class="bar-bg"><div class="bar-fill" style="width:' + val + '%;"></div></div></div>';
+}
+
+function renderRadar(m){
+  var labels = ["Ownership","Delegation","Collaboration","Workflow"];
+  var vals = [m.ownership, m.delegation, m.collaboration, m.workflow];
+  var cx=180, cy=160, R=110;
+  var n=4;
+  var points = [];
+  for(var i=0;i<n;i++){
+    var angle = (Math.PI*2*i/n) - Math.PI/2;
+    var r = (vals[i]/100)*R;
+    points.push([cx + r*Math.cos(angle), cy + r*Math.sin(angle)]);
+  }
+  var gridPoints = [];
+  for(var g=1; g<=4; g++){
+    var gp = [];
+    for(var i2=0;i2<n;i2++){
+      var angle2 = (Math.PI*2*i2/n) - Math.PI/2;
+      var r2 = (g/4)*R;
+      gp.push((cx + r2*Math.cos(angle2)) + "," + (cy + r2*Math.sin(angle2)));
+    }
+    gridPoints.push(gp.join(" "));
+  }
+  var poly = points.map(function(p){ return p[0] + "," + p[1]; }).join(" ");
+
+  var svg = '<svg viewBox="0 0 360 320" style="width:100%;max-width:360px;display:block;margin:0 auto;">';
+  gridPoints.forEach(function(gp){
+    svg += '<polygon points="' + gp + '" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1"/>';
+  });
+  svg += '<polygon points="' + poly + '" fill="rgba(79,227,193,.25)" stroke="#4fe3c1" stroke-width="2"/>';
+  labels.forEach(function(lab, i){
+    var angle = (Math.PI*2*i/n) - Math.PI/2;
+    var lx = cx + (R+26)*Math.cos(angle);
+    var ly = cy + (R+26)*Math.sin(angle);
+    svg += '<text x="' + lx + '" y="' + ly + '" font-size="12" text-anchor="middle">' + esc(lab) + '</text>';
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+/* ================= MAIN RENDER ================= */
+
+var showingResult = { s1:false, s2:false, s3:false };
+
+function render(){
+  var app = document.getElementById("app");
+  var html = renderTopBar() + renderProgress();
+
+  if(state.step==="welcome") html += renderWelcome();
+  else if(state.step==="s1-intro") html += renderS1Intro();
+  else if(state.step==="s1") html += (showingResult.s1 ? renderS1Result() : renderS1());
+  else if(state.step==="s2-intro") html += renderS2Intro();
+  else if(state.step==="s2") html += (showingResult.s2 ? renderS2Result() : renderS2());
+  else if(state.step==="s3-intro") html += renderS3Intro();
+  else if(state.step==="s3") html += (showingResult.s3 ? renderS3Result() : renderS3());
+  else if(state.step==="dashboard") html += renderDashboard();
+
+  app.innerHTML = html;
+  bindEvents();
+}
+
+/* ================= EVENTS ================= */
+
+function bindEvents(){
+  var startBtn = document.getElementById("startBtn");
+  if(startBtn) startBtn.addEventListener("click", function(){ state.step="s1-intro"; render(); });
+
+  var toS1 = document.getElementById("toS1");
+  if(toS1) toS1.addEventListener("click", function(){
+    state.s1Index=0; state.s1Results=[];
+    setupS1(); showingResult.s1=false;
+    state.step="s1"; render();
+  });
+
+  bindS1Events();
+
+  var toS2 = document.getElementById("toS2");
+  if(toS2) toS2.addEventListener("click", function(){
+    state.s2Index=0; state.s2Results=[];
+    setupS2(); showingResult.s2=false;
+    state.step="s2"; render();
+  });
+
+  bindS2Events();
+
+  var toS3 = document.getElementById("toS3");
+  if(toS3) toS3.addEventListener("click", function(){
+    state.s3Index=0; state.s3Results=[];
+    state.s3Selected=[]; showingResult.s3=false;
+    state.step="s3"; render();
+  });
+
+  bindS3Events();
+
+  var ref1=document.getElementById("ref1"), ref2=document.getElementById("ref2"),
+      ref3=document.getElementById("ref3"), ref4=document.getElementById("ref4");
+  if(ref1) ref1.addEventListener("input", function(){ state.reflection.well = ref1.value; });
+  if(ref2) ref2.addEventListener("input", function(){ state.reflection.overassigned = ref2.value; });
+  if(ref3) ref3.addEventListener("input", function(){ state.reflection.underestimated = ref3.value; });
+  if(ref4) ref4.addEventListener("input", function(){ state.reflection.insight = ref4.value; });
+
+  var replayBtn = document.getElementById("replayBtn");
+  if(replayBtn) replayBtn.addEventListener("click", function(){
+    state = {
+      step:"welcome", s1Index:0, s1Results:[], s1Pool:[], s1Placed:null,
+      s2Index:0, s2Results:[], s2Pool:[], s2Slots:[],
+      s3Index:0, s3Results:[], s3Selected:[],
+      reflection:{well:"",overassigned:"",underestimated:"",insight:""}
+    };
+    showingResult = { s1:false, s2:false, s3:false };
+    render();
+  });
+}
+
+/* ---- Stage 1 ---- */
+function setupS1(){
+  var sc = STAGE1_SCENARIOS[state.s1Index];
+  var distractors = shuffle(ROLES_POOL.filter(function(r){ return r!==sc.correctOwner && sc.supporting.indexOf(r)===-1; })).slice(0,3);
+  state.s1Pool = shuffle([sc.correctOwner].concat(distractors));
+  state.s1Placed = null;
+}
+function bindS1Events(){
+  var pool = document.getElementById("s1Pool");
+  var drop = document.getElementById("s1Drop");
+  if(pool){
+    pool.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart", function(e){
+        chip.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", chip.getAttribute("data-idx"));
+      });
+      chip.addEventListener("dragend", function(){ chip.classList.remove("dragging"); });
+    });
+  }
+  if(drop){
+    drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("dragover"); });
+    drop.addEventListener("dragleave", function(){ drop.classList.remove("dragover"); });
+    drop.addEventListener("drop", function(e){
+      e.preventDefault(); drop.classList.remove("dragover");
+      var idx = parseInt(e.dataTransfer.getData("text/plain"),10);
+      assignS1(idx);
+    });
+  }
+  var assignBtns = document.querySelectorAll('.mini-btn[data-action="assign"]');
+  assignBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){ assignS1(parseInt(btn.getAttribute("data-idx"),10)); });
+  });
+  var unassignBtn = document.querySelector('.mini-btn[data-action="unassign"]');
+  if(unassignBtn){
+    unassignBtn.addEventListener("click", function(){
+      if(state.s1Placed){ state.s1Pool.push(state.s1Placed); state.s1Placed=null; render(); }
+    });
+  }
+  var submitS1 = document.getElementById("submitS1");
+  if(submitS1){
+    submitS1.addEventListener("click", function(){
+      var sc = STAGE1_SCENARIOS[state.s1Index];
+      var correct = state.s1Placed === sc.correctOwner;
+      state.s1Results[state.s1Index] = { correct: correct, picked: state.s1Placed };
+      showingResult.s1 = true;
+      render();
+    });
+  }
+  var nextS1 = document.getElementById("nextS1");
+  if(nextS1){
+    nextS1.addEventListener("click", function(){
+      state.s1Index++;
+      showingResult.s1 = false;
+      if(state.s1Index>=3){ state.step="s2-intro"; }
+      else { setupS1(); }
+      render();
+    });
+  }
+}
+function assignS1(idx){
+  var item = state.s1Pool[idx];
+  if(item===undefined) return;
+  if(state.s1Placed){ state.s1Pool.push(state.s1Placed); }
+  state.s1Pool.splice(idx,1);
+  state.s1Placed = item;
+  render();
+}
+
+/* ---- Stage 2 ---- */
+function setupS2(){
+  var sc = STAGE2_SCENARIOS[state.s2Index];
+  state.s2Pool = shuffle(sc.steps.slice());
+  state.s2Slots = sc.steps.map(function(){ return null; });
+}
+function bindS2Events(){
+  var pool = document.getElementById("s2Pool");
+  if(pool){
+    pool.querySelectorAll(".chip").forEach(function(chip){
+      chip.addEventListener("dragstart", function(e){
+        chip.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", chip.getAttribute("data-idx"));
+      });
+      chip.addEventListener("dragend", function(){ chip.classList.remove("dragging"); });
+    });
+  }
+  document.querySelectorAll(".order-slot").forEach(function(slot){
+    slot.addEventListener("dragover", function(e){ e.preventDefault(); slot.classList.add("dragover"); });
+    slot.addEventListener("dragleave", function(){ slot.classList.remove("dragover"); });
+    slot.addEventListener("drop", function(e){
+      e.preventDefault(); slot.classList.remove("dragover");
+      var idx = parseInt(e.dataTransfer.getData("text/plain"),10);
+      var slotNum = parseInt(slot.getAttribute("data-slot"),10);
+      placeS2(idx, slotNum);
+    });
+  });
+  document.querySelectorAll('.mini-btn[data-action="place2"]').forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var idx = parseInt(btn.getAttribute("data-idx"),10);
+      var openSlot = state.s2Slots.indexOf(null);
+      if(openSlot!==-1) placeS2(idx, openSlot);
+    });
+  });
+  document.querySelectorAll('.mini-btn[data-action="clear2"]').forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var slotNum = parseInt(btn.getAttribute("data-slot"),10);
+      var step = state.s2Slots[slotNum];
+      if(step){ state.s2Slots[slotNum]=null; state.s2Pool.push(step); render(); }
+    });
+  });
+  var submitS2 = document.getElementById("submitS2");
+  if(submitS2){
+    submitS2.addEventListener("click", function(){
+      var sc = STAGE2_SCENARIOS[state.s2Index];
+      var userOrder = state.s2Slots.map(function(s){ return s.id; });
+      var correct = JSON.stringify(userOrder) === JSON.stringify(sc.correctOrder);
+      state.s2Results[state.s2Index] = { correct: correct };
+      showingResult.s2 = true;
+      render();
+    });
+  }
+  var nextS2 = document.getElementById("nextS2");
+  if(nextS2){
+    nextS2.addEventListener("click", function(){
+      state.s2Index++;
+      showingResult.s2 = false;
+      if(state.s2Index>=3){ state.step="s3-intro"; }
+      else { setupS2(); }
+      render();
+    });
+  }
+}
+function placeS2(poolIdx, slotNum){
+  var step = state.s2Pool[poolIdx];
+  if(step===undefined || state.s2Slots[slotNum]!==null) return;
+  state.s2Pool.splice(poolIdx,1);
+  state.s2Slots[slotNum] = step;
+  render();
+}
+
+/* ---- Stage 3 ---- */
+function bindS3Events(){
+  document.querySelectorAll(".team-card").forEach(function(card){
+    card.addEventListener("click", function(){
+      var team = card.getAttribute("data-team");
+      var idx = state.s3Selected.indexOf(team);
+      if(idx!==-1){ state.s3Selected.splice(idx,1); }
+      else if(state.s3Selected.length<4){ state.s3Selected.push(team); }
+      render();
+    });
+  });
+  var submitS3 = document.getElementById("submitS3");
+  if(submitS3){
+    submitS3.addEventListener("click", function(){
+      var sc = STAGE3_SCENARIOS[state.s3Index];
+      var primaryCorrect = state.s3Selected.indexOf(sc.idealPrimary)!==-1;
+      var overlap = sc.idealSupport.filter(function(t){ return state.s3Selected.indexOf(t)!==-1; }).length;
+      state.s3Results[state.s3Index] = { primaryCorrect: primaryCorrect, supportOverlap: overlap, selectedCount: state.s3Selected.length };
+      showingResult.s3 = true;
+      render();
+    });
+  }
+  var nextS3 = document.getElementById("nextS3");
+  if(nextS3){
+    nextS3.addEventListener("click", function(){
+      state.s3Index++;
+      showingResult.s3 = false;
+      state.s3Selected = [];
+      if(state.s3Index>=3){ state.step="dashboard"; }
+      render();
+    });
+  }
+}
+
+/* ================= INIT ================= */
+render();
+})();
+</script>
+</body>
+</html>
