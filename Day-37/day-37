@@ -1,0 +1,36 @@
+# Day 37 – Task Compass using Claude AI
+
+## Objective
+
+Built an interactive Task Compass application to understand how work flows through organizations by exploring ownership, delegation, collaboration, and task routing.
+
+## Features
+
+- Workplace Type Selection
+- Stage 1: Who Owns This?
+- Stage 2: Task Routing
+- Stage 3: Collaboration Challenge
+- Organizational Thinking Dashboard
+- Reflection & Insights
+- Drag-and-Drop Interactions
+- Responsive UI
+- Replay Functionality
+
+## Tech Stack
+
+- HTML
+- CSS
+- JavaScript
+
+## Key Learnings
+
+- Workplace tasks often require collaboration across multiple roles.
+- Clear ownership improves accountability.
+- Effective task routing enhances workflow efficiency.
+- Organizational success depends on communication and teamwork.
+
+## Files Included
+
+- task-compass.html
+- Screenshots
+- day37.md
