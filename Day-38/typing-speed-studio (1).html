@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Typing Speed Studio — Programming Edition</title>
+<style>
+:root{
+  --bg:#0f1220; --panel:#171b2e; --panel2:#1e2338; --text:#e8eaf6; --muted:#8890b5;
+  --accent:#6c8cff; --accent2:#7ee0c6; --err:#ff6b7a; --good:#7ee0c6; --border:#2a2f4a;
+  --caret:#6c8cff; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --radius:16px; --font-mono:'Consolas','Menlo','Monaco',monospace;
+}
+[data-theme="light"]{
+  --bg:#f2f3fb; --panel:#ffffff; --panel2:#f7f8fd; --text:#1c2033; --muted:#666f9c;
+  --accent:#3f5bd9; --accent2:#0f9d7f; --err:#e0334a; --good:#0f9d7f; --border:#e2e4f2;
+  --caret:#3f5bd9; --shadow:0 10px 30px rgba(30,40,90,.10);
+}
+[data-theme="contrast"]{
+  --bg:#000; --panel:#0a0a0a; --panel2:#111; --text:#fff; --muted:#bbb;
+  --accent:#ffd400; --accent2:#00ffb2; --err:#ff4d5e; --good:#00ffb2; --border:#333;
+  --caret:#ffd400; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh; transition:background .3s,color .3s;
+}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b0d1a;font-size:18px;box-shadow:var(--shadow)}
+.brand h1{font-size:18px;margin:0;letter-spacing:.2px}
+.brand span{color:var(--muted);font-size:12px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,select{font-family:inherit}
+.btn{
+  background:var(--panel2); color:var(--text); border:1px solid var(--border); padding:9px 14px;
+  border-radius:10px; cursor:pointer; font-size:13px; transition:.15s transform,.15s background,.15s border-color;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);color:#0b0d1a;font-weight:700;border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.card{
+  background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+  box-shadow:var(--shadow); margin-bottom:16px;
+}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.seg button{background:transparent;border:none;color:var(--muted);padding:8px 13px;cursor:pointer;font-size:13px;transition:.15s}
+.seg button.active{background:var(--accent);color:#0b0d1a;font-weight:700}
+.seg button:hover:not(.active){color:var(--text)}
+select.pill{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
+.spacer{flex:1}
+#statsBar{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:10px;font-variant-numeric:tabular-nums}
+.stat{display:flex;flex-direction:column;min-width:64px}
+.stat b{font-size:24px;line-height:1.1}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+#timerRing{position:relative;width:44px;height:44px}
+#typeArea{
+  position:relative; font-family:var(--font-mono); font-size:19px; line-height:1.8;
+  padding:20px; background:var(--panel2); border-radius:12px; border:1px solid var(--border);
+  white-space:pre-wrap; word-wrap:break-word; user-select:none; outline:none; min-height:150px;
+  max-height:260px; overflow-y:auto; letter-spacing:.2px;
+}
+#typeArea:focus{border-color:var(--accent)}
+#typeArea .char{position:relative;border-radius:2px}
+.char.correct{color:var(--good)}
+.char.incorrect{color:var(--err);background:rgba(255,107,122,.15);text-decoration:underline}
+.char.current{background:var(--caret);color:#0b0d1a;border-radius:3px;animation:pulse 1s infinite}
+.char.untouched{color:var(--muted)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+#hiddenInput{position:absolute;opacity:0;pointer-events:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(10,12,25,.75);backdrop-filter:blur(3px);border-radius:12px;color:#fff;font-size:14px;text-align:center;padding:20px}
+[data-theme="light"] .overlay{background:rgba(255,255,255,.85);color:#1c2033}
+.hidden{display:none!important}
+.progress-bar{height:5px;background:var(--panel2);border-radius:4px;overflow:hidden;margin:12px 0;border:1px solid var(--border)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .15s}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px}
+.dash-item{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.dash-item b{display:block;font-size:26px;margin-bottom:4px}
+.dash-item.wpm b{color:var(--accent)}
+.dash-item.acc b{color:var(--good)}
+.dash-item.err b{color:var(--err)}
+canvas{width:100%;max-height:140px;display:block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase}
+tr:hover td{background:var(--panel2)}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.setting label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.row{display:flex;align-items:center;gap:8px}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
+.close-x{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;max-width:500px;width:100%;position:relative;box-shadow:var(--shadow);max-height:85vh;overflow-y:auto}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}
+kbd{background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:11px}
+@media(max-width:600px){#typeArea{font-size:16px} .stat b{font-size:19px} header h1{font-size:16px}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body data-theme="dark">
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">TS</div>
+      <div>
+        <h1>Typing Speed Studio</h1>
+        <span>Programming Edition</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="btnSettings" aria-label="Open settings">⚙ Settings</button>
+      <button class="btn" id="btnHistory" aria-label="Open history">📊 History</button>
+      <button class="btn" id="btnTheme" aria-label="Cycle theme">🌓 Theme</button>
+    </div>
+  </header>
+
+  <div class="card" id="setupCard">
+    <div class="controls">
+      <div class="seg" id="modeSeg" role="tablist" aria-label="Typing mode">
+        <button data-mode="time" class="active">Time</button>
+        <button data-mode="words">Words</button>
+        <button data-mode="code">Code Snippet</button>
+        <button data-mode="quote">Quote</button>
+      </div>
+      <select class="pill" id="durationSel" aria-label="Duration/word count"></select>
+      <select class="pill" id="langSel" aria-label="Language">
+        <option value="js">JavaScript</option>
+        <option value="py">Python</option>
+        <option value="mixed" selected>Mixed</option>
+      </select>
+      <select class="pill" id="diffSel" aria-label="Difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="btn primary" id="btnRestart">↻ Restart</button>
+    </div>
+
+    <div id="statsBar">
+      <div class="stat"><b id="sWpm">0</b><span>WPM</span></div>
+      <div class="stat"><b id="sAcc">100%</b><span>Accuracy</span></div>
+      <div class="stat"><b id="sErr">0</b><span>Errors</span></div>
+      <div class="stat"><b id="sTime">0s</b><span>Elapsed</span></div>
+      <div class="stat"><b id="sCons">100%</b><span>Consistency</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div style="position:relative">
+      <div id="typeArea" tabindex="0" role="textbox" aria-multiline="true" aria-label="Typing area, click or press any key to start"></div>
+      <div class="overlay" id="startOverlay">
+        <div>⌨️ Click here and start typing to begin</div>
+        <div style="font-size:12px;opacity:.7">Esc to reset • Tab+Enter to restart</div>
+      </div>
+    </div>
+    <input id="hiddenInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-hidden="true">
+  </div>
+
+  <div class="card hidden fade-in" id="resultsCard">
+    <h2 style="margin-top:0">Results</h2>
+    <div class="dash-grid">
+      <div class="dash-item wpm"><b id="rWpm">0</b>WPM</div>
+      <div class="dash-item acc"><b id="rAcc">0%</b>Accuracy</div>
+      <div class="dash-item err"><b id="rErr">0</b>Errors</div>
+      <div class="dash-item"><b id="rChars">0</b>Characters</div>
+      <div class="dash-item"><b id="rTime">0s</b>Time</div>
+      <div class="dash-item"><b id="rCons">0%</b>Consistency</div>
+    </div>
+    <canvas id="wpmChart" height="140" aria-label="WPM over time chart" role="img"></canvas>
+    <div class="controls" style="margin-top:14px">
+      <button class="btn primary" id="btnReplay">▶ Replay Test</button>
+      <button class="btn" id="btnNext">⏭ New Passage</button>
+      <button class="btn" id="btnSave">💾 Save to History</button>
+    </div>
+  </div>
+
+  <footer>Runs 100% offline in your browser · No data leaves your device</footer>
+</div>
+
+<div class="modal-back hidden" id="settingsModal">
+  <div class="modal">
+    <button class="close-x" data-close>✕</button>
+    <h2 style="margin-top:0">Customize</h2>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>Theme</label>
+        <select class="pill" id="themeSel" style="width:100%">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="contrast">High Contrast</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label>Font size</label>
+        <select class="pill" id="fontSel" style="width:100%">
+          <option value="16">Small</option>
+          <option value="19" selected>Medium</option>
+          <option value="23">Large</option>
+        </select>
+      </div>
+      <div class="setting row"><input type="checkbox" id="chkSound"><label style="margin:0" for="chkSound">Key sound feedback</label></div>
+      <div class="setting row"><input type="checkbox" id="chkPunct" checked><label style="margin:0" for="chkPunct">Include punctuation/symbols</label></div>
+      <div class="setting row"><input type="checkbox" id="chkNumbers" checked><label style="margin:0" for="chkNumbers">Include numbers</label></div>
+      <div class="setting row"><input type="checkbox" id="chkStopErr"><label style="margin:0" for="chkStopErr">Stop on error (strict mode)</label></div>
+      <div class="setting row"><input type="checkbox" id="chkCaret" checked><label style="margin:0" for="chkCaret">Blinking caret animation</label></div>
+      <div class="setting row"><input type="checkbox" id="chkLiveWpm" checked><label style="margin:0" for="chkLiveWpm">Live WPM updates</label></div>
+    </div>
+    <div class="controls" style="margin-top:16px"><button class="btn primary" id="btnApplySettings" style="width:100%">Apply Settings</button></div>
+  </div>
+</div>
+
+<div class="modal-back hidden" id="historyModal">
+  <div class="modal" style="max-width:640px">
+    <button class="close-x" data-close>✕</button>
+    <h2 style="margin-top:0">History</h2>
+    <div style="max-height:400px;overflow-y:auto">
+      <table>
+        <thead><tr><th>Date</th><th>Mode</th><th>WPM</th><th>Acc</th><th>Errors</th></tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+    <div class="controls" style="margin-top:14px">
+      <button class="btn" id="btnClearHistory">🗑 Clear History</button>
+    </div>
+  </div>
+</div>
+
+<div class="sr-only" aria-live="polite" id="liveRegion"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Data banks ---------- */
+const CODE_JS = [
+"function debounce(fn, delay) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); }; }",
+"const memoize = (fn) => { const cache = new Map(); return (...args) => { const key = JSON.stringify(args); if (cache.has(key)) return cache.get(key); const result = fn(...args); cache.set(key, result); return result; }; };",
+"class Stack { constructor() { this.items = []; } push(item) { this.items.push(item); } pop() { return this.items.pop(); } peek() { return this.items[this.items.length - 1]; } }",
+"async function fetchData(url) { const response = await fetch(url); if (!response.ok) throw new Error('Network error'); return response.json(); }",
+"const flatten = (arr) => arr.reduce((flat, item) => flat.concat(Array.isArray(item) ? flatten(item) : item), []);",
+"function binarySearch(arr, target) { let low = 0, high = arr.length - 1; while (low <= high) { const mid = Math.floor((low + high) / 2); if (arr[mid] === target) return mid; arr[mid] < target ? low = mid + 1 : high = mid - 1; } return -1; }",
+"const observer = new MutationObserver((mutations) => { mutations.forEach((m) => console.log(m.type, m.target)); }); observer.observe(document.body, { childList: true, subtree: true });"
+];
+const CODE_PY = [
+"def quicksort(arr): if len(arr) <= 1: return arr; pivot = arr[len(arr)//2]; left = [x for x in arr if x < pivot]; return quicksort(left) + [pivot]",
+"class Node: def __init__(self, value): self.value = value; self.next = None; self.prev = None",
+"def fibonacci(n, memo={}): if n in memo: return memo[n]; if n <= 1: return n; memo[n] = fibonacci(n-1, memo) + fibonacci(n-2, memo); return memo[n]",
+"with open('data.txt', 'r') as f: lines = [line.strip() for line in f.readlines() if line.strip()]",
+"async def fetch_all(urls): async with aiohttp.ClientSession() as session: tasks = [session.get(u) for u in urls]; return await asyncio.gather(*tasks)",
+"def decorator(func): def wrapper(*args, **kwargs): print(f'Calling {func.__name__}'); return func(*args, **kwargs); return wrapper"
+];
+const WORDS = "function const let var return if else for while class import export default async await try catch finally throw new this super extends implements interface type enum public private protected static readonly null undefined true false break continue switch case do typeof instanceof void delete yield from as of in".split(' ');
+const QUOTES = [
+"Programs must be written for people to read, and only incidentally for machines to execute.",
+"Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
+"First, solve the problem. Then, write the code.",
+"Simplicity is the soul of efficiency.",
+"Make it work, make it right, make it fast.",
+"The best error message is the one that never shows up.",
+"Code is like humor. When you have to explain it, it's bad."
+];
+
+/* ---------- State ---------- */
+let state = {
+  mode:'time', duration:30, wordsTarget:25, lang:'mixed', diff:'medium',
+  passage:'', chars:[], idx:0, started:false, finished:false,
+  startTime:0, endTime:0, timerId:null, mistakes:0, totalTyped:0,
+  wpmHistory:[], lastTickTime:0, lastTickCount:0,
+  settings:{theme:'dark', font:19, sound:false, punct:true, numbers:true, stopErr:false, caret:true, liveWpm:true}
+};
+
+const $ = (id)=>document.getElementById(id);
+const typeArea = $('typeArea'), hiddenInput = $('hiddenInput'), startOverlay = $('startOverlay');
+
+/* ---------- Settings persistence ---------- */
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem('tss_settings');
+    if(raw) Object.assign(state.settings, JSON.parse(raw));
+  }catch(e){}
+  applySettingsToUI();
+  applyTheme(state.settings.theme);
+}
+function saveSettings(){
+  localStorage.setItem('tss_settings', JSON.stringify(state.settings));
+}
+function applySettingsToUI(){
+  $('themeSel').value = state.settings.theme;
+  $('fontSel').value = state.settings.font;
+  $('chkSound').checked = state.settings.sound;
+  $('chkPunct').checked = state.settings.punct;
+  $('chkNumbers').checked = state.settings.numbers;
+  $('chkStopErr').checked = state.settings.stopErr;
+  $('chkCaret').checked = state.settings.caret;
+  $('chkLiveWpm').checked = state.settings.liveWpm;
+  typeArea.style.fontSize = state.settings.font+'px';
+}
+function applyTheme(t){
+  document.body.setAttribute('data-theme', t);
+}
+
+/* ---------- Passage generation ---------- */
+function stripFeatures(text){
+  let t = text;
+  if(!state.settings.punct) t = t.replace(/[{}()\[\];:,.'"`!?<>+=*/%&|^~_-]/g,' ').replace(/\s+/g,' ');
+  if(!state.settings.numbers) t = t.replace(/[0-9]/g,'');
+  return t.trim();
+}
+function pickPool(){
+  if(state.lang==='js') return CODE_JS;
+  if(state.lang==='py') return CODE_PY;
+  return CODE_JS.concat(CODE_PY);
+}
+function generatePassage(){
+  let text = '';
+  if(state.mode==='code'){
+    const pool = pickPool();
+    const n = state.diff==='easy'?1:state.diff==='medium'?2:3;
+    let picks=[];
+    for(let i=0;i<n;i++) picks.push(pool[Math.floor(Math.random()*pool.length)]);
+    text = picks.join(' ');
+  } else if(state.mode==='quote'){
+    text = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  } else if(state.mode==='words'){
+    let arr=[];
+    const count = state.wordsTarget;
+    for(let i=0;i<count;i++) arr.push(WORDS[Math.floor(Math.random()*WORDS.length)]);
+    text = arr.join(' ');
+  } else { // time mode -> long stream of code snippets
+    const pool = pickPool();
+    let arr=[];
+    for(let i=0;i<10;i++) arr.push(pool[Math.floor(Math.random()*pool.length)]);
+    text = arr.join(' ');
+  }
+  text = stripFeatures(text);
+  if(state.diff==='easy') text = text.toLowerCase();
+  return text;
+}
+
+/* ---------- Rendering ---------- */
+function renderPassage(){
+  typeArea.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  state.chars.forEach((c,i)=>{
+    const span = document.createElement('span');
+    span.className = 'char untouched';
+    span.textContent = c.ch === ' ' ? '\u00A0' : c.ch;
+    frag.appendChild(span);
+  });
+  typeArea.appendChild(frag);
+  updateCaretVisual();
+}
+function updateCaretVisual(){
+  const spans = typeArea.children;
+  for(let i=0;i<spans.length;i++){
+    const c = state.chars[i];
+    let cls = 'char ';
+    if(c.status===1) cls+='correct';
+    else if(c.status===-1) cls+='incorrect';
+    else cls+='untouched';
+    if(i===state.idx && !state.finished) cls += ' current';
+    spans[i].className = cls;
+  }
+  // scroll to caret
+  if(spans[state.idx]) spans[state.idx].scrollIntoView({block:'nearest', inline:'nearest'});
+}
+
+/* ---------- Stats ---------- */
+function elapsedSeconds(){
+  if(!state.started) return 0;
+  const end = state.finished ? state.endTime : Date.now();
+  return (end - state.startTime)/1000;
+}
+function computeWpm(){
+  const correctChars = state.chars.filter(c=>c.status===1).length;
+  const minutes = Math.max(elapsedSeconds()/60, 1/60);
+  return Math.round((correctChars/5)/minutes);
+}
+function computeAccuracy(){
+  if(state.totalTyped===0) return 100;
+  const correct = state.chars.filter(c=>c.status===1).length;
+  return Math.max(0, Math.round((correct/state.totalTyped)*100));
+}
+function computeConsistency(){
+  if(state.wpmHistory.length<2) return 100;
+  const avg = state.wpmHistory.reduce((a,b)=>a+b,0)/state.wpmHistory.length;
+  const variance = state.wpmHistory.reduce((a,b)=>a+(b-avg)*(b-avg),0)/state.wpmHistory.length;
+  const sd = Math.sqrt(variance);
+  const cons = Math.max(0, 100 - (sd/Math.max(avg,1))*100);
+  return Math.round(cons);
+}
+function updateStatsBar(){
+  $('sTime').textContent = Math.floor(elapsedSeconds())+'s';
+  if(state.settings.liveWpm){
+    $('sWpm').textContent = computeWpm();
+  }
+  $('sAcc').textContent = computeAccuracy()+'%';
+  $('sErr').textContent = state.mistakes;
+  $('sCons').textContent = computeConsistency()+'%';
+  let progress = 0;
+  if(state.mode==='time') progress = Math.min(100, (elapsedSeconds()/state.duration)*100);
+  else progress = Math.min(100, (state.idx/state.chars.length)*100);
+  $('progressFill').style.width = progress+'%';
+}
+
+/* ---------- Timer ---------- */
+function startTimer(){
+  state.startTime = Date.now();
+  state.lastTickTime = state.startTime;
+  state.lastTickCount = 0;
+  state.timerId = setInterval(()=>{
+    updateStatsBar();
+    // sample wpm every second for consistency chart
+    const correctChars = state.chars.filter(c=>c.status===1).length;
+    const deltaChars = correctChars - state.lastTickCount;
+    state.wpmHistory.push(Math.max(0, deltaChars*12)); // *60/5
+    state.lastTickCount = correctChars;
+    if(state.mode==='time' && elapsedSeconds()>=state.duration){
+      finishTest();
+    }
+  },1000);
+}
+function stopTimer(){
+  clearInterval(state.timerId);
+}
+
+/* ---------- Core typing logic ---------- */
+function beginTest(){
+  if(state.started) return;
+  state.started = true;
+  startOverlay.classList.add('hidden');
+  startTimer();
+}
+function handleChar(ch){
+  if(state.finished) return;
+  if(!state.started) beginTest();
+  if(state.idx>=state.chars.length) return;
+  const target = state.chars[state.idx];
+  const isCorrect = ch === target.ch;
+  if(state.settings.stopErr && !isCorrect){
+    playSound(false);
+    return; // strict mode: block progress on error
+  }
+  target.status = isCorrect ? 1 : -1;
+  if(!isCorrect) state.mistakes++;
+  state.totalTyped++;
+  state.idx++;
+  playSound(isCorrect);
+  updateCaretVisual();
+  updateStatsBar();
+  if(state.mode==='words' && state.idx>=state.chars.length) finishTest();
+  if(state.mode!=='time' && state.mode!=='words' && state.idx>=state.chars.length) finishTest();
+}
+function handleBackspace(){
+  if(state.finished || state.idx===0) return;
+  state.idx--;
+  state.chars[state.idx].status = 0;
+  updateCaretVisual();
+  updateStatsBar();
+}
+let audioCtx;
+function playSound(correct){
+  if(!state.settings.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.frequency.value = correct?740:220; g.gain.value = 0.04;
+    o.connect(g); g.connect(audioCtx.destination); o.start();
+    o.stop(audioCtx.currentTime+0.045);
+  }catch(e){}
+}
+
+/* ---------- Finish / Results ---------- */
+function finishTest(){
+  if(state.finished) return;
+  state.finished = true;
+  state.endTime = Date.now();
+  stopTimer();
+  updateCaretVisual();
+  showResults();
+  announce('Test complete. '+computeWpm()+' words per minute, '+computeAccuracy()+'% accuracy.');
+}
+function showResults(){
+  $('resultsCard').classList.remove('hidden');
+  $('rWpm').textContent = computeWpm();
+  $('rAcc').textContent = computeAccuracy()+'%';
+  $('rErr').textContent = state.mistakes;
+  $('rChars').textContent = state.totalTyped;
+  $('rTime').textContent = Math.round(elapsedSeconds())+'s';
+  $('rCons').textContent = computeConsistency()+'%';
+  drawChart();
+}
+function drawChart(){
+  const canvas = $('wpmChart');
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth||600, h = 140;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  const data = state.wpmHistory.length ? state.wpmHistory : [computeWpm()];
+  const max = Math.max(...data, 10);
+  const styles = getComputedStyle(document.body);
+  ctx.strokeStyle = styles.getPropertyValue('--accent').trim();
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x = (i/(Math.max(data.length-1,1)))*(w-20)+10;
+    const y = h-10-(v/max)*(h-20);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = styles.getPropertyValue('--accent2').trim();
+  data.forEach((v,i)=>{
+    const x = (i/(Math.max(data.length-1,1)))*(w-20)+10;
+    const y = h-10-(v/max)*(h-20);
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+  });
+}
+function announce(msg){ $('liveRegion').textContent = msg; }
+
+/* ---------- History ---------- */
+function saveToHistory(){
+  const entry = {
+    date:new Date().toISOString(), mode:state.mode, wpm:computeWpm(),
+    acc:computeAccuracy(), errors:state.mistakes
+  };
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('tss_history')||'[]'); }catch(e){}
+  hist.unshift(entry);
+  hist = hist.slice(0,100);
+  localStorage.setItem('tss_history', JSON.stringify(hist));
+  renderHistory();
+  announce('Result saved to history.');
+}
+function renderHistory(){
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('tss_history')||'[]'); }catch(e){}
+  const body = $('historyBody');
+  body.innerHTML = hist.length ? '' : '<tr><td colspan="5" style="color:var(--muted)">No history yet.</td></tr>';
+  hist.forEach(h=>{
+    const tr = document.createElement('tr');
+    const d = new Date(h.date);
+    tr.innerHTML = `<td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</td><td>${h.mode}</td><td>${h.wpm}</td><td>${h.acc}%</td><td>${h.errors}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* ---------- Reset / New passage ---------- */
+function resetTest(newPassage){
+  stopTimer();
+  state.started=false; state.finished=false; state.idx=0; state.mistakes=0;
+  state.totalTyped=0; state.wpmHistory=[]; state.startTime=0; state.endTime=0;
+  if(newPassage || !state.passage) state.passage = generatePassage();
+  state.chars = state.passage.split('').map(ch=>({ch, status:0}));
+  renderPassage();
+  $('resultsCard').classList.add('hidden');
+  startOverlay.classList.remove('hidden');
+  $('sWpm').textContent='0'; $('sAcc').textContent='100%'; $('sErr').textContent='0';
+  $('sTime').textContent='0s'; $('sCons').textContent='100%';
+  $('progressFill').style.width='0%';
+  hiddenInput.value='';
+}
+
+/* ---------- Input wiring ---------- */
+typeArea.addEventListener('click', ()=>hiddenInput.focus());
+startOverlay.addEventListener('click', ()=>hiddenInput.focus());
+typeArea.addEventListener('keydown', ()=>{}); // no-op, use hidden input
+hiddenInput.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){ resetTest(true); return; }
+  if(e.key==='Backspace'){ e.preventDefault(); handleBackspace(); return; }
+  if(e.key==='Tab'){ e.preventDefault(); return; }
+  if(e.key.length===1){ e.preventDefault(); handleChar(e.key); }
+});
+hiddenInput.addEventListener('focus', ()=>typeArea.style.borderColor='var(--accent)');
+document.addEventListener('click', (e)=>{
+  const wrap = typeArea.parentElement;
+  if(document.activeElement!==hiddenInput && wrap && wrap.contains(e.target)) hiddenInput.focus();
+});
+window.addEventListener('load', ()=>hiddenInput.focus());
+setTimeout(()=>hiddenInput.focus(), 50);
+
+/* ---------- Duration selector population ---------- */
+function populateDurationSel(){
+  const sel = $('durationSel');
+  sel.innerHTML='';
+  if(state.mode==='time'){
+    [15,30,60,120].forEach(v=>{
+      const o=document.createElement('option'); o.value=v; o.textContent=v+'s';
+      if(v===state.duration) o.selected=true;
+      sel.appendChild(o);
+    });
+  } else if(state.mode==='words'){
+    [10,25,50,100].forEach(v=>{
+      const o=document.createElement('option'); o.value=v; o.textContent=v+' words';
+      if(v===state.wordsTarget) o.selected=true;
+      sel.appendChild(o);
+    });
+  } else {
+    const o=document.createElement('option'); o.value=0; o.textContent='Full passage';
+    sel.appendChild(o);
+  }
+}
+$('durationSel').addEventListener('change', (e)=>{
+  const v = parseInt(e.target.value);
+  if(state.mode==='time') state.duration=v; else if(state.mode==='words') state.wordsTarget=v;
+  resetTest(true);
+});
+
+/* ---------- Mode / lang / diff controls ---------- */
+document.getElementById('modeSeg').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.mode = btn.dataset.mode;
+  populateDurationSel();
+  resetTest(true);
+});
+$('langSel').addEventListener('change', e=>{ state.lang=e.target.value; resetTest(true); });
+$('diffSel').addEventListener('change', e=>{ state.diff=e.target.value; resetTest(true); });
+$('btnRestart').addEventListener('click', ()=>resetTest(true));
+$('btnNext').addEventListener('click', ()=>resetTest(true));
+$('btnReplay').addEventListener('click', ()=>resetTest(false));
+$('btnSave').addEventListener('click', saveToHistory);
+
+/* ---------- Modals ---------- */
+function openModal(id){ $(id).classList.remove('hidden'); }
+function closeModal(id){ $(id).classList.add('hidden'); }
+$('btnSettings').addEventListener('click', ()=>openModal('settingsModal'));
+$('btnHistory').addEventListener('click', ()=>{ renderHistory(); openModal('historyModal'); });
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', e=>{
+  e.target.closest('.modal-back').classList.add('hidden');
+}));
+document.querySelectorAll('.modal-back').forEach(m=>m.addEventListener('click', e=>{ if(e.target===m) m.classList.add('hidden'); }));
+$('btnClearHistory').addEventListener('click', ()=>{
+  localStorage.removeItem('tss_history'); renderHistory();
+});
+
+/* ---------- Settings apply ---------- */
+$('btnApplySettings').addEventListener('click', ()=>{
+  state.settings.theme = $('themeSel').value;
+  state.settings.font = parseInt($('fontSel').value);
+  state.settings.sound = $('chkSound').checked;
+  state.settings.punct = $('chkPunct').checked;
+  state.settings.numbers = $('chkNumbers').checked;
+  state.settings.stopErr = $('chkStopErr').checked;
+  state.settings.caret = $('chkCaret').checked;
+  state.settings.liveWpm = $('chkLiveWpm').checked;
+  applyTheme(state.settings.theme);
+  typeArea.style.fontSize = state.settings.font+'px';
+  saveSettings();
+  closeModal('settingsModal');
+  resetTest(true);
+});
+
+/* ---------- Theme cycle button ---------- */
+const themeCycle = ['dark','light','contrast'];
+$('btnTheme').addEventListener('click', ()=>{
+  let i = themeCycle.indexOf(state.settings.theme);
+  state.settings.theme = themeCycle[(i+1)%themeCycle.length];
+  applyTheme(state.settings.theme);
+  $('themeSel').value = state.settings.theme;
+  saveSettings();
+});
+
+/* ---------- Init ---------- */
+loadSettings();
+populateDurationSel();
+resetTest(true);
+window.addEventListener('resize', ()=>{ if(!$('resultsCard').classList.contains('hidden')) drawChart(); });
+
+})();
+</script>
+</body>
+</html>
