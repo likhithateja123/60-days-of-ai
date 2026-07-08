@@ -1,0 +1,28 @@
+# Day 38 – Typing Speed Studio using Claude AI
+
+## Objective
+Built an interactive typing practice application to improve typing speed, accuracy, and consistency through multiple typing modes and performance analytics.
+
+## Features
+- Multiple Typing Modes
+- Live WPM & Accuracy Tracking
+- Progress Indicator
+- Performance Analytics Dashboard
+- Session History
+- Theme Switching
+- Responsive UI
+
+## Key Learnings
+- Designing interactive typing experiences
+- Real-time performance calculations
+- DOM manipulation with JavaScript
+- Building responsive single-page applications
+- Creating reusable UI components
+
+## Technologies Used
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+## Outcome
+Successfully built and tested an offline Typing Speed Studio application with analytics and multiple practice modes.
