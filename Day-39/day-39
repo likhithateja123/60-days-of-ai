@@ -1,0 +1,34 @@
+# Day 39 – PDF Splitter & Merger using Claude AI
+
+## Objective
+
+Built a browser-based PDF Splitter & Merger that allows users to split and merge PDF files without uploading them to external servers.
+
+## Features
+
+- PDF Splitter
+- PDF Merger
+- Drag & Drop File Upload
+- Page Preview
+- Page Range Selection
+- PDF Download
+- Responsive UI
+- Dark Mode
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+
+## Key Learnings
+
+- Client-side PDF processing
+- File handling using JavaScript
+- Interactive UI design
+- Drag-and-drop functionality
+- Building offline web applications
+
+## Outcome
+
+Successfully developed and tested an offline PDF utility with splitting and merging capabilities.
