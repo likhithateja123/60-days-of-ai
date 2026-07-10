@@ -1,0 +1,32 @@
+# Day 40 – AI Assistant Builder using Claude AI
+
+## Objective
+
+Built an AI Assistant Builder that creates a customized AI assistant interface with a production-ready system prompt and interactive documentation.
+
+## Features
+
+- Interactive AI Assistant UI
+- Production-Ready System Prompt
+- Documentation Panel
+- Responsive Design
+- Loading & Error Handling
+- Offline-Friendly Interface
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+
+## Key Learnings
+
+- AI assistant workflow design
+- Prompt engineering fundamentals
+- Building interactive user interfaces
+- Frontend architecture for AI applications
+- Creating reusable components
+
+## Outcome
+
+Successfully developed an AI Assistant Builder with a clean interface, structured system prompt, and documentation explaining the design process.
