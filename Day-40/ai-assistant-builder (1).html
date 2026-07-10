@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeBuddy — AI Coding Mentor for Beginners</title>
+<style>
+:root{
+  --bg:#f5f6fa; --surface:#ffffff; --text:#1a1c23; --muted:#6b7280;
+  --border:#e5e7eb; --accent:#6366f1; --accent2:#8b5cf6; --danger:#ef4444;
+  --success:#10b981; --shadow:0 4px 20px rgba(0,0,0,0.08); --code-bg:#1e1e2e;
+}
+[data-theme="dark"]{
+  --bg:#0f1117; --surface:#181b24; --text:#e5e7eb; --muted:#9ca3af;
+  --border:#2a2e3a; --accent:#818cf8; --accent2:#a78bfa; --shadow:0 4px 20px rgba(0,0,0,0.4);
+  --code-bg:#0d0e14;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg); color:var(--text);
+  transition:background .3s ease, color .3s ease;
+  min-height:100vh;
+}
+.container{max-width:860px; margin:0 auto; padding:24px;}
+header{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:12px;}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand .logo{font-size:1.7rem;}
+h1{font-size:1.4rem; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.subtitle{color:var(--muted); font-size:0.9rem; margin-bottom:22px;}
+.theme-toggle{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:8px 16px; cursor:pointer; color:var(--text); font-size:0.85rem;
+  transition:transform .2s;
+}
+.theme-toggle:hover{transform:translateY(-2px);}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:22px; box-shadow:var(--shadow); margin-bottom:18px;
+}
+label{display:block; font-weight:600; margin-bottom:8px; font-size:0.92rem;}
+textarea{
+  width:100%; min-height:140px; padding:14px; border-radius:10px; border:1px solid var(--border);
+  background:var(--bg); color:var(--text); font-size:0.95rem; font-family:inherit; resize:vertical;
+  transition:border-color .2s;
+}
+textarea:focus{outline:none; border-color:var(--accent);}
+.hint{color:var(--muted); font-size:0.8rem; margin-top:6px;}
+.row{display:flex; justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap:10px;}
+.btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border:none;
+  padding:12px 26px; border-radius:10px; font-weight:600; cursor:pointer; font-size:0.95rem;
+  transition:transform .2s, box-shadow .2s; display:inline-flex; align-items:center; gap:8px;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(99,102,241,0.35);}
+.btn:disabled{opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none;}
+.btn.secondary{background:var(--surface); color:var(--text); border:1px solid var(--border);}
+.char-count{color:var(--muted); font-size:0.8rem;}
+.examples{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.example-chip{
+  background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
+  font-size:0.8rem; cursor:pointer; color:var(--muted); transition:all .2s;
+}
+.example-chip:hover{border-color:var(--accent); color:var(--accent);}
+
+/* Response area */
+.response-area{min-height:80px;}
+.empty-state{
+  text-align:center; padding:40px 20px; color:var(--muted);
+}
+.empty-state .icon{font-size:2.4rem; margin-bottom:10px;}
+.loading-state{
+  display:flex; flex-direction:column; align-items:center; gap:14px; padding:36px 20px; color:var(--muted);
+}
+.spinner{
+  width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--accent);
+  border-radius:50%; animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-msg{font-size:0.9rem; animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0.6;} 50%{opacity:1;}}
+.error-state{
+  background:rgba(239,68,68,0.1); color:var(--danger); border-radius:10px; padding:16px 18px;
+  font-size:0.9rem; display:flex; gap:10px; align-items:flex-start; animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+.answer{animation:fadeIn .4s ease; line-height:1.65; font-size:0.96rem;}
+.answer h1,.answer h2,.answer h3{margin:16px 0 8px; font-size:1.05rem; color:var(--accent);}
+.answer p{margin-bottom:12px;}
+.answer ul,.answer ol{margin:0 0 12px 22px;}
+.answer li{margin-bottom:6px;}
+.answer code{
+  background:var(--code-bg); color:#a5f3c8; padding:2px 6px; border-radius:5px; font-size:0.85em;
+  font-family:'SF Mono',Consolas,Monaco,monospace;
+}
+.answer pre{
+  background:var(--code-bg); color:#e5e7eb; padding:14px 16px; border-radius:10px; overflow-x:auto;
+  margin:12px 0; font-size:0.85rem; line-height:1.5;
+}
+.answer pre code{background:none; padding:0; color:inherit;}
+.answer strong{color:var(--text); font-weight:700;}
+
+/* Docs */
+.docs-toggle{
+  cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+  font-weight:600; font-size:0.9rem; color:var(--muted); user-select:none;
+}
+.docs-toggle:hover{color:var(--accent);}
+.docs-arrow{transition:transform .25s ease;}
+.docs-arrow.open{transform:rotate(180deg);}
+.docs-content{
+  max-height:0; overflow:hidden; transition:max-height .35s ease;
+}
+.docs-content.open{max-height:2000px; margin-top:14px;}
+.docs-content p{color:var(--muted); font-size:0.86rem; margin-bottom:10px; line-height:1.6;}
+.docs-content h4{font-size:0.88rem; margin-bottom:6px; color:var(--text);}
+.docs-content .prompt-box{
+  background:var(--code-bg); color:#d1d5db; padding:14px; border-radius:10px; font-size:0.78rem;
+  white-space:pre-wrap; font-family:'SF Mono',Consolas,Monaco,monospace; line-height:1.55; margin-bottom:14px;
+}
+footer{text-align:center; color:var(--muted); font-size:0.78rem; margin-top:24px; padding-bottom:16px;}
+@media (max-width:600px){
+  .container{padding:16px;}
+  h1{font-size:1.2rem;}
+  .card{padding:16px;}
+}
+</style>
+</head>
+<body data-theme="light">
+<div class="container">
+  <header>
+    <div class="brand">
+      <span class="logo">🐣</span>
+      <h1>CodeBuddy</h1>
+    </div>
+    <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+  </header>
+  <p class="subtitle">Your friendly step-by-step coding mentor — built for beginners, no full solutions handed over, just guided learning. <em>Running in offline demo mode.</em></p>
+
+  <div class="card">
+    <label for="userInput">What's on your mind? Paste code, an error, or describe your problem 👇</label>
+    <textarea id="userInput" placeholder="e.g. My Python loop keeps giving me an IndexError and I don't know why..."></textarea>
+    <div class="examples">
+      <div class="example-chip" data-ex="I keep getting 'undefined is not a function' in my JavaScript code. What does that mean?">JS undefined error</div>
+      <div class="example-chip" data-ex="Can you help me understand why my for loop in Python isn't printing anything?">Python loop issue</div>
+      <div class="example-chip" data-ex="I don't understand what a 'null pointer exception' is in Java. Can you help?">Java NPE</div>
+      <div class="example-chip" data-ex="How do I start debugging my code when nothing seems to work?">General debugging</div>
+    </div>
+    <div class="row">
+      <span class="char-count" id="charCount">0 / 4000</span>
+      <div>
+        <button class="btn secondary" id="clearBtn">Clear</button>
+        <button class="btn" id="submitBtn">
+          <span>Ask CodeBuddy</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card response-area" id="responseArea">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">💡</div>
+      <p>Ask a question above and I'll guide you step-by-step — no spoilers, just learning!</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="docs-toggle" id="docsToggle">
+      <span>📘 How it was built</span>
+      <span class="docs-arrow" id="docsArrow">▾</span>
+    </div>
+    <div class="docs-content" id="docsContent">
+      <h4>System Prompt</h4>
+      <div class="prompt-box" id="promptBox"></div>
+      <p><strong>Assistant type:</strong> Coding assistant for beginners.<br>
+      <strong>Input:</strong> Free-form — code snippets, plain text descriptions, or error/stack traces.<br>
+      <strong>Output:</strong> Step-by-step guidance without giving full working code, so learners build understanding rather than copy-paste answers.<br>
+      <strong>Tone:</strong> Friendly & encouraging.</p>
+      <p><strong>Mode:</strong> Fully offline demo. This build simulates Claude's responses using predefined sample data matched to your question's keywords, so it works entirely without an API key or internet connection.</p>
+      <p>Built as a single HTML file with vanilla JS. A small keyword-matching function picks the most relevant canned response (or a friendly fallback if nothing matches) and displays it after a short simulated delay, so the loading state feels realistic. Markdown-style responses are lightly parsed client-side for headings, code blocks, lists, and bold text. Swap the demo function for a live <code style="background:var(--code-bg);color:#a5f3c8;padding:2px 6px;border-radius:5px;">fetch()</code> call to the Claude API whenever you're ready to go live.</p>
+    </div>
+  </div>
+
+  <footer>Powered by Claude · Runs entirely in your browser</footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const SYSTEM_PROMPT = "You are CodeBuddy, a warm, patient, and encouraging coding mentor built specifically for absolute beginners who are learning to program.\n\nYOUR CORE RULE: Never give a complete, ready-to-paste solution or full working code block that solves the user's exact problem. Your job is to teach through guided discovery, not to write their code for them.\n\nHOW TO RESPOND:\n1. Start by warmly acknowledging what the user is working on, in one short encouraging sentence.\n2. Briefly explain, in plain simple language, the underlying concept behind their issue (e.g. what an error actually means, or why a certain behavior happens). Avoid jargon; if you must use a technical term, explain it immediately in beginner-friendly words.\n3. Break your guidance into clear numbered steps the learner can follow themselves. Each step should nudge them toward the next thing to try, check, or think about — not hand them the fix.\n4. You MAY use tiny illustrative code fragments (a single line, a syntax pattern, or a made-up generic example unrelated to their exact code) to demonstrate a concept, but NEVER assemble a complete solution that solves their specific problem end-to-end.\n5. Ask at most one short check-in question if it helps confirm understanding or narrow down the issue, but don't block progress on it.\n6. End with a short encouraging note that builds confidence (e.g. praising their debugging instincts, normalizing mistakes as part of learning).\n\nTONE: Friendly, warm, patient, and encouraging at all times. Celebrate small wins. Never sound condescending, never make the learner feel bad for not knowing something. Assume zero prior assumed knowledge unless the user's message signals otherwise.\n\nFORMAT: Use short paragraphs, numbered steps, and occasional **bold** for key terms. Use markdown code spans/blocks only for tiny illustrative fragments, never full solutions. Keep responses focused and not overly long.\n\nIf the user pastes an error message or stack trace, first help them understand what the error type generally means before guiding them to locate the specific cause in their case.\n\nIf the user asks for the full solution directly, kindly explain that you're here to help them learn by working through it together, and redirect them to the first step they can try.";
+
+  document.getElementById('promptBox').textContent = SYSTEM_PROMPT;
+
+  /* Theme */
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+  function setTheme(t){
+    body.setAttribute('data-theme', t);
+    themeToggle.textContent = t === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    try{ localStorage.setItem('codebuddy-theme', t); }catch(e){}
+  }
+  let saved = 'light';
+  try{ saved = localStorage.getItem('codebuddy-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }catch(e){}
+  setTheme(saved);
+  themeToggle.addEventListener('click', () => setTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+  /* Docs toggle */
+  const docsToggle = document.getElementById('docsToggle');
+  const docsContent = document.getElementById('docsContent');
+  const docsArrow = document.getElementById('docsArrow');
+  docsToggle.addEventListener('click', () => {
+    docsContent.classList.toggle('open');
+    docsArrow.classList.toggle('open');
+  });
+
+  /* Input handling */
+  const userInput = document.getElementById('userInput');
+  const charCount = document.getElementById('charCount');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const responseArea = document.getElementById('responseArea');
+  const MAX_CHARS = 4000;
+
+  userInput.addEventListener('input', () => {
+    const len = userInput.value.length;
+    charCount.textContent = len + ' / ' + MAX_CHARS;
+    charCount.style.color = len > MAX_CHARS ? 'var(--danger)' : 'var(--muted)';
+  });
+
+  document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      userInput.value = chip.dataset.ex;
+      userInput.dispatchEvent(new Event('input'));
+      userInput.focus();
+    });
+  });
+
+  clearBtn.addEventListener('click', () => {
+    userInput.value = '';
+    userInput.dispatchEvent(new Event('input'));
+    renderEmpty();
+  });
+
+  function renderEmpty(){
+    responseArea.innerHTML = '<div class="empty-state"><div class="icon">💡</div>' +
+      '<p>Ask a question above and I\'ll guide you step-by-step — no spoilers, just learning!</p></div>';
+  }
+
+  function renderLoading(){
+    const msgs = ['Reading through your question...', 'Thinking of the best way to explain this...', 'Putting together friendly guidance...'];
+    const msg = msgs[Math.floor(Math.random()*msgs.length)];
+    responseArea.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-msg">'+msg+'</div></div>';
+  }
+
+  function renderError(message){
+    responseArea.innerHTML = '<div class="error-state"><span>⚠️</span><div>' +
+      '<strong>Something went wrong.</strong><br>' + escapeHtml(message) +
+      '<br><br>Please check your connection and try again.</div></div>';
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /* Very small, safe markdown-ish renderer */
+  function renderMarkdown(text){
+    let escaped = escapeHtml(text);
+
+    // Fenced code blocks
+    escaped = escaped.replace(/```([\s\S]*?)```/g, function(_, code){
+      return '<pre><code>' + code.replace(/^\n/, '') + '</code></pre>';
+    });
+
+    // Inline code
+    escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Bold
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // Headings
+    escaped = escaped.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+    escaped = escaped.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+    escaped = escaped.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+
+    // Numbered lists
+    escaped = escaped.replace(/(^\d+\.\s.+(\n\d+\.\s.+)*)/gm, function(block){
+      const items = block.split('\n').map(line => line.replace(/^\d+\.\s/, '').trim());
+      return '<ol>' + items.map(i => '<li>'+i+'</li>').join('') + '</ol>';
+    });
+
+    // Bullet lists
+    escaped = escaped.replace(/(^[-*]\s.+(\n[-*]\s.+)*)/gm, function(block){
+      const items = block.split('\n').map(line => line.replace(/^[-*]\s/, '').trim());
+      return '<ul>' + items.map(i => '<li>'+i+'</li>').join('') + '</ul>';
+    });
+
+    // Paragraphs: wrap remaining lines that aren't already tags
+    const lines = escaped.split('\n');
+    const out = [];
+    let buffer = [];
+    function flush(){
+      if(buffer.length){
+        out.push('<p>' + buffer.join(' ') + '</p>');
+        buffer = [];
+      }
+    }
+    for(const line of lines){
+      const trimmed = line.trim();
+      if(trimmed === ''){ flush(); continue; }
+      if(/^<(h1|h2|h3|ul|ol|li|pre|\/ul|\/ol|\/pre)/.test(trimmed)){
+        flush();
+        out.push(trimmed);
+      } else {
+        buffer.push(trimmed);
+      }
+    }
+    flush();
+    return out.join('\n');
+  }
+
+  function renderAnswer(text){
+    responseArea.innerHTML = '<div class="answer">' + renderMarkdown(text) + '</div>';
+  }
+
+  /* ---------- Offline Demo Mode ---------- */
+  /* Simulates Claude responses using predefined sample data.
+     No API key or network connection required. */
+  const DEMO_RESPONSES = [
+    {
+      keywords: ['undefined is not a function', 'undefined', 'javascript', 'js'],
+      text: "Nice catch on spotting that error message — that's exactly the kind of thing worth digging into! 🎉\n\n**What this error generally means:** In JavaScript, this error shows up when your code tries to *call* something as if it were a function, but that thing is actually `undefined` (meaning it doesn't exist, or wasn't set up the way you expected).\n\nHere's how to track it down, step by step:\n\n1. Look at the exact line the error points to. Find the part of that line where something is being called with parentheses, like `something()`.\n2. Check whether `something` is spelled exactly right, including capitalization. A tiny typo is one of the most common causes.\n3. Ask yourself: is `something` supposed to come from an object, an import, or a variable defined earlier? If so, double-check it was actually created before this line runs.\n4. Try adding a quick `console.log(typeof something)` right before the line that fails. If it prints `\"undefined\"`, you've confirmed the cause — now you know *where* to look for why it wasn't set.\n5. If it's a method on an object (like `obj.doThing()`), confirm the object itself isn't `undefined` first — sometimes the object is the real problem, not the method.\n\nYou're already asking the right questions, and that's most of debugging! Try those steps and see what `console.log` tells you — I bet it'll point you right at the answer."
+    },
+    {
+      keywords: ['python', 'for loop', 'loop', 'not printing', 'nothing'],
+      text: "Ooh, the classic 'my loop runs but nothing shows up' mystery — a great one to practice on! 🐍\n\n**The concept:** A `for` loop in Python repeats a block of code, but only the lines that are *indented under* the loop are actually part of it. If your `print()` isn't indented correctly, Python won't treat it as part of the loop.\n\nHere's how to work through it:\n\n1. Look carefully at the indentation of your `print()` statement. Is it lined up under the `for` line with consistent spacing (usually 4 spaces)?\n2. Check what you're looping over. Try adding `print(\"loop ran\")` as the very first line inside the loop — if that doesn't show up either, the loop body might not be executing at all.\n3. If step 2 doesn't print, check what's after `in` in your `for x in ...:` line. Is that thing actually empty? Try printing its length or contents *before* the loop starts.\n4. If the loop body *is* running (you saw \"loop ran\"), but your specific print with a variable isn't showing the value you expect, check whether you're printing the right variable name — a common slip is printing the collection instead of the current item.\n\nYou're debugging like a pro already by isolating the issue. Try step 1 first since indentation trips up almost everyone starting out — you've got this!"
+    },
+    {
+      keywords: ['null pointer', 'npe', 'java', 'exception'],
+      text: "Great question to ask — NullPointerExceptions confuse almost every Java learner at first, so you're in good company! ☕\n\n**What it generally means:** In Java, a `NullPointerException` (NPE) happens when your code tries to *use* an object (like calling a method on it, or accessing a field) but that object is actually `null` — meaning it points to nothing at all.\n\nHere's a step-by-step way to hunt it down:\n\n1. Look at the stack trace Java gives you — it usually names the exact line number where the NPE happened. Start there.\n2. On that line, identify which variable the code is trying to use (e.g. `myObject.someMethod()`). The likely culprit is `myObject` being null.\n3. Trace backwards: where was `myObject` supposed to get its value? Was it returned from a method, read from a list, or created with `new`? Check if that step could have silently produced null.\n4. Try adding a quick `System.out.println(myObject)` right before the failing line. If it prints `null`, you've confirmed exactly what's going wrong.\n5. Once confirmed, think about *why* it's null — maybe a method returned early, or a value was never assigned in a certain branch of your code.\n\nYou're on the right track just by asking what NPE means — understanding the 'why' is what makes debugging click. Try the print statement in step 4 and see what comes back!"
+    },
+    {
+      keywords: ['debug', 'debugging', 'start', 'general', 'nothing seems to work'],
+      text: "I love that you're asking this — building a debugging process early on will save you so much time down the road! 🔍\n\n**The core idea:** Debugging isn't about guessing randomly — it's about narrowing down *where* the problem is, one step at a time, until it can't hide anymore.\n\nHere's a simple process to start with:\n\n1. **Reproduce it reliably.** Make sure you can trigger the problem consistently. If it's random, try to notice a pattern (does it happen with certain inputs?).\n2. **Read any error message slowly, top to bottom.** Errors often tell you the exact line and a hint about *what* went wrong, even if the wording feels intimidating at first.\n3. **Add small print/console.log statements** near the part of the code you suspect. Print variable values right before and after key lines to see where reality stops matching your expectations.\n4. **Cut the problem in half.** If you're not sure which section is broken, comment out or isolate half your code and test again — this quickly narrows down *where* to look.\n5. **Check your assumptions.** A huge number of bugs come from assuming a variable holds one thing when it actually holds another. Print it and check!\n\nThe fact that you're asking how to approach this — rather than just guessing — already puts you ahead. Try step 3 on whatever you're working on right now and see what the variables are actually doing!"
+    }
+  ];
+
+  const FALLBACK_RESPONSE = "Thanks for sharing that — every question is a great opportunity to learn something new! 🙂\n\nSince this is a demo running in **offline mode**, I don't have a tailored answer prepared for this exact question, but here's a general approach you can try:\n\n1. Re-read the problem or error message slowly, one part at a time — it often contains more clues than it seems at first glance.\n2. Try isolating just the smallest piece of code related to the issue, and test that piece on its own.\n3. Add a `print()` or `console.log()` near the suspicious line to check what values your variables actually hold.\n4. Compare what you *expected* to happen with what *actually* happened — the gap between those two is usually where the bug lives.\n\nFeel free to try one of the example questions above to see a fully tailored walkthrough — or ask again with a bit more detail about your code or error, and I'll do my best to guide you step-by-step!";
+
+  function pickDemoResponse(question){
+    const q = question.toLowerCase();
+    let best = null;
+    let bestScore = 0;
+    for(const entry of DEMO_RESPONSES){
+      let score = 0;
+      for(const kw of entry.keywords){
+        if(q.indexOf(kw) !== -1) score++;
+      }
+      if(score > bestScore){
+        bestScore = score;
+        best = entry;
+      }
+    }
+    return best ? best.text : FALLBACK_RESPONSE;
+  }
+
+  function askCodeBuddy(){
+    const question = userInput.value.trim();
+    if(!question){
+      renderError('Please type a question or paste some code/error first.');
+      return;
+    }
+    if(question.length > MAX_CHARS){
+      renderError('Your message is a bit too long. Please keep it under ' + MAX_CHARS + ' characters.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    clearBtn.disabled = true;
+    renderLoading();
+
+    // Simulate network latency for a realistic feel, entirely offline.
+    const delay = 700 + Math.floor(Math.random() * 700);
+    setTimeout(function(){
+      try{
+        const fullText = pickDemoResponse(question);
+        if(!fullText){
+          throw new Error('No response was returned. Please try rephrasing your question.');
+        }
+        renderAnswer(fullText);
+      }catch(err){
+        renderError(err && err.message ? err.message : 'An unexpected error occurred.');
+      }finally{
+        submitBtn.disabled = false;
+        clearBtn.disabled = false;
+      }
+    }, delay);
+  }
+
+  submitBtn.addEventListener('click', askCodeBuddy);
+  userInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && (e.metaKey || e.ctrlKey)){
+      e.preventDefault();
+      askCodeBuddy();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
