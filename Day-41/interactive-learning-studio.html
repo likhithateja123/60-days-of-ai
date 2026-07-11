@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Learning Studio — JavaScript Fundamentals</title>
+<style>
+:root{
+  --bg:#0b0d13; --surface:#141824; --surface2:#1b2030; --text:#e8eaf0; --muted:#8b93a7;
+  --border:#262c3d; --accent:#818cf8; --accent2:#c084fc; --success:#34d399; --danger:#f87171;
+  --warn:#fbbf24; --shadow:0 8px 30px rgba(0,0,0,0.45); --code-bg:#0d0f18;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:radial-gradient(circle at top left,#151a29,var(--bg) 60%);
+  color:var(--text); min-height:100vh; line-height:1.6;
+}
+::selection{background:var(--accent); color:#fff;}
+.app{display:flex; min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:270px; background:var(--surface); border-right:1px solid var(--border);
+  padding:22px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; flex-shrink:0;
+}
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.brand .logo{font-size:1.5rem;}
+.brand h1{font-size:1.05rem; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.brand-sub{color:var(--muted); font-size:0.75rem; margin-bottom:20px;}
+.progress-wrap{margin-bottom:22px;}
+.progress-label{display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted); margin-bottom:6px;}
+.progress-track{height:8px; background:var(--surface2); border-radius:5px; overflow:hidden;}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; transition:width .5s ease; border-radius:5px;}
+.nav-list{list-style:none;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+  cursor:pointer; margin-bottom:4px; font-size:0.86rem; color:var(--muted);
+  transition:background .2s, color .2s;
+}
+.nav-item:hover{background:var(--surface2); color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,rgba(129,140,248,0.18),rgba(192,132,252,0.18)); color:var(--text); font-weight:600;}
+.nav-check{
+  width:18px; height:18px; border-radius:50%; border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:0.65rem; flex-shrink:0;
+  transition:all .2s;
+}
+.nav-check.done{background:var(--success); border-color:var(--success); color:#06281c;}
+.print-btn{
+  width:100%; margin-top:16px; padding:10px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface2); color:var(--text); cursor:pointer; font-size:0.82rem; font-weight:600;
+  transition:transform .2s;
+}
+.print-btn:hover{transform:translateY(-1px); border-color:var(--accent);}
+
+/* Main */
+.main{flex:1; padding:32px 40px; max-width:920px; margin:0 auto; width:100%;}
+.view{display:none; animation:fadeIn .4s ease;}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+h2.section-title{font-size:1.6rem; font-weight:800; margin-bottom:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.section-sub{color:var(--muted); margin-bottom:24px; font-size:0.95rem;}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:26px; box-shadow:var(--shadow); margin-bottom:20px;
+}
+.card h3{font-size:1.1rem; margin-bottom:10px; color:var(--text);}
+.card p{margin-bottom:12px; color:#c6cad6; font-size:0.94rem;}
+.badge{
+  display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700;
+  background:rgba(129,140,248,0.15); color:var(--accent); margin-bottom:14px; letter-spacing:0.03em;
+}
+ul.obj-list, ul.plain-list{margin-left:20px; margin-bottom:14px;}
+ul.obj-list li, ul.plain-list li{margin-bottom:6px; color:#c6cad6; font-size:0.92rem;}
+.codebox{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:10px; padding:16px 18px;
+  font-family:'SF Mono',Consolas,Monaco,monospace; font-size:0.85rem; color:#d5f5e3; overflow-x:auto;
+  margin:14px 0; white-space:pre;
+}
+.codebox .cm{color:#6b7280;}
+.codebox .kw{color:#c084fc;}
+.codebox .str{color:#fbbf24;}
+.codebox .fn{color:#818cf8;}
+.btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0b0d13; border:none;
+  padding:11px 22px; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.88rem;
+  transition:transform .2s, box-shadow .2s;
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 6px 18px rgba(129,140,248,0.35);}
+.btn:disabled{opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none;}
+.btn.secondary{background:var(--surface2); color:var(--text); border:1px solid var(--border);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+
+/* Exercise */
+.exercise-box{
+  background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:18px; margin-top:14px;
+}
+.exercise-box label{display:block; font-size:0.85rem; font-weight:600; margin-bottom:8px; color:var(--text);}
+.exercise-box input[type=text]{
+  width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
+  background:var(--code-bg); color:var(--text); font-family:'SF Mono',Consolas,Monaco,monospace; font-size:0.88rem;
+}
+.exercise-box input:focus{outline:none; border-color:var(--accent);}
+.feedback{
+  margin-top:12px; padding:10px 14px; border-radius:8px; font-size:0.86rem; display:none; animation:fadeIn .3s ease;
+}
+.feedback.show{display:block;}
+.feedback.correct{background:rgba(52,211,153,0.12); color:var(--success); border:1px solid rgba(52,211,153,0.3);}
+.feedback.incorrect{background:rgba(248,113,113,0.12); color:var(--danger); border:1px solid rgba(248,113,113,0.3);}
+
+/* Quiz */
+.quiz-q{margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--border);}
+.quiz-q:last-child{border-bottom:none;}
+.quiz-q .qtext{font-weight:600; margin-bottom:12px; font-size:0.95rem;}
+.opt{
+  display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:10px;
+  border:1px solid var(--border); margin-bottom:8px; cursor:pointer; font-size:0.88rem;
+  transition:all .2s; background:var(--surface2);
+}
+.opt:hover{border-color:var(--accent);}
+.opt.selected{border-color:var(--accent); background:rgba(129,140,248,0.15);}
+.opt.correct{border-color:var(--success); background:rgba(52,211,153,0.15);}
+.opt.incorrect{border-color:var(--danger); background:rgba(248,113,113,0.15);}
+.opt input{accent-color:var(--accent);}
+.quiz-result{
+  margin-top:18px; padding:18px; border-radius:12px; text-align:center; display:none; animation:fadeIn .4s ease;
+}
+.quiz-result.show{display:block;}
+.quiz-result .score{font-size:2rem; font-weight:800; margin-bottom:6px;}
+.quiz-result .msg{color:var(--muted); font-size:0.9rem;}
+
+/* Cheat sheet */
+.cheat-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media(max-width:700px){.cheat-grid{grid-template-columns:1fr;}}
+.cheat-card{background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px;}
+.cheat-card h4{font-size:0.92rem; margin-bottom:8px; color:var(--accent);}
+
+/* Resources */
+.resource-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:700px){.resource-grid{grid-template-columns:1fr;}}
+.resource-card{background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px;}
+.resource-card h4{font-size:0.88rem; color:var(--accent2); margin-bottom:8px;}
+.resource-card ul{margin-left:18px;}
+.resource-card li{font-size:0.85rem; margin-bottom:5px; color:#c6cad6;}
+
+/* Completion */
+.completion-badge{
+  text-align:center; padding:40px 20px;
+}
+.completion-badge .trophy{font-size:3.5rem; margin-bottom:14px;}
+.completion-badge h2{font-size:1.5rem; margin-bottom:8px;}
+.stats-row{display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat .num{font-size:1.6rem; font-weight:800; color:var(--accent);}
+.stat .lbl{font-size:0.78rem; color:var(--muted);}
+
+footer.app-footer{text-align:center; color:var(--muted); font-size:0.78rem; margin-top:30px; padding-bottom:10px;}
+
+@media (max-width:900px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%; height:auto; position:relative; overflow-y:visible;}
+  .main{padding:22px;}
+}
+
+@media print{
+  .sidebar, .btn-row, .quiz-q, .exercise-box, .nav-item, .print-btn{display:none !important;}
+  body{background:#fff; color:#000;}
+  .card{box-shadow:none; border:1px solid #ccc; break-inside:avoid;}
+  .view{display:block !important;}
+  #view-cheatsheet, #view-cheatsheet *{display:block !important;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar">
+    <div class="brand">
+      <span class="logo">🎓</span>
+      <h1>Learning Studio</h1>
+    </div>
+    <div class="brand-sub">JavaScript Fundamentals</div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Overall Progress</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <ul class="nav-list" id="navList"></ul>
+    <button class="print-btn" id="printBtn">🖨️ Print Cheat Sheet & Notes</button>
+  </nav>
+
+  <main class="main">
+    <div id="viewsContainer"></div>
+    <footer class="app-footer">Interactive Learning Studio · Works fully offline · Your progress is saved in this browser</footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ CONTENT DATA ============ */
+
+  const STORAGE_KEY = 'ils-js-fundamentals-progress-v1';
+
+  const NAV_ITEMS = [
+    {id:'intro', label:'Introduction'},
+    {id:'m1', label:'1. Variables & Types'},
+    {id:'m2', label:'2. Operators & Control Flow'},
+    {id:'m3', label:'3. Functions & Scope'},
+    {id:'m4', label:'4. Arrays & Objects'},
+    {id:'challenge', label:'Final Challenge'},
+    {id:'cheatsheet', label:'Cheat Sheet'},
+    {id:'resources', label:'Resources'},
+    {id:'complete', label:'Completion'}
+  ];
+
+  const MODULES = [
+    {
+      id:'m1', title:'Module 1: Variables & Data Types',
+      objectives:[
+        'Declare variables using let, const, and var, and know when to use each',
+        'Identify JavaScript\'s core data types',
+        'Understand type coercion basics'
+      ],
+      explanation:"JavaScript gives you three ways to declare variables: <code>let</code> and <code>const</code> (modern, block-scoped) and <code>var</code> (older, function-scoped). Use <code>const</code> by default for values that won't be reassigned, and <code>let</code> when a value needs to change. JavaScript is dynamically typed, meaning a variable's type is determined by its value at runtime. The core primitive types are <strong>string</strong>, <strong>number</strong>, <strong>boolean</strong>, <strong>null</strong>, <strong>undefined</strong>, and the more complex <strong>object</strong> type (which includes arrays and functions).",
+      example:`<span class="kw">const</span> name = <span class="str">"Ada"</span>;      <span class="cm">// string</span>
+<span class="kw">let</span> age = 28;             <span class="cm">// number</span>
+<span class="kw">let</span> isLearning = <span class="kw">true</span>;  <span class="cm">// boolean</span>
+<span class="kw">let</span> pet;                  <span class="cm">// undefined</span>
+<span class="kw">const</span> car = <span class="kw">null</span>;      <span class="cm">// intentionally empty</span>
+
+console.<span class="fn">log</span>(<span class="kw">typeof</span> age); <span class="cm">// "number"</span>`,
+      exercise:{
+        prompt:"What will <code>typeof \"5\" + 1</code> evaluate to as a data type name? (Think about operator precedence — typeof runs first!) Type your answer as a single word, e.g. \"string\".",
+        answer:['string'],
+        hint:"typeof \"5\" evaluates first and returns the string \"string\", then \"string\" + 1 concatenates."
+      },
+      quiz:[
+        {
+          q:"Which keyword should you use by default for a variable whose value will never be reassigned?",
+          options:['var','let','const','static'],
+          correct:2
+        },
+        {
+          q:"What is the data type of the value produced by: let x; console.log(x);",
+          options:['null','undefined','NaN','0'],
+          correct:1
+        },
+        {
+          q:"Which of these is NOT one of JavaScript's primitive types?",
+          options:['boolean','number','array','string'],
+          correct:2
+        }
+      ]
+    },
+    {
+      id:'m2', title:'Module 2: Operators & Control Flow',
+      objectives:[
+        'Use arithmetic, comparison, and logical operators correctly',
+        'Control program flow with if/else, switch, and the ternary operator',
+        'Understand the difference between == and ==='
+      ],
+      explanation:"Operators let you combine and compare values: arithmetic (<code>+ - * / %</code>), comparison (<code>== === != !== &lt; &gt;</code>), and logical (<code>&& || !</code>). Always prefer <code>===</code> and <code>!==</code> (strict equality) over <code>==</code>/<code>!=</code>, since strict equality avoids surprising type-coercion bugs. Control flow structures like <code>if/else</code>, <code>switch</code>, and the ternary operator (<code>condition ? a : b</code>) let your program make decisions and take different paths based on data.",
+      example:`<span class="kw">const</span> score = 82;
+
+<span class="kw">if</span> (score >= 90) {
+  console.<span class="fn">log</span>(<span class="str">"A"</span>);
+} <span class="kw">else if</span> (score >= 80) {
+  console.<span class="fn">log</span>(<span class="str">"B"</span>);
+} <span class="kw">else</span> {
+  console.<span class="fn">log</span>(<span class="str">"C"</span>);
+}
+
+<span class="cm">// Ternary shorthand</span>
+<span class="kw">const</span> status = score >= 60 ? <span class="str">"Pass"</span> : <span class="str">"Fail"</span>;`,
+      exercise:{
+        prompt:"What does <code>5 === \"5\"</code> evaluate to? Type <code>true</code> or <code>false</code>.",
+        answer:['false'],
+        hint:"Strict equality (===) checks both value AND type. 5 is a number, \"5\" is a string."
+      },
+      quiz:[
+        {
+          q:"Which operator checks both value and type equality?",
+          options:['==','===','=','!='],
+          correct:1
+        },
+        {
+          q:"What does the ternary operator `condition ? a : b` do?",
+          options:['Loops while condition is true','Returns a if condition is truthy, otherwise b','Declares a new variable','Compares two arrays'],
+          correct:1
+        },
+        {
+          q:"What is the result of `10 % 3` in JavaScript?",
+          options:['3.33','0','1','30'],
+          correct:2
+        }
+      ]
+    },
+    {
+      id:'m3', title:'Module 3: Functions & Scope',
+      objectives:[
+        'Write function declarations, expressions, and arrow functions',
+        'Understand parameters, return values, and default parameters',
+        'Explain the difference between global and local (block) scope'
+      ],
+      explanation:"Functions are reusable blocks of code. You can define them as <strong>declarations</strong> (<code>function greet(){}</code>), <strong>expressions</strong> (<code>const greet = function(){}</code>), or the concise <strong>arrow function</strong> syntax (<code>const greet = () => {}</code>). Variables declared inside a function (with let/const) only exist within that function's scope — this is called local scope, as opposed to global scope where a variable is accessible everywhere. Understanding scope prevents accidental variable clashes and bugs.",
+      example:`<span class="kw">function</span> <span class="fn">greet</span>(name = <span class="str">"friend"</span>) {
+  <span class="kw">return</span> <span class="str">\`Hello, \${name}!\`</span>;
+}
+
+<span class="kw">const</span> <span class="fn">square</span> = (n) => n * n;
+
+console.<span class="fn">log</span>(<span class="fn">greet</span>());        <span class="cm">// "Hello, friend!"</span>
+console.<span class="fn">log</span>(<span class="fn">square</span>(4));     <span class="cm">// 16</span>`,
+      exercise:{
+        prompt:"Given <code>const double = n => n * 2;</code>, what does <code>double(6)</code> return? Type just the number.",
+        answer:['12'],
+        hint:"The arrow function multiplies its input by 2."
+      },
+      quiz:[
+        {
+          q:"Which syntax below is an arrow function?",
+          options:['function greet(){}','const greet = function(){}','const greet = () => {}','class Greet{}'],
+          correct:2
+        },
+        {
+          q:"A variable declared with `let` inside a function is generally accessible:",
+          options:['Everywhere in the program','Only within that function (local scope)','Only in the next function called','Only after the program ends'],
+          correct:1
+        },
+        {
+          q:"What keyword is used to send a value back out of a function?",
+          options:['return','yield','output','send'],
+          correct:0
+        }
+      ]
+    },
+    {
+      id:'m4', title:'Module 4: Arrays & Objects',
+      objectives:[
+        'Create and manipulate arrays using core methods like map, filter, and forEach',
+        'Create and access object properties',
+        'Use destructuring to extract values concisely'
+      ],
+      explanation:"Arrays store ordered lists of values, with powerful built-in methods: <code>map()</code> transforms each item into a new array, <code>filter()</code> keeps only items matching a condition, and <code>forEach()</code> runs code for each item. Objects store data as key-value pairs, accessed with dot or bracket notation. Destructuring lets you unpack array items or object properties into variables in one concise line, which is used constantly in modern JavaScript code.",
+      example:`<span class="kw">const</span> nums = [1, 2, 3, 4];
+<span class="kw">const</span> doubled = nums.<span class="fn">map</span>(n => n * 2);       <span class="cm">// [2,4,6,8]</span>
+<span class="kw">const</span> evens = nums.<span class="fn">filter</span>(n => n % 2 === 0); <span class="cm">// [2,4]</span>
+
+<span class="kw">const</span> user = { name: <span class="str">"Ada"</span>, age: 28 };
+<span class="kw">const</span> { name, age } = user; <span class="cm">// destructuring</span>
+console.<span class="fn">log</span>(name); <span class="cm">// "Ada"</span>`,
+      exercise:{
+        prompt:"Given <code>[1,2,3,4,5].filter(n => n > 3)</code>, how many items are in the resulting array? Type just the number.",
+        answer:['2'],
+        hint:"Only values greater than 3 pass the filter: 4 and 5."
+      },
+      quiz:[
+        {
+          q:"Which array method returns a NEW array with every item transformed?",
+          options:['forEach','map','filter','push'],
+          correct:1
+        },
+        {
+          q:"How do you access the `age` property of `const user = {age: 28}` using dot notation?",
+          options:['user->age','user[age]','user.age','user::age'],
+          correct:2
+        },
+        {
+          q:"What does `const {name} = user;` do?",
+          options:['Creates a new object called name','Destructures the name property into a variable','Deletes the name property','Renames the user object'],
+          correct:1
+        }
+      ]
+    }
+  ];
+
+  const CHALLENGE = {
+    prompt: "You're building a simple grade calculator. Given the array of scores below, write (in your head or on paper) code that filters out scores below 60, then doubles the remaining ones as bonus points. What would the final array be for scores = [45, 62, 78, 55, 91]?",
+    hint: "First filter: keep scores >= 60 → [62, 78, 91]. Then map: multiply each by 2.",
+    answer: ['124,156,182','[124,156,182]','124, 156, 182'],
+    normalizedCheck: true
+  };
+
+  /* ============ STATE ============ */
+  let state = {
+    completedModules:{}, // id -> true
+    quizScores:{}, // id -> {score, total}
+    exerciseDone:{}, // id -> true
+    challengeDone:false
+  };
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+      }
+    }catch(e){}
+  }
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  /* ============ NAV / VIEW RENDERING ============ */
+  const navList = document.getElementById('navList');
+  const viewsContainer = document.getElementById('viewsContainer');
+  const progressFill = document.getElementById('progressFill');
+  const progressPct = document.getElementById('progressPct');
+
+  function computeProgress(){
+    const totalSteps = NAV_ITEMS.length - 1; // exclude 'complete' itself from denominator visual count basis... use module+challenge+cheatsheet+resources+intro
+    let done = 0;
+    if(state.completedModules['intro']) done++;
+    MODULES.forEach(m => { if(state.completedModules[m.id]) done++; });
+    if(state.challengeDone) done++;
+    if(state.completedModules['cheatsheet']) done++;
+    if(state.completedModules['resources']) done++;
+    const denom = 1 + MODULES.length + 1 + 1 + 1; // intro + 4 modules + challenge + cheatsheet + resources
+    return Math.round((done/denom)*100);
+  }
+
+  function updateProgressUI(){
+    const pct = computeProgress();
+    progressFill.style.width = pct + '%';
+    progressPct.textContent = pct + '%';
+    saveState();
+  }
+
+  function buildNav(){
+    navList.innerHTML = '';
+    NAV_ITEMS.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'nav-item';
+      li.dataset.view = item.id;
+      const isDone = item.id === 'complete' ? false :
+        (item.id === 'challenge' ? state.challengeDone : !!state.completedModules[item.id]);
+      li.innerHTML = '<span class="nav-check' + (isDone ? ' done' : '') + '">' + (isDone ? '✓' : '') + '</span><span>' + item.label + '</span>';
+      li.addEventListener('click', () => showView(item.id));
+      navList.appendChild(li);
+    });
+  }
+
+  function setActiveNav(id){
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.view === id);
+    });
+  }
+
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const view = document.getElementById('view-' + id);
+    if(view){ view.classList.add('active'); }
+    setActiveNav(id);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  /* ============ BUILD VIEWS ============ */
+
+  function el(html){
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.firstElementChild;
+  }
+
+  function buildIntroView(){
+    const v = el('<section class="view" id="view-intro"></section>');
+    v.innerHTML = `
+      <h2 class="section-title">JavaScript Fundamentals</h2>
+      <p class="section-sub">A complete, self-paced, offline course covering the core building blocks of JavaScript.</p>
+      <div class="card">
+        <span class="badge">INTRODUCTION</span>
+        <h3>What you'll learn</h3>
+        <p>By the end of this course, you'll be able to confidently write and reason about JavaScript code covering variables, control flow, functions, and data structures — the essential foundation for everything else in JavaScript.</p>
+        <ul class="obj-list">
+          <li>Declare and use variables and understand JavaScript's core data types</li>
+          <li>Control program flow with conditionals and comparison/logical operators</li>
+          <li>Write and use functions, including arrow functions, and understand scope</li>
+          <li>Work with arrays and objects using modern methods and destructuring</li>
+          <li>Apply everything in a final hands-on challenge</li>
+        </ul>
+        <p><strong>Format:</strong> 4 progressive modules, each with an explanation, a live example, a hands-on exercise, and a short quiz with instant feedback — followed by a final challenge, cheat sheet, and curated resources.</p>
+        <div class="btn-row">
+          <button class="btn" id="startCourseBtn">Start Module 1 →</button>
+        </div>
+      </div>
+    `;
+    v.querySelector('#startCourseBtn').addEventListener('click', () => {
+      markComplete('intro');
+      showView('m1');
+    });
+    return v;
+  }
+
+  function markComplete(id){
+    state.completedModules[id] = true;
+    buildNav();
+    setActiveNav(document.querySelector('.view.active') ? document.querySelector('.view.active').id.replace('view-','') : id);
+    updateProgressUI();
+  }
+
+  function nextModuleId(currentId){
+    const order = ['intro','m1','m2','m3','m4','challenge','cheatsheet','resources'];
+    const idx = order.indexOf(currentId);
+    return order[idx+1] || 'complete';
+  }
+
+  function buildModuleView(mod, index){
+    const v = el('<section class="view" id="view-' + mod.id + '"></section>');
+    const objectivesHtml = mod.objectives.map(o => '<li>' + o + '</li>').join('');
+    v.innerHTML = `
+      <h2 class="section-title">${mod.title}</h2>
+      <p class="section-sub">Module ${index+1} of ${MODULES.length}</p>
+
+      <div class="card">
+        <span class="badge">OBJECTIVES</span>
+        <ul class="obj-list">${objectivesHtml}</ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">EXPLANATION</span>
+        <p>${mod.explanation}</p>
+        <div class="codebox">${mod.example}</div>
+      </div>
+
+      <div class="card">
+        <span class="badge">TRY IT — EXERCISE</span>
+        <p>${mod.exercise.prompt}</p>
+        <div class="exercise-box">
+          <label for="ex-${mod.id}">Your answer</label>
+          <input type="text" id="ex-${mod.id}" placeholder="Type your answer here...">
+          <div class="btn-row">
+            <button class="btn secondary" id="check-${mod.id}">Check Answer</button>
+            <button class="btn secondary" id="hint-${mod.id}">Show Hint</button>
+          </div>
+          <div class="feedback" id="feedback-${mod.id}"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="badge">QUIZ</span>
+        <div id="quiz-${mod.id}"></div>
+        <div class="btn-row">
+          <button class="btn" id="submitQuiz-${mod.id}">Submit Quiz</button>
+        </div>
+        <div class="quiz-result" id="quizResult-${mod.id}"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="continueBtn-${mod.id}" disabled>Complete module to continue →</button>
+      </div>
+    `;
+
+    // Exercise logic
+    const input = v.querySelector('#ex-' + mod.id);
+    const feedback = v.querySelector('#feedback-' + mod.id);
+    v.querySelector('#check-' + mod.id).addEventListener('click', () => {
+      const val = input.value.trim().toLowerCase();
+      const ok = mod.exercise.answer.some(a => a.toLowerCase() === val);
+      feedback.className = 'feedback show ' + (ok ? 'correct' : 'incorrect');
+      feedback.textContent = ok ? '✓ Correct! Nice work.' : '✗ Not quite — try again, or check the hint.';
+      if(ok){ state.exerciseDone[mod.id] = true; saveState(); }
+    });
+    v.querySelector('#hint-' + mod.id).addEventListener('click', () => {
+      feedback.className = 'feedback show correct';
+      feedback.textContent = '💡 Hint: ' + mod.exercise.hint;
+    });
+
+    // Quiz build
+    const quizContainer = v.querySelector('#quiz-' + mod.id);
+    const userAnswers = new Array(mod.quiz.length).fill(null);
+    mod.quiz.forEach((q, qi) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'quiz-q';
+      let optsHtml = '';
+      q.options.forEach((opt, oi) => {
+        optsHtml += `<div class="opt" data-qi="${qi}" data-oi="${oi}">
+          <input type="radio" name="q-${mod.id}-${qi}" />
+          <span>${opt}</span>
+        </div>`;
+      });
+      qDiv.innerHTML = '<div class="qtext">' + (qi+1) + '. ' + q.q + '</div>' + optsHtml;
+      quizContainer.appendChild(qDiv);
+    });
+    quizContainer.querySelectorAll('.opt').forEach(optEl => {
+      optEl.addEventListener('click', () => {
+        const qi = parseInt(optEl.dataset.qi, 10);
+        const oi = parseInt(optEl.dataset.oi, 10);
+        userAnswers[qi] = oi;
+        quizContainer.querySelectorAll('.opt[data-qi="' + qi + '"]').forEach(o => o.classList.remove('selected'));
+        optEl.classList.add('selected');
+        optEl.querySelector('input').checked = true;
+      });
+    });
+
+    const quizResult = v.querySelector('#quizResult-' + mod.id);
+    const continueBtn = v.querySelector('#continueBtn-' + mod.id);
+
+    v.querySelector('#submitQuiz-' + mod.id).addEventListener('click', () => {
+      if(userAnswers.includes(null)){
+        quizResult.className = 'quiz-result show';
+        quizResult.innerHTML = '<div class="msg" style="color:var(--warn);">Please answer all questions before submitting.</div>';
+        return;
+      }
+      let score = 0;
+      mod.quiz.forEach((q, qi) => {
+        const correctIdx = q.correct;
+        const opts = quizContainer.querySelectorAll('.opt[data-qi="' + qi + '"]');
+        opts.forEach(o => {
+          const oi = parseInt(o.dataset.oi, 10);
+          if(oi === correctIdx) o.classList.add('correct');
+          else if(oi === userAnswers[qi]) o.classList.add('incorrect');
+        });
+        if(userAnswers[qi] === correctIdx) score++;
+      });
+      const total = mod.quiz.length;
+      state.quizScores[mod.id] = {score, total};
+      quizResult.className = 'quiz-result show';
+      const pct = Math.round((score/total)*100);
+      let msg = pct === 100 ? 'Perfect score! You\'ve mastered this module. 🎉' :
+                pct >= 60 ? 'Good work! Review the highlighted answers above.' :
+                'Keep practicing — review the explanation and try again.';
+      quizResult.innerHTML = '<div class="score">' + score + ' / ' + total + '</div><div class="msg">' + msg + '</div>';
+
+      markComplete(mod.id);
+      continueBtn.disabled = false;
+      continueBtn.textContent = 'Continue →';
+    });
+
+    continueBtn.addEventListener('click', () => {
+      showView(nextModuleId(mod.id));
+    });
+
+    return v;
+  }
+
+  function buildChallengeView(){
+    const v = el('<section class="view" id="view-challenge"></section>');
+    v.innerHTML = `
+      <h2 class="section-title">Final Practical Challenge</h2>
+      <p class="section-sub">Apply everything you've learned in one combined exercise.</p>
+      <div class="card">
+        <span class="badge">CHALLENGE</span>
+        <p>${CHALLENGE.prompt}</p>
+        <div class="exercise-box">
+          <label for="challengeInput">Your answer (comma-separated numbers, e.g. 1,2,3)</label>
+          <input type="text" id="challengeInput" placeholder="e.g. 124,156,182">
+          <div class="btn-row">
+            <button class="btn secondary" id="checkChallenge">Check Answer</button>
+            <button class="btn secondary" id="hintChallenge">Show Hint</button>
+          </div>
+          <div class="feedback" id="challengeFeedback"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="continueChallengeBtn" disabled>Complete challenge to continue →</button>
+      </div>
+    `;
+    const input = v.querySelector('#challengeInput');
+    const feedback = v.querySelector('#challengeFeedback');
+    const continueBtn = v.querySelector('#continueChallengeBtn');
+
+    function normalize(s){
+      return s.replace(/[\[\]\s]/g,'').split(',').filter(Boolean).join(',');
+    }
+
+    v.querySelector('#checkChallenge').addEventListener('click', () => {
+      const val = normalize(input.value.trim());
+      const ok = CHALLENGE.answer.some(a => normalize(a) === val);
+      feedback.className = 'feedback show ' + (ok ? 'correct' : 'incorrect');
+      feedback.textContent = ok ? '✓ Excellent! You correctly combined filter and map.' : '✗ Not quite — check the hint and try again.';
+      if(ok){
+        state.challengeDone = true;
+        buildNav();
+        setActiveNav('challenge');
+        updateProgressUI();
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Continue →';
+      }
+    });
+    v.querySelector('#hintChallenge').addEventListener('click', () => {
+      feedback.className = 'feedback show correct';
+      feedback.textContent = '💡 Hint: ' + CHALLENGE.hint;
+    });
+    continueBtn.addEventListener('click', () => showView('cheatsheet'));
+
+    return v;
+  }
+
+  function buildCheatsheetView(){
+    const v = el('<section class="view" id="view-cheatsheet"></section>');
+    v.innerHTML = `
+      <h2 class="section-title">Cheat Sheet & Summary</h2>
+      <p class="section-sub">A quick reference for everything covered in this course. Printable.</p>
+      <div class="cheat-grid">
+        <div class="cheat-card">
+          <h4>Variables & Types</h4>
+          <div class="codebox">let x = 1; const y = 2;
+typeof x // "number"
+string, number, boolean,
+null, undefined, object</div>
+        </div>
+        <div class="cheat-card">
+          <h4>Operators</h4>
+          <div class="codebox">=== !==   (strict, use these)
+== !=     (loose, avoid)
+&& || !   (logical)
+a ? b : c (ternary)</div>
+        </div>
+        <div class="cheat-card">
+          <h4>Functions</h4>
+          <div class="codebox">function f(a){ return a; }
+const f = function(a){ return a; }
+const f = a => a;</div>
+        </div>
+        <div class="cheat-card">
+          <h4>Arrays & Objects</h4>
+          <div class="codebox">arr.map(x => x*2)
+arr.filter(x => x>0)
+const {a,b} = obj;
+obj.prop / obj["prop"]</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Summary</h3>
+        <p>You've covered the four foundational pillars of JavaScript: declaring and typing variables, controlling program flow with operators and conditionals, organizing logic into functions with proper scope, and structuring data using arrays and objects. These building blocks appear in virtually every JavaScript program you'll ever write.</p>
+        <div class="btn-row">
+          <button class="btn" id="continueCheatBtn">Continue to Resources →</button>
+        </div>
+      </div>
+    `;
+    v.querySelector('#continueCheatBtn').addEventListener('click', () => {
+      markComplete('cheatsheet');
+      showView('resources');
+    });
+    return v;
+  }
+
+  function buildResourcesView(){
+    const v = el('<section class="view" id="view-resources"></section>');
+    v.innerHTML = `
+      <h2 class="section-title">Learning Resources</h2>
+      <p class="section-sub">Keep growing beyond this course with these curated resources.</p>
+      <div class="resource-grid">
+        <div class="resource-card">
+          <h4>📚 Books</h4>
+          <ul>
+            <li>Eloquent JavaScript — Marijn Haverbeke</li>
+            <li>You Don't Know JS (series) — Kyle Simpson</li>
+            <li>JavaScript: The Good Parts — Douglas Crockford</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>📖 Official Docs</h4>
+          <ul>
+            <li>MDN Web Docs — JavaScript Guide</li>
+            <li>MDN JavaScript Reference</li>
+            <li>ECMAScript specification (TC39)</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>👥 Communities</h4>
+          <ul>
+            <li>freeCodeCamp forum</li>
+            <li>Stack Overflow (javascript tag)</li>
+            <li>r/learnjavascript on Reddit</li>
+            <li>Dev.to JavaScript community</li>
+          </ul>
+        </div>
+        <div class="resource-card">
+          <h4>💻 Practice Platforms</h4>
+          <ul>
+            <li>freeCodeCamp — JavaScript curriculum</li>
+            <li>Codewars — kata challenges</li>
+            <li>JavaScript30 — 30 vanilla JS projects</li>
+            <li>LeetCode — Easy difficulty problems</li>
+          </ul>
+        </div>
+        <div class="resource-card" style="grid-column:1/-1;">
+          <h4>🤖 Helpful AI Prompts to Keep Learning</h4>
+          <ul>
+            <li>"Explain JavaScript closures using a real-world analogy, then show a simple code example."</li>
+            <li>"Quiz me on JavaScript array methods with 5 multiple-choice questions."</li>
+            <li>"Walk me through debugging this JavaScript function step by step: [paste code]"</li>
+            <li>"Compare let, const, and var with a table of key differences."</li>
+          </ul>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="finishBtn">Finish Course →</button>
+      </div>
+    `;
+    v.querySelector('#finishBtn').addEventListener('click', () => {
+      markComplete('resources');
+      buildCompletionView();
+      showView('complete');
+    });
+    return v;
+  }
+
+  function buildCompletionView(){
+    let existing = document.getElementById('view-complete');
+    const totalModules = MODULES.length;
+    let quizTotal = 0, quizEarned = 0;
+    MODULES.forEach(m => {
+      const s = state.quizScores[m.id];
+      if(s){ quizEarned += s.score; quizTotal += s.total; }
+    });
+    const pct = computeProgress();
+    const html = `
+      <h2 class="section-title">Course Complete</h2>
+      <div class="card completion-badge">
+        <div class="trophy">🏆</div>
+        <h2>Great work — you finished JavaScript Fundamentals!</h2>
+        <p style="color:var(--muted);">You've built a solid foundation covering variables, control flow, functions, and data structures.</p>
+        <div class="stats-row">
+          <div class="stat"><div class="num">${pct}%</div><div class="lbl">Course Progress</div></div>
+          <div class="stat"><div class="num">${quizEarned}/${quizTotal}</div><div class="lbl">Quiz Score</div></div>
+          <div class="stat"><div class="num">${totalModules}</div><div class="lbl">Modules Completed</div></div>
+          <div class="stat"><div class="num">${state.challengeDone ? '✓' : '—'}</div><div class="lbl">Final Challenge</div></div>
+        </div>
+        <div class="btn-row" style="justify-content:center;">
+          <button class="btn secondary" id="reviewCheatBtn">Review Cheat Sheet</button>
+          <button class="btn secondary" id="resetBtn">Reset Progress</button>
+        </div>
+      </div>
+    `;
+    if(existing){
+      existing.innerHTML = html;
+    } else {
+      existing = el('<section class="view" id="view-complete"></section>');
+      existing.innerHTML = html;
+      viewsContainer.appendChild(existing);
+    }
+    existing.querySelector('#reviewCheatBtn').addEventListener('click', () => showView('cheatsheet'));
+    existing.querySelector('#resetBtn').addEventListener('click', () => {
+      if(confirm('Reset all progress? This cannot be undone.')){
+        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+        location.reload();
+      }
+    });
+  }
+
+  /* ============ INIT ============ */
+  function init(){
+    loadState();
+    buildNav();
+
+    viewsContainer.appendChild(buildIntroView());
+    MODULES.forEach((m, i) => viewsContainer.appendChild(buildModuleView(m, i)));
+    viewsContainer.appendChild(buildChallengeView());
+    viewsContainer.appendChild(buildCheatsheetView());
+    viewsContainer.appendChild(buildResourcesView());
+    buildCompletionView();
+
+    // Restore continue-button states for already-completed modules
+    MODULES.forEach(m => {
+      if(state.completedModules[m.id]){
+        const btn = document.getElementById('continueBtn-' + m.id);
+        if(btn){ btn.disabled = false; btn.textContent = 'Continue →'; }
+        const resultEl = document.getElementById('quizResult-' + m.id);
+        const s = state.quizScores[m.id];
+        if(resultEl && s){
+          resultEl.className = 'quiz-result show';
+          const pct = Math.round((s.score/s.total)*100);
+          let msg = pct === 100 ? 'Perfect score! You\'ve mastered this module. 🎉' :
+                    pct >= 60 ? 'Good work! Review the highlighted answers above.' :
+                    'Keep practicing — review the explanation and try again.';
+          resultEl.innerHTML = '<div class="score">' + s.score + ' / ' + s.total + '</div><div class="msg">' + msg + '</div>';
+        }
+      }
+    });
+    if(state.challengeDone){
+      const cBtn = document.getElementById('continueChallengeBtn');
+      if(cBtn){ cBtn.disabled = false; cBtn.textContent = 'Continue →'; }
+    }
+
+    updateProgressUI();
+    showView('intro');
+
+    document.getElementById('printBtn').addEventListener('click', () => {
+      showView('cheatsheet');
+      setTimeout(() => window.print(), 200);
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
