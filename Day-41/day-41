@@ -1,0 +1,84 @@
+# Day 41 – Interactive Learning Studio using Claude AI
+
+## 📌 Objective
+
+The objective of this project was to build an interactive learning platform that teaches a complete topic through structured modules, quizzes, practical exercises, and a final challenge. The application provides a guided learning experience while tracking user progress.
+
+---
+
+## 🚀 Features
+
+- Interactive Learning Modules
+- Step-by-Step Topic Explanations
+- Practical Examples & Exercises
+- Interactive Quizzes with Instant Feedback
+- Automatic Quiz Scoring
+- Progress Tracking
+- Final Practical Challenge
+- Cheat Sheet & Summary Notes
+- Learning Resources
+- Responsive Dark Mode UI
+- Offline Support
+
+---
+
+## 🛠️ Technologies Used
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+---
+
+## 📂 Project Structure
+
+```
+Day41/
+│── Interactive_Learning_Studio.html
+│── day41.md
+│── screenshots/
+│   ├── home.png
+│   ├── module1.png
+│   ├── quiz.png
+│   ├── challenge.png
+│   └── completion.png
+```
+
+---
+
+## 📖 What I Learned
+
+- Designing interactive educational applications
+- Structuring learning content effectively
+- Implementing quizzes with scoring and feedback
+- Managing application state using JavaScript
+- Creating responsive and user-friendly interfaces
+- Improving frontend development skills through AI-assisted projects
+
+---
+
+## 🎯 Outcome
+
+Successfully built and tested an Interactive Learning Studio that delivers a complete learning experience with structured lessons, quizzes, progress tracking, and practical challenges in a single offline HTML application.
+
+---
+
+## 📸 Screenshots
+
+- Home Screen
+- Learning Modules
+- Interactive Quiz
+- Final Challenge
+- Completion Dashboard
+
+---
+
+## 🙏 Acknowledgement
+
+Special thanks to **Anil Bajpai**, **ABTalksOnAI**, and the **Anthropic Claude Team** for providing practical AI learning challenges that encourage hands-on development and continuous learning.
+
+---
+
+## ✅ Day 41 Completed
+
+Part of the **#60DaysOfAIChallenge**
