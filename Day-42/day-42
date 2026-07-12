@@ -1,0 +1,30 @@
+# Day 42 – Personal Financial Command Center
+
+## Objective
+The objective of this project was to build an interactive Personal Financial Command Center that helps users understand, organize, and improve their financial health through a modern dashboard.
+## Features
+- Financial Overview Dashboard
+- Income & Expense Tracking
+- Budget Management
+- Savings & Goal Planning
+- Cash Flow Analysis
+- Financial Health Score
+- AI Financial Recommendations
+- What-If Financial Simulator
+- Interactive Charts & Progress Tracking
+- Local Storage Support
+- Printable Reports
+- Responsive Dark Theme UI
+## Technologies Used
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage API
+## Key Learnings
+- Designed an interactive financial dashboard.
+- Implemented client-side financial calculations.
+- Learned how to organize financial data visually.
+- Improved UI/UX design for dashboards.
+- Built an offline web application without backend services.
+## Outcome
+This project demonstrates how AI-assisted development can be used to create practical financial management tools using only frontend technologies.
