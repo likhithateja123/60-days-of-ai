@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Profile Optimizer</title>
+<style>
+:root{
+  --bg:#0e1015; --panel:#161922; --panel2:#1c202b; --border:#2a2f3c;
+  --text:#e8eaf0; --muted:#96a0b5; --accent:#0a66c2; --accent2:#2fd0a4;
+  --warn:#ffb454; --danger:#ff6b6b; --radius:12px;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Roboto,Arial,sans-serif;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:linear-gradient(135deg,#0a66c2 0%,#0e1015 70%);}
+header h1{margin:0;font-size:1.4rem;}
+header .sub{color:#d7e6f7;font-size:.85rem;}
+nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:10;}
+nav button{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:.8rem;transition:.15s;}
+nav button:hover{transform:translateY(-1px);}
+nav button.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+main{padding:20px 24px;max-width:1100px;margin:0 auto;}
+section{display:none;animation:fade .3s ease;}
+section.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+h2{border-left:4px solid var(--accent);padding-left:10px;margin-top:0;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;transition:.2s;}
+.card:hover{border-color:var(--accent);}
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+label{display:block;font-size:.8rem;color:var(--muted);margin:10px 0 4px;}
+textarea,input[type=text],select{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-family:inherit;font-size:.9rem;}
+textarea{min-height:80px;resize:vertical;}
+button.btn{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:.15s;}
+button.btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+button.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+button.btn.small{padding:5px 10px;font-size:.75rem;}
+.badge{display:inline-block;background:var(--panel2);border:1px solid var(--border);padding:2px 8px;border-radius:20px;font-size:.7rem;color:var(--muted);margin-right:4px;}
+.score-ring{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto;
+  background:conic-gradient(var(--accent2) calc(var(--pct)*1%), var(--panel2) 0);transition:background 1s ease;}
+.score-inner{width:104px;height:104px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.score-inner small{font-size:.6rem;color:var(--muted);font-weight:400;}
+.pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.pill{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:.75rem;}
+.pill.add{border-color:var(--accent2);color:var(--accent2);}
+.pill.remove{border-color:var(--danger);color:var(--danger);}
+.pill.pin{border-color:var(--warn);color:var(--warn);}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:650px){.compare{grid-template-columns:1fr;}}
+.compare .before{border-left:3px solid var(--danger);padding-left:10px;}
+.compare .after{border-left:3px solid var(--accent2);padding-left:10px;}
+.checklist label{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.9rem;color:var(--text);}
+.day-card{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;}
+.day-num{background:var(--accent);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;}
+.progress-bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:var(--accent2);width:0%;transition:width .4s;}
+.share-card{background:linear-gradient(135deg,#0a66c2,#0e1015);border-radius:var(--radius);padding:24px;text-align:center;border:1px solid var(--accent);}
+.share-card h3{margin:6px 0;}
+.note-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;}
+.footer-note{text-align:center;color:var(--muted);font-size:.75rem;padding:24px;}
+.empty{color:var(--muted);font-style:italic;}
+@media(max-width:600px){header{flex-direction:column;align-items:flex-start;}nav{overflow-x:auto;flex-wrap:nowrap;}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🔗 LinkedIn Profile Optimizer</h1>
+    <div class="sub">Goal: Land a Job · Rule-based offline analysis</div>
+  </div>
+  <button class="btn secondary" onclick="resetAll()">↺ Reset</button>
+</header>
+
+<nav id="tabs"></nav>
+<main id="mainContent"></main>
+<div class="footer-note">100% offline · Nothing leaves your browser · Data saved in localStorage</div>
+
+<script>
+/* ---------------- STORAGE ---------------- */
+const LS_KEY = "linkedinOptimizer_v1";
+function loadState(){
+  try{ return Object.assign(defaultState(), JSON.parse(localStorage.getItem(LS_KEY))||{}); }
+  catch(e){ return defaultState(); }
+}
+function defaultState(){
+  return {
+    profile:{headline:"", about:"", experience:"", skills:"", goal:"Job"},
+    analyzed:false,
+    progress:{},
+    notes:[]
+  };
+}
+let state = loadState();
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/* ---------------- TABS ---------------- */
+const TABS = [
+  {id:"input", label:"1. Your Profile"},
+  {id:"report", label:"2. Report Card"},
+  {id:"headlines", label:"3. Headlines"},
+  {id:"about", label:"4. About Rewrite"},
+  {id:"experience", label:"5. Experience"},
+  {id:"skills", label:"6. Skills"},
+  {id:"compare", label:"7. Before/After"},
+  {id:"growth", label:"8. 7-Day Plan"},
+  {id:"share", label:"9. Share Card"},
+  {id:"progress", label:"10. Progress & Notes"}
+];
+function renderNav(){
+  const nav = document.getElementById("tabs");
+  nav.innerHTML = "";
+  TABS.forEach(t=>{
+    const b = document.createElement("button");
+    b.textContent = t.label;
+    b.dataset.id = t.id;
+    b.onclick = ()=>showTab(t.id);
+    nav.appendChild(b);
+  });
+}
+function showTab(id){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active", b.dataset.id===id));
+  document.querySelectorAll("main section").forEach(s=>s.classList.toggle("active", s.id===id));
+}
+
+/* ---------------- ANALYSIS ENGINE ---------------- */
+const WEAK_WORDS = ["hardworking","team player","passionate","motivated","results-driven","detail-oriented","go-getter"];
+const POWER_VERBS = ["Built","Led","Launched","Delivered","Designed","Automated","Scaled","Reduced","Increased","Drove","Architected","Shipped"];
+const JOB_SKILLS_ADD = ["Stakeholder Management","Data Analysis","Project Management","Problem Solving","Communication","Agile/Scrum","Cross-functional Collaboration"];
+const JOB_SKILLS_REMOVE = ["Microsoft Office","Typing","Internet Browsing","Team Player"];
+
+function analyze(p){
+  const headline = p.headline||"";
+  const about = p.about||"";
+  const experience = p.experience||"";
+  const skills = (p.skills||"").split(",").map(s=>s.trim()).filter(Boolean);
+
+  let score = 0;
+  const strengths = [];
+  const improvements = [];
+
+  // Headline scoring
+  if(headline.length>0){
+    score += 10;
+    if(headline.length>120) improvements.push("Headline is too long — aim under 120 characters for full visibility.");
+    else strengths.push("Headline length is within a good range.");
+    if(/\|/.test(headline) || /·/.test(headline)) { score+=10; strengths.push("Headline uses separators to pack in multiple keywords."); }
+    else improvements.push("Add separators (| or ·) to fit role, value, and keywords in your headline.");
+    if(p.goal==="Job" && !/(seeking|open to|looking)/i.test(headline)){
+      improvements.push("Consider signaling openness to opportunities if actively job hunting.");
+    }
+  } else {
+    improvements.push("Headline is empty — this is prime real estate, always fill it.");
+  }
+
+  // About scoring
+  if(about.length>0){
+    score += 10;
+    if(about.length<200) improvements.push("About section is short — aim for 3–5 short paragraphs (Hook, Story, Proof, CTA).");
+    else { score+=10; strengths.push("About section has solid length/depth."); }
+    if(!/\?|!/.test(about.slice(0,150))) improvements.push("Open with a stronger hook (question or bold statement) in the first line.");
+    else strengths.push("About section opens with an engaging hook.");
+  } else {
+    improvements.push("About section is empty — this is where recruiters learn your story.");
+  }
+
+  // Experience scoring
+  if(experience.length>0){
+    score += 10;
+    const hasNumbers = /\d/.test(experience);
+    if(hasNumbers){ score+=10; strengths.push("Experience includes quantifiable results (numbers/metrics)."); }
+    else improvements.push("Add metrics to experience bullets (%, $, time saved, users, etc.).");
+    const hasPowerVerb = POWER_VERBS.some(v=>experience.includes(v));
+    if(hasPowerVerb){ score+=5; strengths.push("Experience uses strong action verbs."); }
+    else improvements.push("Start bullets with power verbs like Built, Led, Delivered, Automated.");
+  } else {
+    improvements.push("Experience section is empty — add your most recent role with achievements.");
+  }
+
+  // Skills scoring
+  if(skills.length>0){
+    score += 5;
+    if(skills.length>=5){ score+=10; strengths.push("Good number of listed skills (5+)."); }
+    else improvements.push("List at least 5–10 relevant skills for better search visibility.");
+  } else {
+    improvements.push("No skills listed — skills drive recruiter search results.");
+  }
+
+  // Weak word check
+  const foundWeak = WEAK_WORDS.filter(w=> (headline+about+experience).toLowerCase().includes(w));
+  if(foundWeak.length>0){
+    improvements.push("Replace generic buzzwords (" + foundWeak.join(", ") + ") with specific, evidence-backed claims.");
+  } else if(headline||about){
+    score+=5;
+    strengths.push("Avoids overused buzzwords — good.");
+  }
+
+  score = Math.min(100, score);
+
+  return {score, strengths, improvements, skills};
+}
+
+function generateHeadlines(p){
+  const role = extractRole(p.headline) || "Professional";
+  return [
+    `${role} | Turning [Problem] into [Result] | Open to New Opportunities`,
+    `${role} · Skilled in ${topSkill(p.skills)} & ${secondSkill(p.skills)} · Building [Impact Area]`,
+    `Helping [Target Audience] achieve [Outcome] as a ${role} | ${topSkill(p.skills)}`
+  ];
+}
+function extractRole(headline){
+  if(!headline) return "";
+  return headline.split(/[|·-]/)[0].trim();
+}
+function topSkill(skillsStr){
+  const arr = (skillsStr||"").split(",").map(s=>s.trim()).filter(Boolean);
+  return arr[0] || "Key Skill";
+}
+function secondSkill(skillsStr){
+  const arr = (skillsStr||"").split(",").map(s=>s.trim()).filter(Boolean);
+  return arr[1] || "Core Strength";
+}
+
+function generateAbout(p){
+  const role = extractRole(p.headline) || "professional";
+  return {
+    hook: `Ever wondered how a ${role} turns ambiguity into measurable results?`,
+    story: `I started my journey in ${role.toLowerCase()} roles focused on solving real problems, not just checking boxes. Over time I've developed a track record of taking ownership of hard projects and pushing them to completion — often under changing requirements or tight deadlines.`,
+    proof: `In my most recent role: ${p.experience ? summarizeExperience(p.experience) : "delivered measurable improvements to key metrics through hands-on execution and cross-team collaboration."}`,
+    cta: `I'm currently exploring new opportunities where I can bring this impact to your team. Let's connect — I'd love to hear about what you're building.`
+  };
+}
+function summarizeExperience(exp){
+  const trimmed = exp.length>180 ? exp.slice(0,180)+"..." : exp;
+  return trimmed;
+}
+
+function generateExperience(p){
+  const raw = p.experience || "";
+  if(!raw) return "Add your role, company, and 2-3 achievement-driven bullet points using this pattern:\n[Power Verb] + [What you did] + [Measurable Result].";
+  const lines = raw.split(/\n|\.(?=\s|$)/).map(l=>l.trim()).filter(Boolean);
+  return lines.map(l=>{
+    let bullet = l;
+    if(!POWER_VERBS.some(v=>bullet.startsWith(v))){
+      bullet = "Delivered " + bullet.charAt(0).toLowerCase() + bullet.slice(1);
+    }
+    if(!/\d/.test(bullet)){
+      bullet += " — resulting in measurable improvement (quantify with %, $, or time saved).";
+    }
+    return "• " + bullet;
+  }).join("\n");
+}
+
+function generateSkillsPlan(p, analysis){
+  const current = analysis.skills;
+  const toRemove = current.filter(s=> JOB_SKILLS_REMOVE.some(r=>r.toLowerCase()===s.toLowerCase()));
+  const toAdd = JOB_SKILLS_ADD.filter(s=> !current.some(c=>c.toLowerCase()===s.toLowerCase())).slice(0,5);
+  const toPin = current.slice(0,3);
+  return {toAdd, toRemove, toPin, current};
+}
+
+const GROWTH_PLAN = [
+  {day:1, task:"Optimize headline and profile photo/banner for professionalism."},
+  {day:2, task:"Rewrite About section using Hook–Story–Proof–CTA structure."},
+  {day:3, task:"Update Experience bullets with metrics and power verbs."},
+  {day:4, task:"Reorder Skills — pin top 3, add missing in-demand skills."},
+  {day:5, task:"Post one piece of content (insight, project, or lesson learned)."},
+  {day:6, task:"Send 10 personalized connection requests to target companies/roles."},
+  {day:7, task:"Engage: comment thoughtfully on 5 posts in your target industry."}
+];
+
+/* ---------------- RENDER ---------------- */
+function renderAll(){
+  const main = document.getElementById("mainContent");
+  main.innerHTML = "";
+  main.appendChild(renderInput());
+  main.appendChild(renderReport());
+  main.appendChild(renderHeadlines());
+  main.appendChild(renderAboutSec());
+  main.appendChild(renderExperienceSec());
+  main.appendChild(renderSkillsSec());
+  main.appendChild(renderCompare());
+  main.appendChild(renderGrowth());
+  main.appendChild(renderShare());
+  main.appendChild(renderProgress());
+  showTab("input");
+}
+function sectionEl(id, titleHTML){
+  const s = document.createElement("section");
+  s.id = id;
+  s.innerHTML = titleHTML;
+  return s;
+}
+
+function renderInput(){
+  const p = state.profile;
+  const s = sectionEl("input", `<h2>Your Current Profile</h2>`);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <label>Target Goal</label>
+    <select id="in_goal">
+      ${["Job","Internship","Clients","Personal Brand","Network Growth"].map(g=>`<option value="${g}" ${p.goal===g?"selected":""}>${g}</option>`).join("")}
+    </select>
+    <label>Current Headline</label>
+    <input type="text" id="in_headline" value="${escapeAttr(p.headline)}" placeholder="e.g. Marketing Manager at XYZ Corp">
+    <label>Current About Section</label>
+    <textarea id="in_about" placeholder="Paste your About section...">${escapeHtml(p.about)}</textarea>
+    <label>Most Recent Experience (role + bullet points)</label>
+    <textarea id="in_experience" placeholder="e.g. Managed social media accounts, increased followers.">${escapeHtml(p.experience)}</textarea>
+    <label>Top Skills (comma-separated)</label>
+    <input type="text" id="in_skills" value="${escapeAttr(p.skills)}" placeholder="e.g. SEO, Content Strategy, Analytics">
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" onclick="runAnalysis()">🔍 Analyze My Profile</button>
+      <button class="btn secondary" onclick="loadSample()">Load Sample Data</button>
+    </div>
+  `;
+  s.appendChild(card);
+  return s;
+}
+
+function renderReport(){
+  const s = sectionEl("report", `<h2>Profile Report Card</h2>`);
+  if(!state.analyzed){
+    s.innerHTML += `<div class="card empty">Fill in your profile and click "Analyze My Profile" to generate your report card.</div>`;
+    return s;
+  }
+  const a = analyze(state.profile);
+  const pct = a.score;
+  s.innerHTML += `
+    <div class="card" style="text-align:center;">
+      <div class="score-ring" style="--pct:${pct}"><div class="score-inner">${pct}<small>/ 100</small></div></div>
+      <p style="color:var(--muted);margin-top:8px;">Overall Profile Strength</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>✅ Strengths</h3>
+        ${a.strengths.length ? `<ul>${a.strengths.map(x=>`<li>${x}</li>`).join("")}</ul>` : `<p class="empty">No major strengths detected yet.</p>`}
+      </div>
+      <div class="card">
+        <h3>⚠️ Improvements</h3>
+        ${a.improvements.length ? `<ul>${a.improvements.map(x=>`<li>${x}</li>`).join("")}</ul>` : `<p class="empty">Nothing major — great job!</p>`}
+      </div>
+    </div>
+    <div class="card">
+      <h3>Section Snapshot</h3>
+      <p><span class="badge">Headline</span>${state.profile.headline || "<em>empty</em>"}</p>
+      <p><span class="badge">About</span>${state.profile.about ? state.profile.about.slice(0,150)+"..." : "<em>empty</em>"}</p>
+      <p><span class="badge">Experience</span>${state.profile.experience ? state.profile.experience.slice(0,150)+"..." : "<em>empty</em>"}</p>
+      <p><span class="badge">Skills</span>${state.profile.skills || "<em>empty</em>"}</p>
+    </div>
+  `;
+  return s;
+}
+
+function renderHeadlines(){
+  const s = sectionEl("headlines", `<h2>3 Optimized Headline Suggestions</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const hl = generateHeadlines(state.profile);
+  const grid = document.createElement("div");
+  grid.className="grid";
+  hl.forEach((h,i)=>{
+    grid.innerHTML += `<div class="card"><span class="badge">Option ${i+1}</span><p style="font-size:1.05rem;">${h}</p>
+      <button class="btn small secondary" onclick="addBookmarkNote('Headline ${i+1}: ${escapeAttr(h)}')">📌 Save to Notes</button></div>`;
+  });
+  s.appendChild(grid);
+  return s;
+}
+
+function renderAboutSec(){
+  const s = sectionEl("about", `<h2>Rewritten About Section</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const a = generateAbout(state.profile);
+  s.innerHTML += `
+    <div class="card"><span class="badge">Hook</span><p>${a.hook}</p></div>
+    <div class="card"><span class="badge">Story</span><p>${a.story}</p></div>
+    <div class="card"><span class="badge">Proof</span><p>${a.proof}</p></div>
+    <div class="card"><span class="badge">CTA</span><p>${a.cta}</p></div>
+    <div class="card">
+      <h3>Full Combined Version</h3>
+      <textarea readonly style="min-height:160px;">${a.hook}\n\n${a.story}\n\n${a.proof}\n\n${a.cta}</textarea>
+    </div>
+  `;
+  return s;
+}
+
+function renderExperienceSec(){
+  const s = sectionEl("experience", `<h2>Improved Experience Section</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const improved = generateExperience(state.profile);
+  s.innerHTML += `<div class="card"><textarea readonly style="min-height:160px;">${improved}</textarea></div>
+  <div class="card"><h3>Formula</h3><p>[Power Verb] + [Action/Task] + [Measurable Result]</p>
+  <p class="empty">e.g. "Automated weekly reporting process, reducing turnaround time by 40%."</p></div>`;
+  return s;
+}
+
+function renderSkillsSec(){
+  const s = sectionEl("skills", `<h2>Skills: Add, Remove, Pin</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const a = analyze(state.profile);
+  const plan = generateSkillsPlan(state.profile, a);
+  s.innerHTML += `
+    <div class="card">
+      <h3>📌 Pin to Top</h3>
+      <div class="pillrow">${plan.toPin.length ? plan.toPin.map(x=>`<span class="pill pin">${x}</span>`).join("") : `<span class="empty">No skills listed yet.</span>`}</div>
+    </div>
+    <div class="card">
+      <h3>➕ Skills to Add</h3>
+      <div class="pillrow">${plan.toAdd.map(x=>`<span class="pill add">${x}</span>`).join("")}</div>
+    </div>
+    <div class="card">
+      <h3>➖ Skills to Remove</h3>
+      <div class="pillrow">${plan.toRemove.length ? plan.toRemove.map(x=>`<span class="pill remove">${x}</span>`).join("") : `<span class="empty">None detected — good.</span>`}</div>
+    </div>
+  `;
+  return s;
+}
+
+function renderCompare(){
+  const s = sectionEl("compare", `<h2>Before vs After</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const hl = generateHeadlines(state.profile);
+  const about = generateAbout(state.profile);
+  s.innerHTML += `
+    <div class="card compare">
+      <div class="before"><h3>Before — Headline</h3><p>${state.profile.headline || "<em>empty</em>"}</p></div>
+      <div class="after"><h3>After — Headline</h3><p>${hl[0]}</p></div>
+    </div>
+    <div class="card compare">
+      <div class="before"><h3>Before — About</h3><p>${state.profile.about ? state.profile.about.slice(0,200)+"..." : "<em>empty</em>"}</p></div>
+      <div class="after"><h3>After — About</h3><p>${about.hook} ${about.story.slice(0,120)}...</p></div>
+    </div>
+  `;
+  return s;
+}
+
+function renderGrowth(){
+  const s = sectionEl("growth", `<h2>7-Day LinkedIn Growth Plan</h2>`);
+  const card = document.createElement("div");
+  card.className = "card";
+  GROWTH_PLAN.forEach(d=>{
+    const done = !!state.progress["day"+d.day];
+    card.innerHTML += `<div class="day-card">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div class="day-num">${d.day}</div><div>${d.task}</div></div>
+      <input type="checkbox" ${done?"checked":""} onchange="toggleDay(${d.day})">
+    </div>`;
+  });
+  s.appendChild(card);
+  return s;
+}
+
+function renderShare(){
+  const s = sectionEl("share", `<h2>Shareable Summary Card</h2>`);
+  if(!state.analyzed){ s.innerHTML += `<div class="card empty">Analyze your profile first.</div>`; return s; }
+  const a = analyze(state.profile);
+  s.innerHTML += `
+    <div class="share-card">
+      <div class="badge">LinkedIn Profile Optimizer</div>
+      <h3>Score: ${a.score}/100</h3>
+      <p>${extractRole(state.profile.headline) || "Professional"} · Goal: ${state.profile.goal}</p>
+      <p style="color:var(--muted);">${a.strengths[0] || "Ready to optimize!"}</p>
+      <button class="btn" style="margin-top:10px;" onclick="window.print()">🖨 Print / Save Card</button>
+    </div>
+  `;
+  return s;
+}
+
+function renderProgress(){
+  const s = sectionEl("progress", `<h2>Progress & Notes</h2>`);
+  const totalDays = GROWTH_PLAN.length;
+  const doneDays = GROWTH_PLAN.filter(d=>state.progress["day"+d.day]).length;
+  const pct = Math.round((doneDays/totalDays)*100);
+  s.innerHTML += `
+    <div class="card">
+      <h3>7-Day Plan Progress</h3>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <p style="color:var(--muted);margin-top:6px;">${doneDays} / ${totalDays} days complete</p>
+    </div>
+    <div class="card">
+      <h3>Add Note</h3>
+      <textarea id="noteInput" placeholder="Write a note..."></textarea>
+      <button class="btn" style="margin-top:8px;" onclick="addNote()">Save Note</button>
+      <div id="notesList" style="margin-top:12px;"></div>
+    </div>
+  `;
+  return s;
+}
+
+/* ---------------- ACTIONS ---------------- */
+function escapeHtml(str){ return (str||"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function escapeAttr(str){ return (str||"").replace(/"/g,"&quot;"); }
+
+function runAnalysis(){
+  state.profile.goal = document.getElementById("in_goal").value;
+  state.profile.headline = document.getElementById("in_headline").value;
+  state.profile.about = document.getElementById("in_about").value;
+  state.profile.experience = document.getElementById("in_experience").value;
+  state.profile.skills = document.getElementById("in_skills").value;
+  state.analyzed = true;
+  save();
+  renderAll();
+  showTab("report");
+}
+function loadSample(){
+  state.profile = {
+    goal:"Job",
+    headline:"Marketing Manager",
+    about:"I am a hardworking and passionate marketing manager with experience in social media.",
+    experience:"Managed social media accounts for the company. Helped grow brand awareness.",
+    skills:"Social Media, Marketing, Team Player"
+  };
+  save();
+  renderAll();
+  showTab("input");
+}
+function toggleDay(n){
+  state.progress["day"+n] = !state.progress["day"+n];
+  save();
+  renderAll();
+  showTab("growth");
+}
+function addNote(){
+  const input = document.getElementById("noteInput");
+  const val = input.value.trim();
+  if(!val) return;
+  state.notes.push({text:val, ts:new Date().toLocaleString()});
+  save();
+  input.value="";
+  refreshNotes();
+}
+function addBookmarkNote(text){
+  state.notes.push({text, ts:new Date().toLocaleString()});
+  save();
+  refreshNotes();
+}
+function deleteNote(i){
+  state.notes.splice(i,1);
+  save();
+  refreshNotes();
+}
+function refreshNotes(){
+  const nl = document.getElementById("notesList");
+  if(!nl) return;
+  nl.innerHTML = state.notes.length ? state.notes.map((n,i)=>`
+    <div class="note-item"><div><div>${n.text}</div><small style="color:var(--muted)">${n.ts}</small></div>
+    <button class="btn secondary small" onclick="deleteNote(${i})">✕</button></div>`).join("") : `<p class="empty">No notes yet.</p>`;
+}
+function resetAll(){
+  if(!confirm("Reset all data? This cannot be undone.")) return;
+  state = defaultState();
+  save();
+  renderAll();
+  refreshNotes();
+}
+
+/* ---------------- INIT ---------------- */
+renderNav();
+renderAll();
+refreshNotes();
+</script>
+</body>
+</html>
