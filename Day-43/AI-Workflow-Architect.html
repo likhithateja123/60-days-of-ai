@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect</title>
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --border:#2a2f3a;
+  --text:#e6e8ec; --muted:#9aa3b2; --accent:#6c8cff; --accent2:#39d3a4;
+  --warn:#ffb454; --danger:#ff6b6b; --radius:10px;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Roboto,Arial,sans-serif;}
+header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+header h1{margin:0;font-size:1.4rem;}
+header .sub{color:var(--muted);font-size:.85rem;}
+nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:10;}
+nav button{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:.8rem;}
+nav button.active{background:var(--accent);border-color:var(--accent);color:#0b0d12;font-weight:600;}
+main{padding:20px 24px;max-width:1200px;margin:0 auto;}
+section{display:none;animation:fade .25s ease;}
+section.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+h2{border-left:4px solid var(--accent);padding-left:10px;margin-top:0;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+.badge{display:inline-block;background:var(--panel2);border:1px solid var(--border);padding:2px 8px;border-radius:20px;font-size:.7rem;color:var(--muted);margin-right:4px;}
+.tool{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;}
+.tool small{color:var(--muted);}
+textarea,input[type=text]{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;font-family:inherit;}
+textarea{min-height:70px;resize:vertical;}
+button.btn{background:var(--accent);color:#0b0d12;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;}
+button.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+.stage{border-left:3px solid var(--accent2);padding-left:12px;margin-bottom:16px;}
+.progress-bar{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:var(--accent2);width:0%;transition:width .3s;}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;}
+th{background:var(--panel2);}
+.checklist label{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.9rem;}
+.tree{font-size:.85rem;}
+.tree ul{list-style:none;padding-left:18px;border-left:1px dashed var(--border);}
+.tree li{margin:6px 0;}
+.bookmark-item,.note-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.pill{background:var(--accent);color:#0b0d12;border-radius:20px;padding:1px 8px;font-size:.7rem;font-weight:600;}
+.diagram-box{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.diagram-node{background:var(--panel2);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:.8rem;text-align:center;min-width:110px;}
+.arrow{color:var(--accent);font-size:1.2rem;}
+footer{text-align:center;color:var(--muted);font-size:.75rem;padding:24px;}
+@media print{
+  nav,header button,#printBtn{display:none;}
+  section{display:block !important;}
+  body{background:#fff;color:#000;}
+  .card{border:1px solid #ccc;}
+}
+@media (max-width:600px){
+  header{flex-direction:column;align-items:flex-start;}
+  nav{overflow-x:auto;flex-wrap:nowrap;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>AI Workflow Architect</h1>
+    <div class="sub">Workflow: Personalized Tutoring / Learning — University Instructor</div>
+  </div>
+  <div>
+    <button class="btn" id="printBtn" onclick="window.print()">🖨 Print Guide</button>
+  </div>
+</header>
+
+<nav id="tabs"></nav>
+
+<main id="mainContent"></main>
+
+<footer>AI Workflow Architect · 100% offline · Data stored only in your browser (localStorage)</footer>
+
+<script>
+/* ---------------- DATA ---------------- */
+const STAGES = [
+  {name:"Diagnose", objective:"Identify each student's current knowledge level, gaps, and learning style.",
+   tasks:["Administer diagnostic quiz","Review past assignments/grades","Interview student on goals & struggles"],
+   tools:[{name:"Khanmigo",note:"Adaptive diagnostic tutoring"},{name:"Diagnostic AI Quiz Generator",note:"Custom quiz from syllabus"}],
+   alt:["Google Forms + rubric","ChatGPT custom GPT diagnostic"],
+   prompt:"Create a 10-question diagnostic quiz for [topic] that identifies conceptual gaps for a university-level student, ranked by difficulty.",
+   best:["Use varied question types","Align to course learning outcomes"],
+   mistakes:["Testing only recall, not application","Skipping baseline before personalizing"],
+   output:"Diagnostic report highlighting strengths/gaps per student.",
+   time:"30–45 min per student cohort"},
+  {name:"Plan", objective:"Design a personalized learning path based on diagnostic results.",
+   tasks:["Set learning objectives","Sequence topics by dependency","Select pacing & milestones"],
+   tools:[{name:"Claude (Projects)",note:"Build structured learning paths"},{name:"Notion AI",note:"Organize curriculum + tasks"}],
+   alt:["Trello + manual planning","Coursera skill maps"],
+   prompt:"Given these diagnostic gaps: [list], design a 6-week personalized study plan with weekly objectives and checkpoints for a university student in [subject].",
+   best:["Break into weekly milestones","Map prerequisites explicitly"],
+   mistakes:["Overloading first week","Ignoring student's existing schedule"],
+   output:"Structured personalized syllabus/roadmap document.",
+   time:"1–2 hours"},
+  {name:"Create Content", objective:"Generate tailored explanations, exercises, and materials.",
+   tasks:["Draft explanations at right difficulty","Generate practice problems","Create examples relevant to student interest"],
+   tools:[{name:"ChatGPT (GPT-4/5 class)",note:"Explanations & practice sets"},{name:"Claude",note:"Long-form tailored materials"}],
+   alt:["Perplexity for research-backed content","Wolfram Alpha for STEM problems"],
+   prompt:"Explain [concept] to a university student who struggles with [specific gap], using an analogy related to [student interest], then give 3 practice problems with increasing difficulty.",
+   best:["Match tone to student level","Include worked examples"],
+   mistakes:["Too much jargon","No feedback loop after content delivery"],
+   output:"Custom study materials, worksheets, explainer notes.",
+   time:"20–40 min per topic"},
+  {name:"Deliver / Tutor", objective:"Conduct the personalized tutoring session using AI-assisted support.",
+   tasks:["Run live/async session","Use AI for real-time Q&A","Adapt on the fly to confusion signals"],
+   tools:[{name:"Khanmigo",note:"Real-time Socratic tutoring"},{name:"Claude",note:"Live Q&A support tool"}],
+   alt:["Zoom + ChatGPT co-pilot","Discord bot tutoring"],
+   prompt:"Act as a Socratic tutor helping a student understand [concept]. Ask guiding questions instead of giving direct answers, and adapt based on their responses.",
+   best:["Encourage active recall","Use Socratic questioning, not lecturing"],
+   mistakes:["Giving answers too quickly","Not checking understanding before moving on"],
+   output:"Completed tutoring session with student engagement log.",
+   time:"30–60 min per session"},
+  {name:"Assess", objective:"Evaluate progress against objectives and adjust plan.",
+   tasks:["Administer formative assessment","Analyze error patterns","Update personalized plan"],
+   tools:[{name:"Gradescope AI",note:"Automated grading & analytics"},{name:"ChatGPT",note:"Error pattern analysis"}],
+   alt:["Turnitin","Manual rubric grading"],
+   prompt:"Analyze this set of student answers: [paste]. Identify recurring error patterns and suggest what to reteach.",
+   best:["Assess frequently in small increments","Give actionable, specific feedback"],
+   mistakes:["Only summative testing","Feedback too vague to act on"],
+   output:"Progress report + updated learning plan.",
+   time:"20–30 min"},
+  {name:"Reflect & Automate", objective:"Review outcomes and identify what can be automated for future cohorts.",
+   tasks:["Collect student feedback","Log what worked/didn't","Template reusable prompts & materials"],
+   tools:[{name:"Notion AI",note:"Summarize & archive learnings"},{name:"Claude",note:"Build reusable prompt templates"}],
+   alt:["Google Sheets tracker","Airtable automation"],
+   prompt:"Summarize this semester's tutoring outcomes: [data]. Suggest 3 process improvements and which parts could be templated or automated.",
+   best:["Archive successful materials for reuse","Iterate templates each term"],
+   mistakes:["Not capturing lessons learned","Rebuilding materials from scratch each time"],
+   output:"Improvement log + reusable template library.",
+   time:"30–45 min"}
+];
+
+const DECISION_TREE = {
+  q:"What does the student need most right now?",
+  options:[
+    {label:"Doesn't know where they stand", next:"Start at Diagnose stage — run a diagnostic quiz."},
+    {label:"Has gaps identified, needs a path", next:"Go to Plan stage — build a personalized roadmap."},
+    {label:"Needs study material", next:"Go to Create Content stage — generate tailored explanations/practice."},
+    {label:"Ready for live help", next:"Go to Deliver/Tutor stage — run Socratic AI-assisted session."},
+    {label:"Finished a unit", next:"Go to Assess stage — measure progress, adjust plan."}
+  ]
+};
+
+const AI_STACK = [
+  {role:"Primary Tutoring AI", tool:"Khanmigo", why:"Purpose-built Socratic tutoring, safe for education"},
+  {role:"Content Generation", tool:"Claude / ChatGPT", why:"Flexible explanations, practice problems, long context"},
+  {role:"Organization", tool:"Notion AI", why:"Plan, track, and archive learning paths"},
+  {role:"Assessment", tool:"Gradescope AI", why:"Automated grading with analytics"},
+  {role:"STEM Problem Solving", tool:"Wolfram Alpha", why:"Precise computation & step solutions"}
+];
+
+const RESOURCES = [
+  {title:"Socratic Method for AI Tutoring", type:"Guide", note:"Techniques for question-based teaching with AI support."},
+  {title:"Designing Adaptive Learning Paths", type:"Article", note:"Frameworks for sequencing personalized curricula."},
+  {title:"Formative Assessment Best Practices", type:"Course", note:"How to assess frequently without burning out."},
+  {title:"Prompt Engineering for Educators", type:"Guide", note:"Writing prompts that produce pedagogically sound content."}
+];
+
+const FUTURE_AUTOMATION = [
+  "Auto-generate diagnostic quizzes from syllabus upload each term",
+  "Auto-summarize student progress into weekly parent/advisor reports",
+  "Chatbot that answers common student questions using this term's materials",
+  "Automated flagging of students falling behind pace based on assessment data"
+];
+
+/* ---------------- STATE / STORAGE ---------------- */
+const LS_KEY = "aiWorkflowArchitect_eduTutoring_v1";
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || defaultState(); }
+  catch(e){ return defaultState(); }
+}
+function defaultState(){
+  return { progress:{}, notes:[], bookmarks:[] };
+}
+let state = loadState();
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/* ---------------- TABS ---------------- */
+const TABS = [
+  {id:"dashboard", label:"Dashboard"},
+  {id:"stages", label:"Workflow Stages"},
+  {id:"diagram", label:"Diagram"},
+  {id:"tree", label:"Decision Tree"},
+  {id:"progress", label:"Progress"},
+  {id:"notes", label:"Notes & Bookmarks"},
+  {id:"stack", label:"AI Stack"},
+  {id:"resources", label:"Resources"},
+  {id:"future", label:"Future Automation"},
+  {id:"summary", label:"Summary / Print"}
+];
+
+function renderNav(){
+  const nav = document.getElementById("tabs");
+  nav.innerHTML = "";
+  TABS.forEach(t=>{
+    const b = document.createElement("button");
+    b.textContent = t.label;
+    b.dataset.id = t.id;
+    b.onclick = ()=>showTab(t.id);
+    nav.appendChild(b);
+  });
+}
+function showTab(id){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active", b.dataset.id===id));
+  document.querySelectorAll("main section").forEach(s=>s.classList.toggle("active", s.id===id));
+}
+
+/* ---------------- RENDERERS ---------------- */
+function renderAll(){
+  const main = document.getElementById("mainContent");
+  main.innerHTML = "";
+  main.appendChild(renderDashboard());
+  main.appendChild(renderStages());
+  main.appendChild(renderDiagram());
+  main.appendChild(renderTree());
+  main.appendChild(renderProgress());
+  main.appendChild(renderNotes());
+  main.appendChild(renderStack());
+  main.appendChild(renderResources());
+  main.appendChild(renderFuture());
+  main.appendChild(renderSummary());
+  showTab("dashboard");
+}
+
+function sectionEl(id, titleHTML){
+  const s = document.createElement("section");
+  s.id = id;
+  s.innerHTML = titleHTML;
+  return s;
+}
+
+function renderDashboard(){
+  const total = STAGES.length;
+  const done = STAGES.filter(s=>state.progress[s.name]).length;
+  const pct = Math.round((done/total)*100);
+  const s = sectionEl("dashboard", `<h2>Workflow Dashboard</h2>`);
+  s.innerHTML += `
+    <div class="grid grid-3">
+      <div class="card"><div class="badge">Workflow</div><h3>Personalized Tutoring</h3><p class="sub" style="color:var(--muted)">University Instructor · Education</p></div>
+      <div class="card"><div class="badge">Stages Completed</div><h3>${done} / ${total}</h3><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+      <div class="card"><div class="badge">Bookmarks</div><h3>${state.bookmarks.length}</h3><p style="color:var(--muted)">saved items</p></div>
+    </div>
+    <div class="card">
+      <h3>Quick Overview</h3>
+      <p>This tool guides a university instructor through delivering AI-assisted personalized tutoring — from diagnosing student gaps to reflecting and automating future cohorts.</p>
+      <table>
+        <tr><th>Stage</th><th>Objective</th><th>Time Est.</th></tr>
+        ${STAGES.map(st=>`<tr><td>${st.name}</td><td>${st.objective}</td><td>${st.time}</td></tr>`).join("")}
+      </table>
+    </div>`;
+  return s;
+}
+
+function renderStages(){
+  const s = sectionEl("stages", `<h2>End-to-End Workflow Stages</h2>`);
+  STAGES.forEach(st=>{
+    const div = document.createElement("div");
+    div.className = "card stage";
+    div.innerHTML = `
+      <h3>${st.name} <span class="badge">${st.time}</span></h3>
+      <p><strong>Objective:</strong> ${st.objective}</p>
+      <p><strong>Tasks:</strong></p>
+      <ul>${st.tasks.map(t=>`<li>${t}</li>`).join("")}</ul>
+      <p><strong>Recommended AI Tools:</strong></p>
+      ${st.tools.map(t=>`<div class="tool"><span>${t.name}</span><small>${t.note}</small></div>`).join("")}
+      <p><strong>Alternative Tools:</strong> ${st.alt.join(", ")}</p>
+      <p><strong>Prompt Example:</strong></p>
+      <textarea readonly>${st.prompt}</textarea>
+      <p><strong>Best Practices:</strong></p>
+      <ul>${st.best.map(b=>`<li>${b}</li>`).join("")}</ul>
+      <p><strong>Common Mistakes:</strong></p>
+      <ul>${st.mistakes.map(m=>`<li>${m}</li>`).join("")}</ul>
+      <p><strong>Expected Output:</strong> ${st.output}</p>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn secondary" onclick="toggleProgress('${st.name}')">${state.progress[st.name] ? "✅ Marked Complete" : "Mark Complete"}</button>
+        <button class="btn secondary" onclick="addBookmark('${st.name} — Stage')">🔖 Bookmark</button>
+      </div>`;
+    s.appendChild(div);
+  });
+  return s;
+}
+
+function renderDiagram(){
+  const s = sectionEl("diagram", `<h2>Workflow Diagram</h2>`);
+  const box = document.createElement("div");
+  box.className = "card diagram-box";
+  STAGES.forEach((st,i)=>{
+    box.innerHTML += `<div class="diagram-node">${st.name}</div>` + (i<STAGES.length-1 ? `<span class="arrow">→</span>` : "");
+  });
+  s.appendChild(box);
+  return s;
+}
+
+function renderTree(){
+  const s = sectionEl("tree", `<h2>Decision Tree</h2>`);
+  const card = document.createElement("div");
+  card.className = "card tree";
+  card.innerHTML = `<p><strong>${DECISION_TREE.q}</strong></p><ul>${
+    DECISION_TREE.options.map(o=>`<li><strong>${o.label}</strong><div style="color:var(--muted)">→ ${o.next}</div></li>`).join("")
+  }</ul>`;
+  s.appendChild(card);
+  return s;
+}
+
+function renderProgress(){
+  const s = sectionEl("progress", `<h2>Progress Tracker</h2>`);
+  const card = document.createElement("div");
+  card.className = "card checklist";
+  STAGES.forEach(st=>{
+    card.innerHTML += `<label><input type="checkbox" ${state.progress[st.name]?"checked":""} onchange="toggleProgress('${st.name}')"> ${st.name} — ${st.objective}</label>`;
+  });
+  s.appendChild(card);
+  return s;
+}
+
+function renderNotes(){
+  const s = sectionEl("notes", `<h2>Notes & Bookmarks</h2>`);
+  s.innerHTML += `
+    <div class="card">
+      <h3>Add Note</h3>
+      <textarea id="noteInput" placeholder="Write a note..."></textarea>
+      <button class="btn" style="margin-top:8px;" onclick="addNote()">Save Note</button>
+      <div id="notesList" style="margin-top:12px;"></div>
+    </div>
+    <div class="card">
+      <h3>Bookmarks</h3>
+      <div id="bookmarksList"></div>
+    </div>`;
+  return s;
+}
+
+function renderStack(){
+  const s = sectionEl("stack", `<h2>Recommended AI Stack</h2>`);
+  const grid = document.createElement("div");
+  grid.className = "grid grid-2";
+  AI_STACK.forEach(a=>{
+    grid.innerHTML += `<div class="card"><div class="badge">${a.role}</div><h3>${a.tool}</h3><p style="color:var(--muted)">${a.why}</p></div>`;
+  });
+  s.appendChild(grid);
+  return s;
+}
+
+function renderResources(){
+  const s = sectionEl("resources", `<h2>Learning Resources</h2>`);
+  const grid = document.createElement("div");
+  grid.className = "grid grid-2";
+  RESOURCES.forEach(r=>{
+    grid.innerHTML += `<div class="card"><span class="pill">${r.type}</span><h3>${r.title}</h3><p style="color:var(--muted)">${r.note}</p></div>`;
+  });
+  s.appendChild(grid);
+  return s;
+}
+
+function renderFuture(){
+  const s = sectionEl("future", `<h2>Future Automation Opportunities</h2>`);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<ul>${FUTURE_AUTOMATION.map(f=>`<li>${f}</li>`).join("")}</ul>`;
+  s.appendChild(card);
+  return s;
+}
+
+function renderSummary(){
+  const done = STAGES.filter(s=>state.progress[s.name]).length;
+  const s = sectionEl("summary", `<h2>Workflow Summary — Printable Guide</h2>`);
+  s.innerHTML += `
+    <div class="card">
+      <h3>Personalized Tutoring Workflow — University Instructor</h3>
+      <p>Stages completed: ${done} / ${STAGES.length}</p>
+      <p>This workflow takes an instructor from diagnosing a student's gaps through delivering AI-assisted tutoring, assessing progress, and automating improvements for future cohorts.</p>
+      <ol>${STAGES.map(st=>`<li><strong>${st.name}</strong> (${st.time}) — ${st.objective}</li>`).join("")}</ol>
+      <h4>Recommended AI Stack</h4>
+      <ul>${AI_STACK.map(a=>`<li>${a.role}: ${a.tool}</li>`).join("")}</ul>
+      <button class="btn" onclick="window.print()">🖨 Print This Guide</button>
+    </div>`;
+  return s;
+}
+
+/* ---------------- ACTIONS ---------------- */
+function toggleProgress(name){
+  state.progress[name] = !state.progress[name];
+  saveState();
+  renderAll();
+  showTab(document.querySelector("nav button.active")?.dataset.id || "dashboard");
+}
+function addNote(){
+  const input = document.getElementById("noteInput");
+  const val = input.value.trim();
+  if(!val) return;
+  state.notes.push({text:val, ts:new Date().toLocaleString()});
+  saveState();
+  input.value = "";
+  refreshNotesUI();
+}
+function deleteNote(i){
+  state.notes.splice(i,1);
+  saveState();
+  refreshNotesUI();
+}
+function addBookmark(label){
+  if(state.bookmarks.some(b=>b.label===label)) return;
+  state.bookmarks.push({label, ts:new Date().toLocaleString()});
+  saveState();
+  refreshNotesUI();
+}
+function deleteBookmark(i){
+  state.bookmarks.splice(i,1);
+  saveState();
+  refreshNotesUI();
+}
+function refreshNotesUI(){
+  const nl = document.getElementById("notesList");
+  const bl = document.getElementById("bookmarksList");
+  if(nl){
+    nl.innerHTML = state.notes.length ? state.notes.map((n,i)=>`
+      <div class="note-item"><div><div>${n.text}</div><small style="color:var(--muted)">${n.ts}</small></div>
+      <button class="btn secondary" onclick="deleteNote(${i})">✕</button></div>`).join("") : `<p style="color:var(--muted)">No notes yet.</p>`;
+  }
+  if(bl){
+    bl.innerHTML = state.bookmarks.length ? state.bookmarks.map((b,i)=>`
+      <div class="bookmark-item"><div>${b.label}<br><small style="color:var(--muted)">${b.ts}</small></div>
+      <button class="btn secondary" onclick="deleteBookmark(${i})">✕</button></div>`).join("") : `<p style="color:var(--muted)">No bookmarks yet.</p>`;
+  }
+}
+
+/* ---------------- INIT ---------------- */
+renderNav();
+renderAll();
+refreshNotesUI();
+</script>
+</body>
+</html>
