@@ -1,0 +1,36 @@
+# Day 45 – Decision Strategist
+
+##  Project Overview
+Built an interactive **Decision Strategist** web application that helps users analyze difficult decisions using a structured decision-making framework. The application guides users through questions, compares options, identifies assumptions and biases, generates a decision matrix, and provides actionable recommendations.
+
+##  Features
+- Interactive decision interview
+- Decision summary
+- Option comparison cards
+- Assumption & bias analysis
+- Decision matrix with scoring
+- Risk (Premortem) analysis
+- 7-Day action plan
+- Final recommendation
+- Shareable summary cards
+- Responsive dark UI
+
+## Technologies Used
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+##  Key Learnings
+- Structured decision-making
+- Critical thinking
+- Risk analysis
+- UI/UX design
+- Frontend application development
+
+##  Files
+- index.html
+- day45.md
+- screenshots/
+
+##  Status
+Day 45 Completed Successfully.
