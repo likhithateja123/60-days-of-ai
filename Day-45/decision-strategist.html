@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Decision Strategist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0b0d12; --card:#151822; --card2:#1b1f2b; --border:#2a2f3d;
+  --text:#e8eaf0; --muted:#9aa2b5; --accent:#7c9eff; --accent2:#5ad1c4;
+  --warn:#ffb15c; --danger:#ff7a7a; --good:#7ce0a0;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:radial-gradient(1200px 600px at 20% -10%, #1a2035, transparent),
+              radial-gradient(1000px 600px at 100% 0%, #14202a, transparent), var(--bg);
+  color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  line-height:1.6; padding:24px 16px 80px;
+}
+.wrap{max-width:960px; margin:0 auto;}
+header.hero{text-align:center; padding:40px 20px 30px; animation:fadeDown .8s ease;}
+header.hero h1{font-size:2.2rem; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header.hero p{color:var(--muted); margin-top:8px;}
+.section{
+  background:linear-gradient(180deg, var(--card), var(--card2));
+  border:1px solid var(--border); border-radius:16px; padding:28px;
+  margin-bottom:24px; opacity:0; transform:translateY(24px);
+  animation:rise .6s ease forwards;
+}
+.section h2{font-size:1.3rem; margin-bottom:16px; display:flex; align-items:center; gap:10px;}
+.section h2 .num{
+  width:30px; height:30px; border-radius:50%; background:var(--accent);
+  color:#0b0d12; font-size:.9rem; display:flex; align-items:center; justify-content:center; font-weight:700;
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+.card{
+  background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:18px;
+  transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.card:hover{transform:translateY(-4px); border-color:var(--accent); box-shadow:0 10px 30px rgba(124,158,255,.15);}
+.card h3{color:var(--accent2); margin-bottom:10px; font-size:1.05rem;}
+.tag{display:inline-block; font-size:.72rem; padding:3px 10px; border-radius:20px; margin-bottom:10px; font-weight:600; letter-spacing:.03em;}
+.tag.adv{background:rgba(124,224,160,.15); color:var(--good);}
+.tag.dis{background:rgba(255,122,122,.15); color:var(--danger);}
+.tag.hidden{background:rgba(255,177,92,.15); color:var(--warn);}
+ul{padding-left:20px; margin-top:6px;}
+li{margin-bottom:6px; color:var(--text);}
+.small{color:var(--muted); font-size:.9rem;}
+.matrix{width:100%; border-collapse:collapse; margin-top:10px;}
+.matrix th, .matrix td{padding:10px 8px; text-align:left; border-bottom:1px solid var(--border); font-size:.88rem;}
+.matrix th{color:var(--muted); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em;}
+.bar-outer{background:#0e1118; border-radius:8px; height:10px; overflow:hidden; width:100%; min-width:100px;}
+.bar-inner{height:100%; width:0; border-radius:8px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.total-row td{font-weight:700; color:var(--accent2); border-top:2px solid var(--border);}
+.risk-card{border-left:4px solid var(--danger); padding-left:16px;}
+.risk-card h3{color:var(--danger);}
+.plan-day{
+  display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-bottom:1px dashed var(--border);
+}
+.plan-day:last-child{border-bottom:none;}
+.day-badge{
+  min-width:60px; height:36px; border-radius:8px; background:var(--card2); border:1px solid var(--accent);
+  color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;
+}
+.verdict{
+  text-align:center; padding:20px 0;
+}
+.verdict .pick{
+  font-size:1.6rem; font-weight:800; background:linear-gradient(90deg,var(--good),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:8px;
+}
+.share-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+@media(max-width:800px){.share-cards{grid-template-columns:1fr;}}
+.share-card{
+  border-radius:16px; padding:22px; min-height:220px; display:flex; flex-direction:column; justify-content:space-between;
+  border:1px solid var(--border); position:relative; overflow:hidden;
+}
+.share-card::before{content:''; position:absolute; top:-40%; right:-40%; width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(124,158,255,.25), transparent 70%);}
+.share-card h4{font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;}
+.share-card .content{font-size:.95rem; z-index:1;}
+.share-card .footer{font-size:.72rem; color:var(--muted); margin-top:14px; z-index:1;}
+.share-card.matrixcard{background:linear-gradient(135deg,#182034,#101420);}
+.share-card.finalcard{background:linear-gradient(135deg,#12241f,#0f1620);}
+.share-card.linkedincard{background:linear-gradient(135deg,#1c1830,#101420);}
+.mini-bar{height:6px; background:#0e1118; border-radius:6px; overflow:hidden; margin:4px 0 10px;}
+.mini-bar span{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2));}
+@keyframes rise{to{opacity:1; transform:translateY(0);}}
+@keyframes fadeDown{from{opacity:0; transform:translateY(-16px);} to{opacity:1; transform:translateY(0);}}
+.section:nth-of-type(1){animation-delay:.05s;}
+.section:nth-of-type(2){animation-delay:.1s;}
+.section:nth-of-type(3){animation-delay:.15s;}
+.section:nth-of-type(4){animation-delay:.2s;}
+.section:nth-of-type(5){animation-delay:.25s;}
+.section:nth-of-type(6){animation-delay:.3s;}
+.section:nth-of-type(7){animation-delay:.35s;}
+.section:nth-of-type(8){animation-delay:.4s;}
+footer{text-align:center; color:var(--muted); font-size:.8rem; margin-top:40px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+<h1>Decision Strategist</h1>
+<p>Your personalized breakdown for a high-stakes decision</p>
+</header>
+
+<section class="section">
+<h2><span class="num">1</span>Decision summary</h2>
+<p><strong>The decision:</strong> Whether to prioritize placement/software job preparation or spend more time building AI projects and skills, in order to secure a software or AI-related role after graduation while building toward a long-term AI engineering career.</p>
+<p style="margin-top:10px;"><strong>Main trade-off:</strong> Time invested in AI depth versus time invested in placement readiness — both compete for the same limited hours over the next 6 months.</p>
+<p style="margin-top:10px;"><strong>Why it's hard:</strong> Both paths feel urgent and irreversible in the moment. Placements have a hard external deadline; AI mastery is a slow compounding process. Choosing either one too hard risks losing ground on the other, and the fear of missing out cuts both ways.</p>
+</section>
+
+<section class="section">
+<h2><span class="num">2</span>Compare options</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Option A — Placement-first</h3>
+    <span class="tag adv">Advantage</span>
+    <ul><li>Faster path to income and job security</li><li>Structured, well-known prep process (DSA, aptitude, interviews)</li><li>Reduces anxiety about missing campus opportunities</li></ul>
+    <span class="tag dis">Disadvantage</span>
+    <ul><li>Less time to build a distinctive AI portfolio</li><li>Risk of landing a generic software role misaligned with long-term goals</li></ul>
+    <span class="tag hidden">Hidden opportunity</span>
+    <p class="small">Strong DSA/CS fundamentals actually make you a better AI engineer later — this isn't wasted time, it's infrastructure.</p>
+    <p class="small" style="margin-top:8px;"><strong>Best for:</strong> Reducing financial/career risk while keeping AI as a strong side-track.</p>
+  </div>
+  <div class="card">
+    <h3>Option B — AI-project-first</h3>
+    <span class="tag adv">Advantage</span>
+    <ul><li>Builds a differentiated portfolio for AI-specific roles</li><li>Compounds toward your actual long-term goal faster</li><li>Projects can double as interview talking points</li></ul>
+    <span class="tag dis">Disadvantage</span>
+    <ul><li>Risk of under-preparing for placement interviews (DSA, CS fundamentals)</li><li>AI projects can sprawl without a job-relevant deadline forcing focus</li></ul>
+    <span class="tag hidden">Hidden opportunity</span>
+    <p class="small">A few sharp, well-documented AI projects can itself become your placement differentiator, not a distraction from it.</p>
+    <p class="small" style="margin-top:8px;"><strong>Best for:</strong> Long-term career alignment if you can protect a placement-prep baseline.</p>
+  </div>
+</div>
+</section>
+
+<section class="section">
+<h2><span class="num">3</span>Assumption check</h2>
+<h3 style="color:var(--accent2); margin-bottom:8px;">3 assumptions you're making</h3>
+<ul>
+  <li>That placement prep and AI project work are mutually exclusive rather than sequenced or blended.</li>
+  <li>That missing a campus placement cycle closes the door on software jobs entirely.</li>
+  <li>That "enough" AI skill is a fixed bar you must hit before the 6-month deadline, rather than an ongoing trajectory.</li>
+</ul>
+<h3 style="color:var(--accent2); margin:16px 0 8px;">2 thinking biases at play</h3>
+<ul>
+  <li><strong>FOMO / loss aversion:</strong> Both fears you named are about missing out — this naturally overweights worst-case scenarios over realistic ones.</li>
+  <li><strong>False dichotomy:</strong> Framing this as "placements OR AI" when a blended, sequenced approach is very possible in 6 months.</li>
+</ul>
+<h3 style="color:var(--accent2); margin:16px 0 8px;">1 overlooked factor</h3>
+<p>Off-campus and pool-campus hiring windows exist well beyond the standard placement season — the "one shot" framing of campus placements is often less rigid than it feels.</p>
+</section>
+
+<section class="section">
+<h2><span class="num">4</span>Decision matrix</h2>
+<table class="matrix">
+<thead><tr><th>Criteria</th><th>Placement-first</th><th></th><th>AI-project-first</th><th></th></tr></thead>
+<tbody id="matrixBody"></tbody>
+<tfoot><tr class="total-row"><td>Total score</td><td id="totalA">—</td><td></td><td id="totalB">—</td><td></td></tr></tfoot>
+</table>
+</section>
+
+<section class="section">
+<h2><span class="num">5</span>Risk preview</h2>
+<div class="grid2">
+  <div class="card risk-card">
+    <h3>AI-project-first — how it could fail</h3>
+    <p><strong>Why it could fail:</strong> Projects drift without deadlines, leaving weak DSA/interview readiness when placement season arrives.</p>
+    <p style="margin-top:8px;"><strong>Warning signs:</strong> Skipping timed practice for weeks, no completed project in 3–4 weeks, avoiding mock interviews.</p>
+    <p style="margin-top:8px;"><strong>Prevention:</strong> Timebox placement prep daily (non-negotiable), cap each AI project at 2–3 weeks with a shipped output.</p>
+  </div>
+  <div class="card risk-card">
+    <h3>Placement-first — how it could fail</h3>
+    <p><strong>Why it could fail:</strong> You land a generic role, then long hours make it hard to start the AI journey you actually wanted.</p>
+    <p style="margin-top:8px;"><strong>Warning signs:</strong> Zero AI learning time per week, choosing prep topics with no AI relevance, feeling resentful about the job search.</p>
+    <p style="margin-top:8px;"><strong>Prevention:</strong> Protect even 5–6 hrs/week for AI fundamentals; prioritize companies/roles with AI-adjacent teams when applying.</p>
+  </div>
+</div>
+</section>
+
+<section class="section">
+<h2><span class="num">6</span>7-day action plan</h2>
+<div id="planList"></div>
+</section>
+
+<section class="section">
+<h2><span class="num">7</span>Final recommendation</h2>
+<div class="verdict">
+  <div class="pick">Blended path, weighted toward AI projects</div>
+  <p style="max-width:640px; margin:0 auto;">Run a dual-track 6 months: protect a daily floor of placement prep (DSA/aptitude, ~1 hr/day) while making AI projects your primary growth engine (~2x the time). This matches your gut instinct while directly hedging your biggest fear on both sides.</p>
+</div>
+<p style="margin-top:14px;"><strong>Why:</strong> Your own answers show AI projects are the higher-conviction path, and a protected placement-prep floor is enough to keep that door open without diluting AI focus.</p>
+<p style="margin-top:10px;"><strong>What could change this recommendation:</strong> If a specific placement deadline lands inside the 6 months with no off-campus alternative, shift temporarily to placement-first for 4–6 weeks, then resume the AI-heavy track.</p>
+<p style="margin-top:10px;"><strong>One honest takeaway:</strong> You don't have to pick a side forever — you have to pick a ratio for the next 6 months, and revisit it monthly.</p>
+</section>
+
+<section class="section">
+<h2><span class="num">8</span>Share cards</h2>
+<div class="share-cards">
+  <div class="share-card matrixcard">
+    <div>
+      <h4>Matrix summary</h4>
+      <div class="content" id="cardMatrix"></div>
+    </div>
+    <div class="footer">Decision Strategist</div>
+  </div>
+  <div class="share-card finalcard">
+    <div>
+      <h4>Final recommendation</h4>
+      <div class="content">
+        <strong>Blended path, AI-weighted</strong>
+        <p style="margin-top:8px; font-size:.85rem; color:var(--muted);">Daily placement-prep floor + AI projects as primary growth engine over 6 months.</p>
+      </div>
+    </div>
+    <div class="footer">Decision Strategist</div>
+  </div>
+  <div class="share-card linkedincard">
+    <div>
+      <h4>LinkedIn caption</h4>
+      <div class="content" style="font-size:.88rem;">
+        "Choosing between placements and AI projects? You don't need to pick a side — you need to pick a ratio. Protect a daily prep floor, let your bigger bet compound. 🚀 #AIEngineering #CareerGrowth"
+      </div>
+    </div>
+    <div class="footer">Decision Strategist</div>
+  </div>
+</div>
+</section>
+
+<footer>Generated by Decision Strategist · For reflection, not certainty.</footer>
+</div>
+
+<script>
+const criteria = [
+  {name:"Career / life growth", a:6, b:8},
+  {name:"Financial safety", a:8, b:5},
+  {name:"Learning", a:5, b:9},
+  {name:"Stress", a:6, b:5},
+  {name:"Reversibility", a:7, b:6},
+  {name:"Long-term fit", a:5, b:9},
+  {name:"Regret risk", a:5, b:8}
+];
+
+const tbody = document.getElementById('matrixBody');
+let totalA = 0, totalB = 0;
+criteria.forEach(c=>{
+  totalA += c.a; totalB += c.b;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${c.name}</td>
+    <td style="width:70px;">${c.a}/10</td>
+    <td><div class="bar-outer"><div class="bar-inner" data-w="${c.a*10}"></div></div></td>
+    <td style="width:70px;">${c.b}/10</td>
+    <td><div class="bar-outer"><div class="bar-inner" data-w="${c.b*10}"></div></div></td>
+  `;
+  tbody.appendChild(tr);
+});
+document.getElementById('totalA').textContent = totalA + " / " + (criteria.length*10);
+document.getElementById('totalB').textContent = totalB + " / " + (criteria.length*10);
+
+setTimeout(()=>{
+  document.querySelectorAll('.bar-inner').forEach(b=>{
+    b.style.width = b.dataset.w + '%';
+  });
+}, 300);
+
+document.getElementById('cardMatrix').innerHTML = `
+  <div style="font-size:.85rem;">Placement-first: <strong>${totalA}/70</strong></div>
+  <div class="mini-bar"><span style="width:${(totalA/70*100)}%"></span></div>
+  <div style="font-size:.85rem;">AI-project-first: <strong>${totalB}/70</strong></div>
+  <div class="mini-bar"><span style="width:${(totalB/70*100)}%"></span></div>
+`;
+
+const plan = [
+  {day:"Day 1", task:"List every AI skill gap and every placement topic gap on one page — no filtering yet."},
+  {day:"Day 2", task:"Block a recurring daily 1-hour placement-prep slot on your calendar for the next 6 months."},
+  {day:"Day 3", task:"Pick one AI project idea you can ship in 2–3 weeks; write a one-paragraph scope."},
+  {day:"Day 4", task:"Research 3 companies/roles that value AI-adjacent skills — note what they actually ask for."},
+  {day:"Day 5", task:"Do one timed DSA/aptitude practice session to calibrate your current placement readiness."},
+  {day:"Day 6", task:"Start the AI project: environment setup, data/tools ready, first working piece of code."},
+  {day:"Day 7", task:"Review the week honestly — adjust the AI:placement time ratio for week 2 based on what felt sustainable."}
+];
+const planList = document.getElementById('planList');
+plan.forEach(p=>{
+  const div = document.createElement('div');
+  div.className = 'plan-day';
+  div.innerHTML = `<div class="day-badge">${p.day}</div><div>${p.task}</div>`;
+  planList.appendChild(div);
+});
+</script>
+</body>
+</html>
