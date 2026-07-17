@@ -1,0 +1,39 @@
+# Day 47 – Content Intelligence Studio
+
+## Overview
+Built a premium single-page **Content Intelligence Studio** that helps analyze content quality using AI-inspired workflows. The application provides structured content evaluation, recommendations, platform-specific insights, and an interactive dashboard.
+
+## Features
+- AI Content Analysis Dashboard
+- Multi-stage Content Review Workflow
+- Overall Content Score
+- Category-wise Analysis
+- Strengths & Weaknesses
+- Improvement Recommendations
+- Alternative Hooks & Titles
+- Publishing Checklist
+- Executive Summary
+- Responsive Dark UI
+
+## Technologies Used
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+
+## Learning Outcomes
+- Designed an AI-inspired content review workflow
+- Built a modern dashboard UI
+- Improved responsive design skills
+- Organized structured AI feedback visually
+- Practiced creating reusable frontend components
+
+## Repository Structure
+```
+Day47/
+│── index.html
+│── day47.md
+│── screenshots/
+```
+
+## Status
+Completed
