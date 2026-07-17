@@ -1,0 +1,33 @@
+# Day 46 – Autonomous Agent Studio
+
+## Overview
+Built an interactive Autonomous Agent Studio that demonstrates how multiple AI agents collaborate to complete a workflow through an orchestration loop.
+
+## Features
+- Multi-agent orchestration pipeline
+- Planner, Executor, Evaluator, Critic, Improver, Memory Manager, and Final Reviewer
+- Interactive workflow visualization
+- Execution statistics dashboard
+- Activity logs
+- Memory management
+- Score progression tracking
+- Iteration history
+- Responsive dark UI
+- Offline HTML application
+
+## Technologies Used
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+## Key Learnings
+- Learned how autonomous AI agents coordinate in iterative workflows.
+- Explored orchestration loops and stopping conditions.
+- Understood the role of planning, evaluation, feedback, and memory in agent-based systems.
+- Built an interactive dashboard for monitoring agent execution.
+
+## Files Included
+- `index.html`
+- `day46.md`
+- Screenshots
+- Execution logs
