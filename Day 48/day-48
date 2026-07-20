@@ -1,0 +1,37 @@
+# Day 48 – Compare & Decide Builder
+
+## Overview
+Built a premium single-page **Compare & Decide Builder** that helps users compare multiple options using customizable decision criteria and dynamic ranking.
+
+## Features
+- Compare multiple options
+- Adjustable criteria weights
+- Live ranking updates
+- Interactive comparison dashboard
+- Decision score visualization
+- Sources & References panel
+- "How this was researched" section
+- Responsive dark mode UI
+
+## Technologies Used
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+
+## Learning Outcomes
+- Learned how weighted decision matrices work
+- Built a real-time comparison engine using JavaScript
+- Improved responsive dashboard design
+- Organized research sources into a structured interface
+- Enhanced interactive UI with dynamic updates
+
+## Project Structure
+```
+Day48/
+│── index.html
+│── day48.md
+│── screenshots/
+```
+
+## Status
+Completed
