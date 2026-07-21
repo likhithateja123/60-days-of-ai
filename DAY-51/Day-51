@@ -1,0 +1,53 @@
+# Day 51 – Product Discovery & Sprint Planning
+
+## Overview
+Day 51 focused on planning the capstone project before development begins. The session covered product discovery, idea validation, scope refinement, sprint planning, and project documentation to establish a strong foundation for the next nine days.
+
+## Project Selected
+**PaperLens – AI-Powered Research Paper Analysis Platform**
+
+PaperLens is an AI-powered web application that helps researchers and students analyze multiple research papers efficiently. The platform generates structured summaries, compares methodologies and findings, detects potential research gaps, and assists in drafting literature survey content.
+
+##  Objectives
+- Discover and validate the project idea.
+- Finalize the MVP scope.
+- Define Day-10 success criteria.
+- Prevent scope creep.
+- Create a structured implementation roadmap.
+
+##  Deliverables
+- Product Requirements Document (PRD)
+- Implementation Blueprint (Days 2–10)
+- Project Pitch Deck
+
+## Final MVP Features
+- Upload 2–5 research papers
+- AI-generated structured summaries
+- Multi-paper comparison table
+- Research gap detection
+- Literature survey draft generation
+- Responsive deployed web application
+
+##  Out of Scope
+- User authentication
+- Chat with papers
+- Citation graph visualization
+- Word/LaTeX export
+- Multi-user collaboration
+
+##  Key Learnings
+- Product discovery is essential before implementation.
+- Defining a clear MVP reduces development risk.
+- Sprint planning improves execution efficiency.
+- Proper documentation simplifies future development.
+- Scope management is critical for completing projects on time.
+
+##  Repository Contents
+- PRD
+- Implementation Blueprint
+- Project Pitch Deck
+- Screenshots
+- Day51.md
+
+## Outcome
+A complete product plan, implementation roadmap, and project documentation were prepared, creating a solid foundation for developing PaperLens over the remaining capstone days.
