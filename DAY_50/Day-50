@@ -1,0 +1,77 @@
+# Day 50 – Defend Your Experience
+
+##  Overview
+For Day 50 of the **#60DayClaudeChallenge**, I built an interactive **Defend Your Experience** dashboard using HTML, CSS, and JavaScript.
+
+The application simulates realistic interview scenarios by challenging users to confidently defend the claims made in their resume, portfolio, projects, or professional experience. It provides an adaptive interview workflow, tracks progress, and generates a structured Defense Report to help users identify strengths and areas for improvement.
+
+---
+
+##  Features
+
+- Interactive interview dashboard
+- Resume and portfolio upload interface
+- Adaptive follow-up questioning
+- Experience defense workflow
+- Confidence progress tracking
+- AI-inspired Defense Report
+- Session history
+- Local Storage support
+- Export functionality
+- Responsive dark-mode UI
+
+---
+
+## Tech Stack
+
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+
+---
+
+##  Project Structure
+
+```
+Day50/
+│── index.html
+│── screenshots/
+│── defense-report/
+└── day50.md
+```
+
+---
+
+## What I Learned
+
+- Designing interview preparation workflows
+- Building interactive dashboard interfaces
+- Structuring adaptive user experiences
+- Managing application state with Local Storage
+- Creating reusable frontend components
+- Improving responsive UI/UX design
+
+---
+
+##  Outcome
+
+Successfully developed a premium single-page dashboard that enables users to practice defending their professional experience through interactive interview simulations, progress tracking, and comprehensive defense reports.
+
+---
+
+##  Demo
+
+This project includes:
+
+- Dashboard screenshots
+- Generated HTML application
+- Defense Report
+- Key learnings documentation
+
+---
+
+##  Acknowledgements
+
+Special thanks to **Anthropic**, **ABTalksOnAI**, and **Anil Bajpai** for designing the **#60DayClaudeChallenge**, which provided an excellent opportunity to explore practical AI-assisted application development while strengthening frontend development skills.
+
+---
