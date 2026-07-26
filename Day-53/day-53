@@ -1,0 +1,62 @@
+# Day 53 – PaperLens Backend Foundation
+
+## ✅ Completed
+
+- Set up FastAPI backend
+- Configured project structure
+- Created SQLite database using SQLAlchemy
+- Implemented database connection
+- Created `Paper` model
+- Added API routing with FastAPI
+- Verified backend using Swagger UI
+- Implemented health check endpoint
+- Implemented root endpoint
+- Created `GET /papers` API
+- Created `POST /papers/upload` API
+- Enabled file upload using `python-multipart`
+- Saved uploaded files to `storage/uploads`
+
+##  Project Structure
+
+```
+backend/
+│── app/
+│   ├── db/
+│   ├── models/
+│   ├── routers/
+│   ├── schemas/
+│   ├── services/
+│   └── main.py
+│
+├── storage/
+│   └── uploads/
+│
+├── paperlens.db
+└── .env
+```
+
+##  APIs Implemented
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/` | Backend status |
+| GET | `/health` | Health check |
+| GET | `/papers/` | Test Paper API |
+| POST | `/papers/upload` | Upload a research paper |
+
+## 🛠 Technologies Used
+
+- FastAPI
+- Python
+- SQLite
+- SQLAlchemy
+- Uvicorn
+- PyPDF
+- python-multipart
+
+##  Next Goals
+
+- Extract text from uploaded PDFs
+- Store paper metadata in the database
+- Implement PDF processing service
+- Build AI-powered paper analysis
