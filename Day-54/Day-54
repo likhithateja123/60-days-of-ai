@@ -1,0 +1,42 @@
+# 📄 PaperLens
+
+## AI-Powered Research Paper Assistant
+
+PaperLens is an AI-powered research paper assistant that helps users upload research papers and get meaningful insights from academic documents.
+
+The project focuses on simplifying research paper understanding by combining a modern frontend interface with a backend processing system.
+
+---
+
+##  Features
+
+-  Upload Research Papers (PDF)
+- Process academic documents
+- AI-powered paper analysis (Integration in progress)
+- Extract useful insights from papers
+- Fast and simple user interface
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- Vite
+- JavaScript
+- CSS
+
+### Backend
+- FastAPI
+- Python
+- Uvicorn
+
+### Database
+- SQLite
+
+### AI Integration
+- AI API integration (planned)
+
+---
+
+##  Project Structure
