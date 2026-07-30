@@ -1,0 +1,107 @@
+# 📄 PaperLens - AI-Powered Research Paper Assistant
+
+##  Day 56 Task Completion
+
+PaperLens is an AI-powered research paper assistant that helps users upload research papers and generate easy-to-understand summaries.
+
+## Features Completed
+
+* ✅ Upload research paper PDF files
+* ✅ Extract text from uploaded PDFs
+* ✅ Process research paper content
+* ✅ Generate structured summaries
+* ✅ Display summary results in frontend
+* ✅ Integrated React frontend with FastAPI backend
+
+##  Tech Stack
+
+### Frontend
+
+* React.js
+* Vite
+* JavaScript
+* CSS
+
+### Backend
+
+* FastAPI
+* Python
+* Uvicorn
+
+### AI Integration
+
+* Google Gemini API
+
+### Database & Storage
+
+* SQLite
+* Local file storage
+
+##  Project Structure
+
+```
+PaperLens/
+│
+├── frontend/
+│   ├── src/
+│   └── package.json
+│
+├── backend/
+│   ├── app/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   └── main.py
+│   └── storage/
+│
+└── README.md
+```
+
+##  How to Run
+
+### Backend
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+Backend runs at:
+
+```
+http://127.0.0.1:8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend runs at:
+
+```
+http://localhost:5173
+```
+
+##  Learning Outcomes
+
+* Built a full-stack AI application
+* Connected React frontend with FastAPI backend
+* Implemented PDF processing workflow
+* Integrated AI-based summarization
+* Learned API communication and debugging
+
+##  Future Improvements
+
+* Add user authentication
+* Store previous uploaded papers
+* Improve UI/UX
+* Add advanced AI chat with research papers
+* Add summary download option
+
+##  Project Status
+
+Day 56 Task Completed Successfully ✅
+
+PaperLens is an ongoing AI research assistant project.
