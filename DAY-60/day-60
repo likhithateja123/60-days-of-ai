@@ -1,0 +1,227 @@
+# 📄 PaperLens – AI-Powered Research Paper Assistant
+
+An AI-powered web application that helps researchers, students, and professionals quickly understand research papers by generating concise, structured summaries from uploaded PDF documents.
+
+🔗 **Live Demo:** https://paperlens-sand.vercel.app
+
+📂 **Repository:** https://github.com/likhithateja123/paperlens
+
+Built as the final capstone project of the **AB Talks 60-Day Claude AI Challenge**, demonstrating the complete Software Development Lifecycle (SDLC) from planning and development to deployment.
+
+---
+
+# ✨ Features
+
+- 📄 Upload research papers in PDF format
+- 🤖 AI-powered summary generation using Groq LLM
+- 📑 Extract text from PDFs using PyPDF
+- 📝 Display AI summaries with Markdown support
+- 📋 Copy summaries with one click
+- 📥 Download summaries as a text file
+- ⚡ Responsive React frontend
+- 🌐 Fully deployed using Vercel & Render
+
+---
+
+# 🛠 Tech Stack
+
+| Layer | Technology |
+|--------|------------|
+| Frontend | React, Vite, React Markdown |
+| Backend | FastAPI, Python |
+| AI | Groq API (Llama Model) |
+| PDF Processing | PyPDF |
+| Deployment | Vercel, Render |
+| Version Control | Git & GitHub |
+
+---
+
+# 🏗 Architecture
+
+```
+User Uploads PDF
+        │
+        ▼
+React Frontend
+        │
+        ▼
+FastAPI Backend
+        │
+        ▼
+Extract PDF Text
+        │
+        ▼
+Groq AI
+        │
+        ▼
+Generate AI Summary
+        │
+        ▼
+Return Response
+        │
+        ▼
+Display / Copy / Download
+```
+
+---
+
+# 📂 Project Structure
+
+```
+paperlens/
+
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   ├── app/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── main.py
+│   ├── requirements.txt
+│   └── .env
+│
+└── README.md
+```
+
+---
+
+# 🚀 Local Development Setup
+
+## Clone Repository
+
+```bash
+git clone https://github.com/likhithateja123/paperlens.git
+
+cd paperlens
+```
+
+## Backend Setup
+
+```bash
+cd backend
+
+python -m venv backend-env
+
+backend-env\Scripts\activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+Backend runs on:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+# 🔑 Environment Variables
+
+Create a `.env` file inside the backend folder.
+
+```env
+GROQ_API_KEY=YOUR_GROQ_API_KEY
+```
+
+---
+
+# 📸 Screenshots
+
+### 🏠 Home Page
+
+(Add Screenshot)
+
+### 📄 Upload PDF
+
+(Add Screenshot)
+
+### 🤖 AI Summary
+
+(Add Screenshot)
+
+---
+
+# ⚠️ Known Limitations
+
+- Supports PDF files only
+- AI summary quality depends on extracted text
+- Large PDFs may take longer on Render's free tier
+- Requires a valid Groq API Key
+
+---
+
+# 🛣 Future Enhancements
+
+- Chat with PDF
+- Multiple PDF Upload
+- Summary History
+- User Authentication
+- Export Summary as PDF
+- Dark Mode
+- Mobile Optimization
+
+---
+
+# 📚 What I Learned
+
+- React + FastAPI Integration
+- AI API Integration with Groq
+- PDF Processing using Python
+- REST API Development
+- Production Deployment
+- Git & GitHub Workflow
+- CORS Configuration
+- Debugging Production Issues
+
+---
+
+# 🙏 Acknowledgements
+
+This project was built as the final capstone project for the **AB Talks 60-Day Claude AI Challenge**.
+
+Special thanks to **Anil Bajpai**, **AB Talks**, and **Anthropic Claude** for providing an incredible learning experience focused on building real-world AI applications.
+
+---
+
+# 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+# 👨‍💻 Author
+
+**Likhitha Tampa**
+
+🔗 GitHub: https://github.com/likhithateja123
+
+💼 LinkedIn: (Add your LinkedIn Profile)
+
+---
+
+⭐ If you found this project useful, please consider giving it a Star!
