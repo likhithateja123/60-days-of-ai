@@ -1,0 +1,36 @@
+## Day 57 – UX Refinement
+
+PaperLens has been enhanced with several usability improvements to provide a smoother experience for users.
+
+###  New Features
+
+-  Loading indicator during AI summary generation
+-  Prevention of duplicate requests
+-  Copy AI-generated summary with one click
+-  Download summary as a `.txt` file
+-  Improved error handling for failed uploads
+-  Better overall user experience
+
+### Current Features
+
+- Upload research papers (PDF)
+- AI-powered research paper summarization
+- FastAPI backend
+- React frontend
+- Copy summary
+- Download summary
+- Responsive and clean interface
+
+### Tech Stack
+
+- React
+- FastAPI
+- Python
+- Groq API
+- PyPDF
+- HTML/CSS
+- JavaScript
+
+###  Current Status
+
+**PaperLens MVP is fully functional and UX refinement has been completed.**
