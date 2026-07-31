@@ -1,0 +1,73 @@
+# 🚀 Day 59 - PaperLens Deployment
+
+## 📄 Project
+PaperLens – AI-Powered Research Paper Assistant
+
+Today I successfully deployed the complete application.
+
+## Deployment
+
+### Frontend
+- Vercel
+
+### Backend
+- Render
+
+### Version Control
+- Git
+- GitHub
+
+## Issues Faced
+
+- Backend deployment configuration
+- Missing requirements.txt
+- Incorrect build/start commands
+- Environment variables
+- CORS policy issue
+- API URL mismatch
+- Production deployment debugging
+
+## Fixes
+
+- Added requirements.txt
+- Configured Render service
+- Configured Vercel deployment
+- Added environment variables
+- Updated frontend API URL
+- Fixed CORS configuration
+- Connected frontend and backend successfully
+
+## Final Result
+
+✅ Frontend Live
+
+✅ Backend Live
+
+✅ PDF Upload Working
+
+✅ AI Summary Generation Working
+
+## Tech Stack
+
+- React
+- FastAPI
+- Groq LLM
+- PyPDF
+- Git
+- GitHub
+- Render
+- Vercel
+
+## Learning Outcomes
+
+- Full-stack deployment
+- Production debugging
+- Git workflow
+- Hosting FastAPI on Render
+- Hosting React on Vercel
+- CORS configuration
+- Environment variable management
+
+## Status
+
+🎉 Successfully deployed the PaperLens application.
