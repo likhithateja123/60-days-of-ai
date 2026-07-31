@@ -1,0 +1,47 @@
+# 📘 Day 58 - PaperLens Development
+
+## 📄 Project
+PaperLens – AI-Powered Research Paper Assistant
+
+##  What I Built
+
+Today I developed the core functionality of PaperLens.
+
+### Features Implemented
+
+- PDF Upload
+- Extract text from PDF using PyPDF
+- AI Summary generation using Groq LLM
+- FastAPI backend APIs
+- React frontend integration
+- Display AI-generated summary
+- Copy Summary
+- Download Summary
+
+## 🛠 Tech Stack
+
+### Frontend
+- React
+- Vite
+- React Markdown
+- CSS
+
+### Backend
+- FastAPI
+- Python
+- Groq API
+- PyPDF
+- Python Dotenv
+
+## Learning Outcomes
+
+- Building REST APIs using FastAPI
+- Integrating React with FastAPI
+- Working with FormData for file uploads
+- Parsing PDF files
+- Calling LLM APIs
+- Displaying Markdown responses
+
+## Next Step
+
+Deploy the complete application using Render and Vercel.
